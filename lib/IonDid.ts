@@ -15,7 +15,7 @@ import IonKeyInternal from './IonKeyInternal';
 export default class IonDid {
   /**
    * Creates a long-form DID.
-   * @param otherPublicKeys Public keys to be included in the resolved DID Document.
+   * @param didDocumentPublicKeys Public keys to be included in the resolved DID Document.
    * @param serviceEndpoints  Service endpoints to be included in the resolved DID Document.
    */
   public static createLongFormDid (
