@@ -9,6 +9,7 @@
   "dependencies": {
     "base64url": "3.0.1",
     "canonicalize": "1.0.1",
+    "jose": "2.0.2",
     "multihashes": "0.4.14"
   },
   "devDependencies": {
@@ -46,9 +47,8 @@
       "lib/**"
     ],
     "exclude": [
-      "lib/bitcoin/versions/[0-9]**/**",
-      "lib/core/versions/[0-9]**/**",
-      "lib/core/versions/**/VersionMetadata.ts",
+      "**/index.d.ts",
+      "**/index.ts",
       "lib/**/**ErrorCode.ts"
     ],
     "reporter": [

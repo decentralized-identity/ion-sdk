@@ -1,8 +1,10 @@
 // NOTE: Aliases to classes and interfaces are used for external consumption.
 
 // Core service exports.
-import SidetreeDid from './SidetreeDid';
+import IonDid from './IonDid';
+import IonKey from './IonKey';
 
 export {
-  SidetreeDid
+  IonDid,
+  IonKey
 };

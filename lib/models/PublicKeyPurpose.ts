@@ -1,5 +1,5 @@
 /**
- * Sidetree public key purpose.
+ * Public key purpose.
  */
 enum PublicKeyPurpose {
   Auth = 'auth',
