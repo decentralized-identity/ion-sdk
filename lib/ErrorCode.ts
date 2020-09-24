@@ -16,8 +16,6 @@ export default {
   IonKeyIdNotUsingBase64UrlCharacterSet: 'IonKeyIdNotUsingBase64UrlCharacterSet',
   IonKeyIdTooLong: 'IonKeyIdTooLong',
   IonKeyPurposeDuplicated: 'IonKeyPurposeDuplicated',
-  IonKeyPurposeInvalid: 'IonKeyPurposeInvalid',
-  IonKeyPurposeNotAnArray: 'IonKeyPurposeNotAnArray',
   IonKeyPurposeNotDefined: 'IonKeyPurposeNotDefined',
   MultihashUnsupportedHashAlgorithm: 'MultihashUnsupportedHashAlgorithm'
 };

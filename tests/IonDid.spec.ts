@@ -128,6 +128,17 @@ describe('IonDid', async () => {
       );
     });
 
+    it('should throw error if given DID Document key ID exceeds maximum length.', async () => {
+      const [anyOperationPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair('anyId', [PublicKeyPurpose.General]);
+      anyDidDocumentKey.id = 'superDuperLongDidDocumentKeyIdentifierThatExceedsMaximumLength'; // Overwrite with super long string.
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyOperationPublicKey, anyOperationPublicKey, [anyDidDocumentKey], []),
+        ErrorCode.IonKeyIdTooLong
+      );
+    });
+
     it('should throw error if given service endpoint type exceeds maximum length.', async () => {
       const [anyOperationPublicKey] = await IonKey.generateEs256kOperationKeyPair();
       const serviceEndpoint = {

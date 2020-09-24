@@ -22,7 +22,7 @@ export default class IonKey {
       id,
       type: 'EcdsaSecp256k1VerificationKey2019',
       jwk: publicKey,
-      purpose: purposes || Object.values(PublicKeyPurpose)
+      purpose: purposes
     };
 
     return [publicKeyModel, privateKey];
