@@ -33,7 +33,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "[[ -n $HUSKY_BYPASS ]] || npm run lint"
+      "pre-commit": "npm run lint"
     }
   },
   "nyc": {
