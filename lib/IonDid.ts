@@ -1,13 +1,13 @@
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
+import IonError from './IonError';
+import IonKeyInternal from './IonKeyInternal';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
 import PublicKeyModel from './models/PublicKeyModel';
 import SdkConfig from './SdkConfig';
 import ServiceEndpointModel from './models/ServiceEndpointModel';
-import IonError from './IonError';
-import IonKeyInternal from './IonKeyInternal';
 
 /**
  * Class containing reusable DID related operations.
@@ -24,10 +24,12 @@ export default class IonDid {
     didDocumentPublicKeys: PublicKeyModel[],
     serviceEndpoints: ServiceEndpointModel[]): string {
 
+    // Validate recovery and update public keys.
+    IonDid.validateEs256kOperationPublicKey(recoveryPublicKey);
+    IonDid.validateEs256kOperationPublicKey(updatePublicKey);
+
     // Validate all given DID Document keys.
-    for (const key of didDocumentPublicKeys) {
-      IonDid.validateDidDocumentPublicKey(key);
-    }
+    IonDid.validateDidDocumentPublicKeys(didDocumentPublicKeys);
 
     // Validate all given service endpoints.
     for (const serviceEndpoint of serviceEndpoints) {
@@ -50,6 +52,8 @@ export default class IonDid {
       update_commitment: Multihash.canonicalizeThenDoubleHashThenEncode(updatePublicKey, hashAlgorithmInMultihashCode),
       patches
     };
+
+    IonDid.validateDeltaSize(delta);
 
     const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
 
@@ -81,12 +85,55 @@ export default class IonDid {
     return longFormDid;
   }
 
-  private static validateDidDocumentPublicKey (publicKey: PublicKeyModel) {
-    IonKeyInternal.validateId(publicKey.id);
-    IonKeyInternal.validatePurposes(publicKey.purpose);
+  private static validateEs256kOperationPublicKey (jwk: any) {
+    const allowedProperties = new Set(['kty', 'crv', 'x', 'y']);
+    for (let property in jwk) {
+      if (!allowedProperties.has(property)) {
+        throw new IonError(ErrorCode.IonDidEs256kJwkHasUnexpectedProperty, `SECP256K1 JWK key has unexpected property '${property}'.`);
+      }
+    }
+
+    if (jwk.crv !== 'secp256k1') {
+      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidCrv, `SECP256K1 JWK 'crv' property must be 'secp256k1' but got '${jwk.crv}.'`);
+    }
+
+    if (jwk.kty !== 'EC') {
+      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidKty, `SECP256K1 JWK 'kty' property must be 'EC' but got '${jwk.kty}.'`);
+    }
+
+    // TODO: Discuss if we need to have stricter check on x and y than just string type check.
+    if (typeof jwk.x !== 'string') {
+      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidTypeX, `SECP256K1 JWK 'x' property must be a string.`);
+    }
+
+    if (typeof jwk.y !== 'string') {
+      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidTypeY, `SECP256K1 JWK 'y' property must be a string.`);
+    }
+  }
+
+  private static validateDidDocumentPublicKeys (publicKeys: any[]) {
+    // Validate each public key.
+    const publicKeyIdSet: Set<string> = new Set();
+    for (let publicKey of publicKeys) {
+      if (typeof publicKey.jwk !== 'object' || Array.isArray(publicKey.jwk)) {
+        throw new IonError(ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'jwk' property is not a non-array object.`);
+      }
+
+      IonKeyInternal.validateId(publicKey.id);
+
+      // 'id' must be unique across all given keys.
+      if (publicKeyIdSet.has(publicKey.id)) {
+        throw new IonError(ErrorCode.IonDidDocumentPublicKeyIdDuplicated, `DID Document key with ID '${publicKey.id}' already exists.`);
+      }
+      publicKeyIdSet.add(publicKey.id);
+
+      IonKeyInternal.validatePurposes(publicKey.purpose);
+    }
   }
 
   private static validateServiceEndpoint (serviceEndpoint: ServiceEndpointModel) {
+    // TODO: Discuss requirements for 'id'.
+
     const maxTypeLength = 30;
     if (serviceEndpoint.type.length > maxTypeLength) {
       throw new IonError(
@@ -111,6 +158,14 @@ export default class IonDid {
       throw new IonError(
         ErrorCode.IonDidServiceEndpointNotValidUrl,
         `Service endpoint '${serviceEndpoint.endpoint}' is not a URL.`);
+    }
+  }
+
+  private static validateDeltaSize (delta: object) {
+    const deltaBuffer = JsonCanonicalizer.canonicalizeAsBuffer(delta);
+    if (deltaBuffer.length > SdkConfig.maxCanonicalizedDeltaSizeInBytes) {
+      const errorMessage = `Delta of ${deltaBuffer.length} bytes exceeded limit of ${SdkConfig.maxCanonicalizedDeltaSizeInBytes} bytes.`;
+      throw new IonError(ErrorCode.IonDidDeltaExceedsMaximumSize, errorMessage);
     }
   }
 

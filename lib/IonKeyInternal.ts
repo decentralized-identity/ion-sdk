@@ -25,9 +25,30 @@ export default class IonKeyInternal {
   /**
    * Validates the given key purposes.
    */
-  public static validatePurposes (purposes: PublicKeyPurpose[]) {
+  public static validatePurposes (purposes: any) {
+    if (!Array.isArray(purposes)) {
+      throw new IonError(ErrorCode.IonKeyPurposeNotAnArray, `ION key 'purpose' not an array.`);
+    }
+
     if (purposes.length === 0) {
-      throw new IonError(ErrorCode.IonKeyPurposeNotDefined, `No key purpose is defined.`);
+      throw new IonError(ErrorCode.IonKeyPurposeNotDefined, `ION key 'purpose' is not defined.`);
+    }
+
+    const validPurposes = new Set(Object.values(PublicKeyPurpose));
+
+    // Validate each purpose.
+    const processedPurposes: Set<PublicKeyPurpose> = new Set();
+    for (const purpose of purposes) {
+      // Must be a valid purpose.
+      if (!validPurposes.has(purpose)) {
+        throw new IonError(ErrorCode.IonKeyPurposeInvalid, `ION key purpose '${purpose}' is not valid.`);
+      }
+
+      // All purposes must be unique.
+      if (processedPurposes.has(purpose)) {
+        throw new IonError(ErrorCode.IonKeyPurposeDuplicated, `ION key purpose '${purpose}' already specified.`);
+      }
+      processedPurposes.add(purpose);
     }
   }
 }

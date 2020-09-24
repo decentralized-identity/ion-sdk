@@ -1,21 +1,189 @@
 import { IonDid, IonKey } from '../lib/index';
 import PublicKeyPurpose from '../lib/models/PublicKeyPurpose';
+import SdkConfig from '../lib/SdkConfig';
+import JasmineIonErrorValidator from './JasmineIonErrorValidator';
+import ErrorCode from '../lib/ErrorCode';
 
 describe('IonDid', async () => {
+  afterEach(() => {
+    SdkConfig.network = undefined;
+  });
+
   describe('createLongFormDid()', async () => {
     it('should create a long-form DID successfully.', async () => {
-      const [recoveryPublicKey] = await IonKey.generateEs256kOperationKeyPair();
-      const [updatePublicKey] = await IonKey.generateEs256kOperationKeyPair();
-      const [signingPublicKey] = await IonKey.generateEs256kDidDocumentKeyPair('anySigningKeyId', [PublicKeyPurpose.Auth]);
+      const recoveryPublicKey = {
+        kty: 'EC', crv: 'secp256k1', x: 'dQs_8Fv0pQOT6rPKIyDeixwV8Wp7wc5WKl-kbxXuY_4', y: '7CWpMsKGICvhYw2ZtSSxQ2GDeDstLG7c9LI2b_pLQqo'
+      };
+
+      const updatePublicKey = {
+        kty: 'EC', crv: 'secp256k1', x: 'Ftbfxen6Lhr5RbptB0XTY8n3KCC1BG2VbOL0RKroz2c', y: 'BG09yQDtZQv4dS-W9pwAi7fF--UbkdpkYckXzOoG3QU'
+      };
+
+      const didDocumentPublicKey = {
+        id: 'anySigningKeyId',
+        type: 'EcdsaSecp256k1VerificationKey2019',
+        jwk: { kty: 'EC', crv: 'secp256k1', x: 'aGsMG0u9FX6I54peIKqYokjnQPGhLUYTOQNc3nOvE1Q', y: 'fjilqheWQYkHNE70shMRyMDrZp8EGCfE_aL3h-yJmQA' },
+        purpose: [PublicKeyPurpose.Auth, PublicKeyPurpose.General]
+      };
+
       const serviceEndpoint = {
         id: 'anyServiceEndpointId',
         type: 'anyType',
         endpoint: 'http://any.endpoint'
       };
-      const longFormDid = IonDid.createLongFormDid(recoveryPublicKey, updatePublicKey, [signingPublicKey], [serviceEndpoint]);
-      const didParts = longFormDid.split(':');
-      expect(didParts[0]).toEqual('did');
-      expect(didParts[1]).toEqual('ion');
+
+      const longFormDid = IonDid.createLongFormDid(recoveryPublicKey, updatePublicKey, [didDocumentPublicKey], [serviceEndpoint]);
+
+      // tslint:disable-next-line: max-line-length
+      const expectedMethodSpecificId = 'did:ion:EiC5-1uBg-YC2DvQRbI6eihDvk7DOYaQ08OB0I3jCe9Ydg:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljX2tleXMiOlt7ImlkIjoiYW55U2lnbmluZ0tleUlkIiwiandrIjp7ImNydiI6InNlY3AyNTZrMSIsImt0eSI6IkVDIiwieCI6ImFHc01HMHU5Rlg2STU0cGVJS3FZb2tqblFQR2hMVVlUT1FOYzNuT3ZFMVEiLCJ5IjoiZmppbHFoZVdRWWtITkU3MHNoTVJ5TURyWnA4RUdDZkVfYUwzaC15Sm1RQSJ9LCJwdXJwb3NlIjpbImF1dGgiLCJnZW5lcmFsIl0sInR5cGUiOiJFY2RzYVNlY3AyNTZrMVZlcmlmaWNhdGlvbktleTIwMTkifV0sInNlcnZpY2VfZW5kcG9pbnRzIjpbeyJlbmRwb2ludCI6Imh0dHA6Ly9hbnkuZW5kcG9pbnQiLCJpZCI6ImFueVNlcnZpY2VFbmRwb2ludElkIiwidHlwZSI6ImFueVR5cGUifV19fV0sInVwZGF0ZV9jb21taXRtZW50IjoiRWlERkM2RE9Ed0JNeG5kX19oMTFSeDRObjFlOHpubFlPUjJhLVBqeUNva2NGZyJ9LCJzdWZmaXhfZGF0YSI6eyJkZWx0YV9oYXNoIjoiRWlBbExNMC1qem1DWi1FcElVZ0laQ2piWk5yMDFfVVBMbnd5MHdfT3I0Rks0dyIsInJlY292ZXJ5X2NvbW1pdG1lbnQiOiJFaUJDNGhTMVVHeVNnTmYzbWFMdnNKRUpxX05aQUlKa0pndTNKMTJMeGNESE93In19';
+      expect(longFormDid).toEqual(expectedMethodSpecificId);
+    });
+
+    it('should not include network segment in DID if SDK network is set to mainnet.', async () => {
+      SdkConfig.network = 'mainnet';
+      const [anyPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const longFormDid = IonDid.createLongFormDid(anyPublicKey, anyPublicKey, [], []);
+      expect(longFormDid.indexOf('mainnet')).toBeLessThan(0);
+    });
+
+    it('should include network segment in DID if SDK network is set to a string that is not mainnet.', async () => {
+      SdkConfig.network = 'testnet';
+      const [anyPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const longFormDid = IonDid.createLongFormDid(anyPublicKey, anyPublicKey, [], []);
+
+      const didSegments = longFormDid.split(':');
+      expect(didSegments.length).toEqual(5);
+      expect(didSegments[2]).toEqual('testnet');
+    });
+
+    it('should throw error if given operation key contains unexpected property.', async () => {
+      const [anyPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      anyPublicKey.d = 'notAllowedPropertyInPublicKey'; // 'd' is only allowed in private key.
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyPublicKey, anyPublicKey, [], []),
+        ErrorCode.IonDidEs256kJwkHasUnexpectedProperty
+      );
+    });
+
+    it('should throw error if given operation key contains incorrect crv value.', async () => {
+      const [anyPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      anyPublicKey.crv = 'wrongValue';
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyPublicKey, anyPublicKey, [], []),
+        ErrorCode.IonDidEs256kJwkMissingOrInvalidCrv
+      );
+    });
+
+    it('should throw error if given operation key contains incorrect kty value.', async () => {
+      const [anyPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      anyPublicKey.kty = 'wrongValue';
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyPublicKey, anyPublicKey, [], []),
+        ErrorCode.IonDidEs256kJwkMissingOrInvalidKty
+      );
+    });
+
+    it('should throw error if given operation key contains invalid x type.', async () => {
+      const [anyPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      (anyPublicKey as any).x = 123;
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyPublicKey, anyPublicKey, [], []),
+        ErrorCode.IonDidEs256kJwkMissingOrInvalidTypeX
+      );
+    });
+
+    it('should throw error if given operation key contains invalid y type.', async () => {
+      const [anyPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      (anyPublicKey as any).y = 123;
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyPublicKey, anyPublicKey, [], []),
+        ErrorCode.IonDidEs256kJwkMissingOrInvalidTypeY
+      );
+    });
+
+    it('should throw error if given DID Document JWK is an array.', async () => {
+      const [anyOperationPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair('anyId', [PublicKeyPurpose.General]);
+      anyDidDocumentKey.jwk = ['invalid object type'];
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyOperationPublicKey, anyOperationPublicKey, [anyDidDocumentKey], []),
+        ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType
+      );
+    });
+
+    it('should throw error if given DID Document keys with the same ID.', async () => {
+      const [anyOperationPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [anyDidDocumentKey1] = await IonKey.generateEs256kDidDocumentKeyPair('anyId', [PublicKeyPurpose.General]);
+      const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair('anyId', [PublicKeyPurpose.Auth]); // Intentionally duplicate the same ID.
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyOperationPublicKey, anyOperationPublicKey, [anyDidDocumentKey1, anyDidDocumentKey2], []),
+        ErrorCode.IonDidDocumentPublicKeyIdDuplicated
+      );
+    });
+
+    it('should throw error if given service endpoint type exceeds maximum length.', async () => {
+      const [anyOperationPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const serviceEndpoint = {
+        id: 'anyId',
+        type: 'superLongServiceEndpointTypeValueThatExceedsMaximumAllowedLength',
+        endpoint: 'http://any.endpoint'
+      };
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyOperationPublicKey, anyOperationPublicKey, [], [serviceEndpoint]),
+        ErrorCode.IonDidServiceEndpointTypeTooLong
+      );
+    });
+
+    it('should throw error if given service endpoint value exceeds maximum length.', async () => {
+      const [anyOperationPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const serviceEndpoint = {
+        id: 'anyId',
+        type: 'anyType',
+        endpoint: 'http://superLongServiceEndpointValueThatExceedsMaximumAllowedLength.theCodeIsExpectedToThrowErrorInThisCase'
+      };
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyOperationPublicKey, anyOperationPublicKey, [], [serviceEndpoint]),
+        ErrorCode.IonDidServiceEndpointTooLong
+      );
+    });
+
+    it('should throw error if given service endpoint value exceeds maximum length.', async () => {
+      const [anyOperationPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const serviceEndpoint = {
+        id: 'anyId',
+        type: 'anyType',
+        endpoint: 'notValidUrl'
+      };
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyOperationPublicKey, anyOperationPublicKey, [], [serviceEndpoint]),
+        ErrorCode.IonDidServiceEndpointNotValidUrl
+      );
+    });
+
+    it('should throw error if resulting delta property exceeds maximum size.', async () => {
+      const [anyOperationPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+
+      // Add many keys so that 'delta' property size exceeds max limit.
+      const [anyDidDocumentKey1] = await IonKey.generateEs256kDidDocumentKeyPair('anyId1', [PublicKeyPurpose.General]);
+      const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair('anyId2', [PublicKeyPurpose.General]);
+      const [anyDidDocumentKey3] = await IonKey.generateEs256kDidDocumentKeyPair('anyId3', [PublicKeyPurpose.General]);
+      const [anyDidDocumentKey4] = await IonKey.generateEs256kDidDocumentKeyPair('anyId4', [PublicKeyPurpose.General]);
+      const didDocumentKeys = [anyDidDocumentKey1, anyDidDocumentKey2, anyDidDocumentKey3, anyDidDocumentKey4];
+
+      JasmineIonErrorValidator.expectSidetreeErrorToBeThrown(
+        () => IonDid.createLongFormDid(anyOperationPublicKey, anyOperationPublicKey, didDocumentKeys, []),
+        ErrorCode.IonDidDeltaExceedsMaximumSize
+      );
     });
   });
 });

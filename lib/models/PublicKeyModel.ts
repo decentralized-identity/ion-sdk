@@ -6,6 +6,6 @@ import PublicKeyPurpose from './PublicKeyPurpose';
 export default interface PublicKeyModel {
   id: string;
   type: string;
-  jwk: any;
+  jwk: object;
   purpose: PublicKeyPurpose[];
 }
