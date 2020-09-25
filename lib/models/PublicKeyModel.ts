@@ -1,7 +1,7 @@
 import PublicKeyPurpose from './PublicKeyPurpose';
 
 /**
- * Data model representing a public key in the 'publicKey' array in patches.
+ * Data model representing a public key in the DID Document.
  */
 export default interface PublicKeyModel {
   id: string;

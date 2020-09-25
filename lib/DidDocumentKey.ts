@@ -4,8 +4,7 @@ import IonError from './IonError';
 import PublicKeyPurpose from './models/PublicKeyPurpose';
 
 /**
- * Internal class containing operations related to ION keys.
- * Not exposed as part of the external facing SDK.
+ * Class containing operations related to keys specified within a DID Document.
  */
 export default class DidDocumentKey {
   /**
@@ -18,7 +17,7 @@ export default class DidDocumentKey {
     }
 
     if (!Encoder.isBase64UrlString(id)) {
-      throw new IonError(ErrorCode.IonKeyIdNotUsingBase64UrlCharacterSet, `Key ID '${id}' is a Base64URL string.`);
+      throw new IonError(ErrorCode.IonKeyIdNotUsingBase64UrlCharacterSet, `Key ID '${id}' is not a Base64URL string.`);
     }
   }
 

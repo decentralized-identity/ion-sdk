@@ -1,6 +1,5 @@
 /**
- * Defines the data structure of an element of `service` array within the DID Document.
- * NOTE: The class intentionally contains "Endpoint" to disambiguate from overloaded term "Service".
+ * Defines the data structure of a service endpoint.
  */
 export default interface ServiceEndpointModel {
   id: string;

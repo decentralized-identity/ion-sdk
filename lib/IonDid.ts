@@ -10,7 +10,7 @@ import SdkConfig from './SdkConfig';
 import ServiceEndpointModel from './models/ServiceEndpointModel';
 
 /**
- * Class containing reusable DID related operations.
+ * Class containing DID related operations.
  */
 export default class IonDid {
   /**
@@ -116,11 +116,11 @@ export default class IonDid {
     }
   }
 
-  private static validateDidDocumentPublicKeys (publicKeys: any[]) {
+  private static validateDidDocumentPublicKeys (publicKeys: PublicKeyModel[]) {
     // Validate each public key.
     const publicKeyIdSet: Set<string> = new Set();
     for (let publicKey of publicKeys) {
-      if (typeof publicKey.jwk !== 'object' || Array.isArray(publicKey.jwk)) {
+      if (Array.isArray(publicKey.jwk)) {
         throw new IonError(ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'jwk' property is not a non-array object.`);
       }
 
@@ -141,6 +141,10 @@ export default class IonDid {
     if (serviceEndpoint.id.length > maxIdLength) {
       const errorMessage = `Service endpoint id length ${serviceEndpoint.id.length} exceeds max allowed length of ${maxIdLength}.`;
       throw new IonError(ErrorCode.IonDidServiceEndpointIdTooLong, errorMessage);
+    }
+
+    if (!Encoder.isBase64UrlString(serviceEndpoint.id)) {
+      throw new IonError(ErrorCode.IonDidServiceEndpointIdNotInBase64UrlCharacterSet, `Service endpoint ID '${serviceEndpoint.id}' is not a Base64URL string.`);
     }
 
     const maxTypeLength = 30;

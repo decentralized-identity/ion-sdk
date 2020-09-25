@@ -1,5 +1,5 @@
 /**
- * Error codes used ONLY by this version of the protocol.
+ * ION SDK error codes.
  */
 export default {
   IonDidDeltaExceedsMaximumSize: 'IonDidDeltaExceedsMaximumSize',
@@ -10,6 +10,7 @@ export default {
   IonDidEs256kJwkMissingOrInvalidKty: 'IonDidEs256kJwkMissingOrInvalidKty',
   IonDidEs256kJwkHasIncorrectLengthOfX: 'IonDidEs256kJwkHasIncorrectLengthOfX',
   IonDidEs256kJwkHasIncorrectLengthOfY: 'IonDidEs256kJwkHasIncorrectLengthOfY',
+  IonDidServiceEndpointIdNotInBase64UrlCharacterSet: 'IonDidServiceEndpointIdNotInBase64UrlCharacterSet',
   IonDidServiceEndpointIdTooLong: 'IonDidServiceEndpointIdTooLong',
   IonDidServiceEndpointTypeTooLong: 'IonDidServiceEndpointTypeTooLong',
   IonDidServiceEndpointValueCannotBeAnArray: 'IonDidServiceEndpointValueCannotBeAnArray',

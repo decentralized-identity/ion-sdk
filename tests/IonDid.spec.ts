@@ -166,6 +166,22 @@ describe('IonDid', async () => {
       );
     });
 
+    it('should throw error if given service endpoint ID is not using Base64URL characters', async () => {
+      const [recoveryPublicKey] = await IonKey.generateEs256kOperationKeyPair();
+      const updatePublicKey = recoveryPublicKey;
+
+      const serviceEndpoints = [{
+        id: 'notAllBase64UrlChars!',
+        type: 'anyType',
+        endpoint: 'http://any.endpoint'
+      }];
+
+      JasmineIonErrorValidator.expectIonErrorToBeThrown(
+        () => IonDid.createLongFormDid({ recoveryPublicKey, updatePublicKey, didDocumentPublicKeys: [], serviceEndpoints }),
+        ErrorCode.IonDidServiceEndpointIdNotInBase64UrlCharacterSet
+      );
+    });
+
     it('should throw error if given service endpoint type exceeds maximum length.', async () => {
       const [recoveryPublicKey] = await IonKey.generateEs256kOperationKeyPair();
       const updatePublicKey = recoveryPublicKey;
