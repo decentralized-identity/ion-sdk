@@ -1,5 +1,5 @@
 import { JWK } from 'jose';
-import IonKeyInternal from './IonKeyInternal';
+import DidDocumentKey from './DidDocumentKey';
 import JwkEs256k from './models/JwkEs256k';
 import PublicKeyModel from './models/PublicKeyModel';
 import PublicKeyPurpose from './models/PublicKeyPurpose';
@@ -13,9 +13,12 @@ export default class IonKey {
    * Mainly used for testing.
    * @returns [publicKey, privateKey]
    */
-  public static async generateEs256kDidDocumentKeyPair (id: string, purposes: PublicKeyPurpose[]): Promise<[PublicKeyModel, JwkEs256k]> {
-    IonKeyInternal.validateId(id);
-    IonKeyInternal.validatePurposes(purposes);
+  public static async generateEs256kDidDocumentKeyPair (input: { id: string, purposes: PublicKeyPurpose[] }): Promise<[PublicKeyModel, JwkEs256k]> {
+    const id = input.id;
+    const purposes = input.purposes;
+
+    DidDocumentKey.validateId(id);
+    DidDocumentKey.validatePurposes(purposes);
 
     const [publicKey, privateKey] = await IonKey.generateEs256kKeyPair();
     const publicKeyModel = {

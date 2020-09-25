@@ -1,7 +1,7 @@
+import DidDocumentKey from './DidDocumentKey';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
-import IonKeyInternal from './IonKeyInternal';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
@@ -18,11 +18,16 @@ export default class IonDid {
    * @param didDocumentPublicKeys Public keys to be included in the resolved DID Document.
    * @param serviceEndpoints  Service endpoints to be included in the resolved DID Document.
    */
-  public static createLongFormDid (
-    recoveryPublicKey: JwkEs256k,
-    updatePublicKey: JwkEs256k,
-    didDocumentPublicKeys: PublicKeyModel[],
-    serviceEndpoints: ServiceEndpointModel[]): string {
+  public static createLongFormDid (input: {
+    recoveryPublicKey: JwkEs256k;
+    updatePublicKey: JwkEs256k;
+    didDocumentPublicKeys: PublicKeyModel[];
+    serviceEndpoints: ServiceEndpointModel[];
+  }): string {
+    const recoveryPublicKey = input.recoveryPublicKey;
+    const updatePublicKey = input.updatePublicKey;
+    const didDocumentPublicKeys = input.didDocumentPublicKeys;
+    const serviceEndpoints = input.serviceEndpoints;
 
     // Validate recovery and update public keys.
     IonDid.validateEs256kOperationPublicKey(recoveryPublicKey);
@@ -85,7 +90,7 @@ export default class IonDid {
     return longFormDid;
   }
 
-  private static validateEs256kOperationPublicKey (jwk: any) {
+  private static validateEs256kOperationPublicKey (jwk: JwkEs256k) {
     const allowedProperties = new Set(['kty', 'crv', 'x', 'y']);
     for (let property in jwk) {
       if (!allowedProperties.has(property)) {
@@ -101,13 +106,13 @@ export default class IonDid {
       throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidKty, `SECP256K1 JWK 'kty' property must be 'EC' but got '${jwk.kty}.'`);
     }
 
-    // TODO: Discuss if we need to have stricter check on x and y than just string type check.
-    if (typeof jwk.x !== 'string') {
-      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidTypeX, `SECP256K1 JWK 'x' property must be a string.`);
+    // `x` and `y` need 43 Base64URL encoded bytes to contain 256 bits.
+    if (jwk.x.length !== 43) {
+      throw new IonError(ErrorCode.IonDidEs256kJwkHasIncorrectLengthOfX, `SECP256K1 JWK 'x' property must be 43 bytes.`);
     }
 
-    if (typeof jwk.y !== 'string') {
-      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidTypeY, `SECP256K1 JWK 'y' property must be a string.`);
+    if (jwk.y.length !== 43) {
+      throw new IonError(ErrorCode.IonDidEs256kJwkHasIncorrectLengthOfY, `SECP256K1 JWK 'y' property must be 43 bytes.`);
     }
   }
 
@@ -119,7 +124,7 @@ export default class IonDid {
         throw new IonError(ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'jwk' property is not a non-array object.`);
       }
 
-      IonKeyInternal.validateId(publicKey.id);
+      DidDocumentKey.validateId(publicKey.id);
 
       // 'id' must be unique across all given keys.
       if (publicKeyIdSet.has(publicKey.id)) {
@@ -127,12 +132,18 @@ export default class IonDid {
       }
       publicKeyIdSet.add(publicKey.id);
 
-      IonKeyInternal.validatePurposes(publicKey.purpose);
+      DidDocumentKey.validatePurposes(publicKey.purpose);
     }
   }
 
   private static validateServiceEndpoint (serviceEndpoint: ServiceEndpointModel) {
-    // TODO: Discuss requirements for 'id'.
+    const maxIdLength = 50;
+    if (serviceEndpoint.id.length > maxIdLength) {
+      throw new IonError(
+        ErrorCode.IonDidServiceEndpointIdTooLong,
+        `Service endpoint id length ${serviceEndpoint.id.length} exceeds max allowed length of ${maxIdLength}.`
+      );
+    }
 
     const maxTypeLength = 30;
     if (serviceEndpoint.type.length > maxTypeLength) {

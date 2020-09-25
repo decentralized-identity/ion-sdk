@@ -1,4 +1,4 @@
-import SidetreeError from '../lib/IonError';
+import IonError from '../lib/IonError';
 
 /**
  * Encapsulates the helper functions for the tests.
@@ -6,18 +6,18 @@ import SidetreeError from '../lib/IonError';
 export default class JasmineIonErrorValidator {
 
   /**
-   * Fails the current spec if the execution of the function does not throw the expected SidetreeError.
+   * Fails the current spec if the execution of the function does not throw the expected IonError.
    *
    * @param functionToExecute The function to execute.
    * @param expectedErrorCode The expected error code.
    */
-  public static expectSidetreeErrorToBeThrown (functionToExecute: () => any, expectedErrorCode: string): void {
+  public static expectIonErrorToBeThrown (functionToExecute: () => any, expectedErrorCode: string): void {
     let validated: boolean = false;
 
     try {
       functionToExecute();
     } catch (e) {
-      if (e instanceof SidetreeError) {
+      if (e instanceof IonError) {
         expect(e.code).toEqual(expectedErrorCode);
         validated = true;
       }
@@ -29,18 +29,18 @@ export default class JasmineIonErrorValidator {
   }
 
   /**
-   * Fails the current spec if the execution of the function does not throw the expected SidetreeError.
+   * Fails the current spec if the execution of the function does not throw the expected IonError.
    *
    * @param functionToExecute The function to execute.
    * @param expectedErrorCode The expected error code.
    */
-  public static async expectSidetreeErrorToBeThrownAsync (functionToExecute: () => Promise<any>, expectedErrorCode: string): Promise<void> {
+  public static async expectIonErrorToBeThrownAsync (functionToExecute: () => Promise<any>, expectedErrorCode: string): Promise<void> {
     let validated: boolean = false;
 
     try {
       await functionToExecute();
     } catch (e) {
-      if (e instanceof SidetreeError) {
+      if (e instanceof IonError) {
         expect(e.code).toEqual(expectedErrorCode);
         validated = true;
       }

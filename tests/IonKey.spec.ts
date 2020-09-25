@@ -24,7 +24,7 @@ describe('IonKey', async () => {
   describe('generateEs256kDidDocumentKeyPair()', async () => {
     it('should create a long-form DID successfully.', async () => {
       const keyId = 'anyId';
-      const [didDocumentPublicKey, privateKey] = await IonKey.generateEs256kDidDocumentKeyPair(keyId, [PublicKeyPurpose.Auth]);
+      const [didDocumentPublicKey, privateKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: keyId, purposes: [PublicKeyPurpose.Auth] });
 
       expect(didDocumentPublicKey.id).toEqual(keyId);
       expect(didDocumentPublicKey.purpose).toEqual([PublicKeyPurpose.Auth]);
@@ -44,33 +44,33 @@ describe('IonKey', async () => {
     });
 
     it('should throw error if given DID Document key ID exceeds maximum length.', async () => {
-      const keyId = 'superDuperLongDidDocumentKeyIdentifierThatExceedsMaximumLength'; // Overwrite with super long string.
+      const id = 'superDuperLongDidDocumentKeyIdentifierThatExceedsMaximumLength'; // Overwrite with super long string.
 
-      await JasmineIonErrorValidator.expectSidetreeErrorToBeThrownAsync(
-        async () => IonKey.generateEs256kDidDocumentKeyPair(keyId, [PublicKeyPurpose.General]),
+      await JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
+        async () => IonKey.generateEs256kDidDocumentKeyPair({ id, purposes: [PublicKeyPurpose.General] }),
         ErrorCode.IonKeyIdTooLong
       );
     });
 
     it('should throw error if given DID Document key ID is not using base64URL character set. ', async () => {
-      const keyId = 'nonBase64urlString!';
+      const id = 'nonBase64urlString!';
 
-      await JasmineIonErrorValidator.expectSidetreeErrorToBeThrownAsync(
-        async () => IonKey.generateEs256kDidDocumentKeyPair(keyId, [PublicKeyPurpose.General]),
+      await JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
+        async () => IonKey.generateEs256kDidDocumentKeyPair({ id, purposes: [PublicKeyPurpose.General] }),
         ErrorCode.IonKeyIdNotUsingBase64UrlCharacterSet
       );
     });
 
     it('should throw error if given DID Document key does not have a purpose defined.', async () => {
-      await JasmineIonErrorValidator.expectSidetreeErrorToBeThrownAsync(
-        async () => IonKey.generateEs256kDidDocumentKeyPair('anyId', []),
+      await JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
+        async () => IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [] }),
         ErrorCode.IonKeyPurposeNotDefined
       );
     });
 
     it('should throw error if given DID Document key has duplicated purposes.', async () => {
-      await JasmineIonErrorValidator.expectSidetreeErrorToBeThrownAsync(
-        async () => IonKey.generateEs256kDidDocumentKeyPair('anyId', [PublicKeyPurpose.General, PublicKeyPurpose.General]),
+      await JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
+        async () => IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [PublicKeyPurpose.General, PublicKeyPurpose.General] }),
         ErrorCode.IonKeyPurposeDuplicated
       );
     });

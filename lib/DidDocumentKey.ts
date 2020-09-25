@@ -7,7 +7,7 @@ import PublicKeyPurpose from './models/PublicKeyPurpose';
  * Internal class containing operations related to ION keys.
  * Not exposed as part of the external facing SDK.
  */
-export default class IonKeyInternal {
+export default class DidDocumentKey {
   /**
    * Validates the given public key ID.
    */
