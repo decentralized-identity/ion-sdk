@@ -145,7 +145,7 @@ export default class IonDid {
 
     const maxTypeLength = 30;
     if (serviceEndpoint.type.length > maxTypeLength) {
-      const errorMessage = `Service endpoint type length ${serviceEndpoint.type.length} exceeds max allowed length of ${maxTypeLength}.`
+      const errorMessage = `Service endpoint type length ${serviceEndpoint.type.length} exceeds max allowed length of ${maxTypeLength}.`;
       throw new IonError(ErrorCode.IonDidServiceEndpointTypeTooLong, errorMessage);
     }
 
