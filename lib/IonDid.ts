@@ -34,7 +34,7 @@ export default class IonDid {
     IonDid.validateEs256kOperationPublicKey(updateKey);
 
     // Validate all given DID Document keys.
-    IonDid.validatedidDocumentKeys(didDocumentKeys);
+    IonDid.validateDidDocumentKeys(didDocumentKeys);
 
     // Validate all given service endpoints.
     for (const serviceEndpoint of serviceEndpoints) {
@@ -116,7 +116,7 @@ export default class IonDid {
     }
   }
 
-  private static validatedidDocumentKeys (publicKeys: DidDocumentKeyModel[]) {
+  private static validateDidDocumentKeys (publicKeys: DidDocumentKeyModel[]) {
     // Validate each public key.
     const publicKeyIdSet: Set<string> = new Set();
     for (let publicKey of publicKeys) {
