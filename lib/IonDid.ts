@@ -15,26 +15,26 @@ import ServiceEndpointModel from './models/ServiceEndpointModel';
 export default class IonDid {
   /**
    * Creates a long-form DID.
-   * @param didDocumentPublicKeys Public keys to be included in the resolved DID Document.
+   * @param didDocumentKeys Public keys to be included in the resolved DID Document.
    * @param serviceEndpoints  Service endpoints to be included in the resolved DID Document.
    */
   public static createLongFormDid (input: {
-    recoveryPublicKey: JwkEs256k;
-    updatePublicKey: JwkEs256k;
-    didDocumentPublicKeys: DidDocumentKeyModel[];
+    recoveryKey: JwkEs256k;
+    updateKey: JwkEs256k;
+    didDocumentKeys: DidDocumentKeyModel[];
     serviceEndpoints: ServiceEndpointModel[];
   }): string {
-    const recoveryPublicKey = input.recoveryPublicKey;
-    const updatePublicKey = input.updatePublicKey;
-    const didDocumentPublicKeys = input.didDocumentPublicKeys;
+    const recoveryKey = input.recoveryKey;
+    const updateKey = input.updateKey;
+    const didDocumentKeys = input.didDocumentKeys;
     const serviceEndpoints = input.serviceEndpoints;
 
     // Validate recovery and update public keys.
-    IonDid.validateEs256kOperationPublicKey(recoveryPublicKey);
-    IonDid.validateEs256kOperationPublicKey(updatePublicKey);
+    IonDid.validateEs256kOperationPublicKey(recoveryKey);
+    IonDid.validateEs256kOperationPublicKey(updateKey);
 
     // Validate all given DID Document keys.
-    IonDid.validateDidDocumentPublicKeys(didDocumentPublicKeys);
+    IonDid.validatedidDocumentKeys(didDocumentKeys);
 
     // Validate all given service endpoints.
     for (const serviceEndpoint of serviceEndpoints) {
@@ -44,7 +44,7 @@ export default class IonDid {
     const hashAlgorithmInMultihashCode = SdkConfig.hashAlgorithmInMultihashCode;
 
     const document = {
-      public_keys: didDocumentPublicKeys,
+      public_keys: didDocumentKeys,
       service_endpoints: serviceEndpoints
     };
 
@@ -54,7 +54,7 @@ export default class IonDid {
     }];
 
     const delta = {
-      update_commitment: Multihash.canonicalizeThenDoubleHashThenEncode(updatePublicKey, hashAlgorithmInMultihashCode),
+      update_commitment: Multihash.canonicalizeThenDoubleHashThenEncode(updateKey, hashAlgorithmInMultihashCode),
       patches
     };
 
@@ -64,7 +64,7 @@ export default class IonDid {
 
     const suffixData = {
       delta_hash: deltaHash,
-      recovery_commitment: Multihash.canonicalizeThenDoubleHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode)
+      recovery_commitment: Multihash.canonicalizeThenDoubleHashThenEncode(recoveryKey, hashAlgorithmInMultihashCode)
     };
 
     const didUniqueSuffix = IonDid.computeDidUniqueSuffix(suffixData);
@@ -116,7 +116,7 @@ export default class IonDid {
     }
   }
 
-  private static validateDidDocumentPublicKeys (publicKeys: DidDocumentKeyModel[]) {
+  private static validatedidDocumentKeys (publicKeys: DidDocumentKeyModel[]) {
     // Validate each public key.
     const publicKeyIdSet: Set<string> = new Set();
     for (let publicKey of publicKeys) {
