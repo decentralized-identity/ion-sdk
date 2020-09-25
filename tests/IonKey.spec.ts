@@ -2,7 +2,7 @@ import { IonKey } from '../lib/index';
 import ErrorCode from '../lib/ErrorCode';
 import JasmineIonErrorValidator from './JasmineIonErrorValidator';
 import JwkEs256k from '../lib/models/JwkEs256k';
-import PublicKeyPurpose from '../lib/models/PublicKeyPurpose';
+import DidDocumentKeyPurpose from '../lib/models/DidDocumentKeyPurpose';
 
 describe('IonKey', async () => {
   describe('generateEs256kOperationKeyPair()', async () => {
@@ -24,10 +24,10 @@ describe('IonKey', async () => {
   describe('generateEs256kDidDocumentKeyPair()', async () => {
     it('should create a long-form DID successfully.', async () => {
       const keyId = 'anyId';
-      const [didDocumentPublicKey, privateKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: keyId, purposes: [PublicKeyPurpose.Auth] });
+      const [didDocumentPublicKey, privateKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: keyId, purposes: [DidDocumentKeyPurpose.Auth] });
 
       expect(didDocumentPublicKey.id).toEqual(keyId);
-      expect(didDocumentPublicKey.purpose).toEqual([PublicKeyPurpose.Auth]);
+      expect(didDocumentPublicKey.purpose).toEqual([DidDocumentKeyPurpose.Auth]);
       expect(didDocumentPublicKey.type).toEqual('EcdsaSecp256k1VerificationKey2019');
 
       expect(Object.keys(didDocumentPublicKey.jwk).length).toEqual(4);
@@ -47,7 +47,7 @@ describe('IonKey', async () => {
       const id = 'superDuperLongDidDocumentKeyIdentifierThatExceedsMaximumLength'; // Overwrite with super long string.
 
       await JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
-        async () => IonKey.generateEs256kDidDocumentKeyPair({ id, purposes: [PublicKeyPurpose.General] }),
+        async () => IonKey.generateEs256kDidDocumentKeyPair({ id, purposes: [DidDocumentKeyPurpose.General] }),
         ErrorCode.IonKeyIdTooLong
       );
     });
@@ -56,7 +56,7 @@ describe('IonKey', async () => {
       const id = 'nonBase64urlString!';
 
       await JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
-        async () => IonKey.generateEs256kDidDocumentKeyPair({ id, purposes: [PublicKeyPurpose.General] }),
+        async () => IonKey.generateEs256kDidDocumentKeyPair({ id, purposes: [DidDocumentKeyPurpose.General] }),
         ErrorCode.IonKeyIdNotUsingBase64UrlCharacterSet
       );
     });
@@ -70,7 +70,7 @@ describe('IonKey', async () => {
 
     it('should throw error if given DID Document key has duplicated purposes.', async () => {
       await JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
-        async () => IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [PublicKeyPurpose.General, PublicKeyPurpose.General] }),
+        async () => IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [DidDocumentKeyPurpose.General, DidDocumentKeyPurpose.General] }),
         ErrorCode.IonKeyPurposeDuplicated
       );
     });

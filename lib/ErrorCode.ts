@@ -12,6 +12,7 @@ export default {
   IonDidEs256kJwkHasIncorrectLengthOfY: 'IonDidEs256kJwkHasIncorrectLengthOfY',
   IonDidServiceEndpointIdNotInBase64UrlCharacterSet: 'IonDidServiceEndpointIdNotInBase64UrlCharacterSet',
   IonDidServiceEndpointIdTooLong: 'IonDidServiceEndpointIdTooLong',
+  IonDidServiceEndpointStringNotValidUrl: 'IonDidServiceEndpointStringNotValidUrl',
   IonDidServiceEndpointTypeTooLong: 'IonDidServiceEndpointTypeTooLong',
   IonDidServiceEndpointValueCannotBeAnArray: 'IonDidServiceEndpointValueCannotBeAnArray',
   IonKeyIdNotUsingBase64UrlCharacterSet: 'IonKeyIdNotUsingBase64UrlCharacterSet',

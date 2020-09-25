@@ -1,11 +1,11 @@
-import DidDocumentKey from './DidDocumentKey';
+import DidDocumentKeyModel from './models/DidDocumentKeyModel';
+import DidDocumentKeyValidator from './DidDocumentKeyValidator';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
-import PublicKeyModel from './models/PublicKeyModel';
 import SdkConfig from './SdkConfig';
 import ServiceEndpointModel from './models/ServiceEndpointModel';
 
@@ -21,7 +21,7 @@ export default class IonDid {
   public static createLongFormDid (input: {
     recoveryPublicKey: JwkEs256k;
     updatePublicKey: JwkEs256k;
-    didDocumentPublicKeys: PublicKeyModel[];
+    didDocumentPublicKeys: DidDocumentKeyModel[];
     serviceEndpoints: ServiceEndpointModel[];
   }): string {
     const recoveryPublicKey = input.recoveryPublicKey;
@@ -116,7 +116,7 @@ export default class IonDid {
     }
   }
 
-  private static validateDidDocumentPublicKeys (publicKeys: PublicKeyModel[]) {
+  private static validateDidDocumentPublicKeys (publicKeys: DidDocumentKeyModel[]) {
     // Validate each public key.
     const publicKeyIdSet: Set<string> = new Set();
     for (let publicKey of publicKeys) {
@@ -124,7 +124,7 @@ export default class IonDid {
         throw new IonError(ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'jwk' property is not a non-array object.`);
       }
 
-      DidDocumentKey.validateId(publicKey.id);
+      DidDocumentKeyValidator.validateId(publicKey.id);
 
       // 'id' must be unique across all given keys.
       if (publicKeyIdSet.has(publicKey.id)) {
@@ -132,7 +132,7 @@ export default class IonDid {
       }
       publicKeyIdSet.add(publicKey.id);
 
-      DidDocumentKey.validatePurposes(publicKey.purpose);
+      DidDocumentKeyValidator.validatePurposes(publicKey.purpose);
     }
   }
 
@@ -157,6 +157,16 @@ export default class IonDid {
     if (Array.isArray(serviceEndpoint.endpoint)) {
       const errorMessage = 'Service endpoint value cannot be an array.';
       throw new IonError(ErrorCode.IonDidServiceEndpointValueCannotBeAnArray, errorMessage);
+    }
+
+    if (typeof serviceEndpoint.endpoint === 'string') {
+      try {
+        // Validating endpoint string is a URL, no need to assign to a variable, it will throw if not valid.
+        // tslint:disable-next-line
+        new URL(serviceEndpoint.endpoint);
+      } catch {
+        throw new IonError(ErrorCode.IonDidServiceEndpointStringNotValidUrl, `Service endpoint string '${serviceEndpoint.endpoint}' is not a URL.`);
+      }
     }
   }
 
