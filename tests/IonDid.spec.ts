@@ -182,36 +182,35 @@ describe('IonDid', async () => {
       );
     });
 
-    it('should throw error if given service endpoint value exceeds maximum length.', async () => {
+    it('should throw error if given service endpoint value is an array', async () => {
       const [recoveryPublicKey] = await IonKey.generateEs256kOperationKeyPair();
       const updatePublicKey = recoveryPublicKey;
 
       const serviceEndpoints = [{
         id: 'anyId',
         type: 'anyType',
-        endpoint: 'http://superLongServiceEndpointValueThatExceedsMaximumAllowedLength.theCodeIsExpectedToThrowErrorInThisCase'
+        endpoint: []
       }];
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryPublicKey, updatePublicKey, didDocumentPublicKeys: [], serviceEndpoints }),
-        ErrorCode.IonDidServiceEndpointTooLong
+        ErrorCode.IonDidServiceEndpointValueCannotBeAnArray
       );
     });
 
-    it('should throw error if given service endpoint value exceeds maximum length.', async () => {
+    it('should allow object as service endpoint value.', async () => {
       const [recoveryPublicKey] = await IonKey.generateEs256kOperationKeyPair();
       const updatePublicKey = recoveryPublicKey;
 
       const serviceEndpoints = [{
         id: 'anyId',
         type: 'anyType',
-        endpoint: 'notValidUrl'
+        endpoint: { value: 'someValue' } // `object` based endpoint value.
       }];
 
-      JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryPublicKey, updatePublicKey, didDocumentPublicKeys: [], serviceEndpoints }),
-        ErrorCode.IonDidServiceEndpointNotValidUrl
-      );
+      const longFormDid = IonDid.createLongFormDid({ recoveryPublicKey, updatePublicKey, didDocumentPublicKeys: [], serviceEndpoints });
+
+      expect(longFormDid).toBeDefined();
     });
 
     it('should throw error if resulting delta property exceeds maximum size.', async () => {

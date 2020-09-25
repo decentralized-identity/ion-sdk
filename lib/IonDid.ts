@@ -139,36 +139,20 @@ export default class IonDid {
   private static validateServiceEndpoint (serviceEndpoint: ServiceEndpointModel) {
     const maxIdLength = 50;
     if (serviceEndpoint.id.length > maxIdLength) {
-      throw new IonError(
-        ErrorCode.IonDidServiceEndpointIdTooLong,
-        `Service endpoint id length ${serviceEndpoint.id.length} exceeds max allowed length of ${maxIdLength}.`
-      );
+      const errorMessage = `Service endpoint id length ${serviceEndpoint.id.length} exceeds max allowed length of ${maxIdLength}.`;
+      throw new IonError(ErrorCode.IonDidServiceEndpointIdTooLong, errorMessage);
     }
 
     const maxTypeLength = 30;
     if (serviceEndpoint.type.length > maxTypeLength) {
-      throw new IonError(
-        ErrorCode.IonDidServiceEndpointTypeTooLong,
-        `Service endpoint type length ${serviceEndpoint.type.length} exceeds max allowed length of ${maxTypeLength}.`
-      );
+      const errorMessage = `Service endpoint type length ${serviceEndpoint.type.length} exceeds max allowed length of ${maxTypeLength}.`
+      throw new IonError(ErrorCode.IonDidServiceEndpointTypeTooLong, errorMessage);
     }
 
-    const maxEndpointLength = 100;
-    if (serviceEndpoint.endpoint.length > maxEndpointLength) {
-      throw new IonError(
-        ErrorCode.IonDidServiceEndpointTooLong,
-        `Service endpoint length ${serviceEndpoint.endpoint.length} exceeds max allowed length of ${maxEndpointLength}.`
-      );
-    }
-
-    try {
-      // Validating endpoint is a URL, no need to assign to a variable, it will throw if not valid.
-      // tslint:disable-next-line
-      new URL(serviceEndpoint.endpoint);
-    } catch {
-      throw new IonError(
-        ErrorCode.IonDidServiceEndpointNotValidUrl,
-        `Service endpoint '${serviceEndpoint.endpoint}' is not a URL.`);
+    // Throw error if `endpoint` is an array.
+    if (Array.isArray(serviceEndpoint.endpoint)) {
+      const errorMessage = 'Service endpoint value cannot be an array.';
+      throw new IonError(ErrorCode.IonDidServiceEndpointValueCannotBeAnArray, errorMessage);
     }
   }
 
