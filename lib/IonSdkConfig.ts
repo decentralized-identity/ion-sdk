@@ -1,7 +1,7 @@
 /**
  * Global configuration of the SDK.
  */
-export default class SdkConfig {
+export default class IonSdkConfig {
   /**
    * Default hash algorithm used when hashing is performed.
    */
