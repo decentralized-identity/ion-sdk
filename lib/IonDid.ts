@@ -3,10 +3,10 @@ import DidDocumentKeyValidator from './DidDocumentKeyValidator';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
+import IonSdkConfig from './IonSdkConfig';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
-import SdkConfig from './SdkConfig';
 import ServiceEndpointModel from './models/ServiceEndpointModel';
 
 /**
@@ -41,7 +41,7 @@ export default class IonDid {
       IonDid.validateServiceEndpoint(serviceEndpoint);
     }
 
-    const hashAlgorithmInMultihashCode = SdkConfig.hashAlgorithmInMultihashCode;
+    const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
 
     const document = {
       public_keys: didDocumentKeys,
@@ -71,10 +71,10 @@ export default class IonDid {
 
     // Add the network portion if not configured for mainnet.
     let shortFormDid;
-    if (SdkConfig.network === undefined || SdkConfig.network === 'mainnet') {
+    if (IonSdkConfig.network === undefined || IonSdkConfig.network === 'mainnet') {
       shortFormDid = `did:ion:${didUniqueSuffix}`;
     } else {
-      shortFormDid = `did:ion:${SdkConfig.network}:${didUniqueSuffix}`;
+      shortFormDid = `did:ion:${IonSdkConfig.network}:${didUniqueSuffix}`;
     }
 
     const initialState = {
@@ -172,8 +172,8 @@ export default class IonDid {
 
   private static validateDeltaSize (delta: object) {
     const deltaBuffer = JsonCanonicalizer.canonicalizeAsBuffer(delta);
-    if (deltaBuffer.length > SdkConfig.maxCanonicalizedDeltaSizeInBytes) {
-      const errorMessage = `Delta of ${deltaBuffer.length} bytes exceeded limit of ${SdkConfig.maxCanonicalizedDeltaSizeInBytes} bytes.`;
+    if (deltaBuffer.length > IonSdkConfig.maxCanonicalizedDeltaSizeInBytes) {
+      const errorMessage = `Delta of ${deltaBuffer.length} bytes exceeded limit of ${IonSdkConfig.maxCanonicalizedDeltaSizeInBytes} bytes.`;
       throw new IonError(ErrorCode.IonDidDeltaExceedsMaximumSize, errorMessage);
     }
   }
@@ -183,7 +183,7 @@ export default class IonDid {
    */
   private static computeDidUniqueSuffix (suffixData: object): string {
     const canonicalizedStringBuffer = JsonCanonicalizer.canonicalizeAsBuffer(suffixData);
-    const multihash = Multihash.hash(canonicalizedStringBuffer, SdkConfig.hashAlgorithmInMultihashCode);
+    const multihash = Multihash.hash(canonicalizedStringBuffer, IonSdkConfig.hashAlgorithmInMultihashCode);
     const encodedMultihash = Encoder.encode(multihash);
     return encodedMultihash;
   }

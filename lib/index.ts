@@ -3,8 +3,10 @@
 // SDK exports.
 import IonDid from './IonDid';
 import IonKey from './IonKey';
+import IonSdkConfig from './IonSdkConfig';
 
 export {
   IonDid,
-  IonKey
+  IonKey,
+  IonSdkConfig
 };

@@ -1,12 +1,11 @@
-import { IonDid, IonKey } from '../lib/index';
+import { IonDid, IonKey, IonSdkConfig } from '../lib/index';
 import DidDocumentKeyPurpose from '../lib/models/DidDocumentKeyPurpose';
-import SdkConfig from '../lib/SdkConfig';
 import JasmineIonErrorValidator from './JasmineIonErrorValidator';
 import ErrorCode from '../lib/ErrorCode';
 
 describe('IonDid', async () => {
   afterEach(() => {
-    SdkConfig.network = undefined;
+    IonSdkConfig.network = undefined;
   });
 
   describe('createLongFormDid()', async () => {
@@ -40,7 +39,7 @@ describe('IonDid', async () => {
     });
 
     it('should not include network segment in DID if SDK network is set to mainnet.', async () => {
-      SdkConfig.network = 'mainnet';
+      IonSdkConfig.network = 'mainnet';
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], serviceEndpoints: [] });
@@ -48,7 +47,7 @@ describe('IonDid', async () => {
     });
 
     it('should include network segment in DID if SDK network is set to a string that is not mainnet.', async () => {
-      SdkConfig.network = 'testnet';
+      IonSdkConfig.network = 'testnet';
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], serviceEndpoints: [] });
