@@ -1,7 +1,7 @@
 import { IonDid, IonKey, IonSdkConfig } from '../lib/index';
 import DidDocumentKeyPurpose from '../lib/models/DidDocumentKeyPurpose';
-import JasmineIonErrorValidator from './JasmineIonErrorValidator';
 import ErrorCode from '../lib/ErrorCode';
+import JasmineIonErrorValidator from './JasmineIonErrorValidator';
 
 describe('IonDid', async () => {
   afterEach(() => {

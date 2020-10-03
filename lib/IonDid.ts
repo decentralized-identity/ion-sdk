@@ -92,7 +92,7 @@ export default class IonDid {
 
   private static validateEs256kOperationPublicKey (jwk: JwkEs256k) {
     const allowedProperties = new Set(['kty', 'crv', 'x', 'y']);
-    for (let property in jwk) {
+    for (const property in jwk) {
       if (!allowedProperties.has(property)) {
         throw new IonError(ErrorCode.IonDidEs256kJwkHasUnexpectedProperty, `SECP256K1 JWK key has unexpected property '${property}'.`);
       }
@@ -119,7 +119,7 @@ export default class IonDid {
   private static validateDidDocumentKeys (publicKeys: DidDocumentKeyModel[]) {
     // Validate each public key.
     const publicKeyIdSet: Set<string> = new Set();
-    for (let publicKey of publicKeys) {
+    for (const publicKey of publicKeys) {
       if (Array.isArray(publicKey.jwk)) {
         throw new IonError(ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'jwk' property is not a non-array object.`);
       }
@@ -162,7 +162,6 @@ export default class IonDid {
     if (typeof serviceEndpoint.endpoint === 'string') {
       try {
         // Validating endpoint string is a URL, no need to assign to a variable, it will throw if not valid.
-        // tslint:disable-next-line
         new URL(serviceEndpoint.endpoint);
       } catch {
         throw new IonError(ErrorCode.IonDidServiceEndpointStringNotValidUrl, `Service endpoint string '${serviceEndpoint.endpoint}' is not a URL.`);

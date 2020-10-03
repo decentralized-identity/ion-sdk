@@ -1,8 +1,8 @@
-import { IonKey } from '../lib/index';
+import DidDocumentKeyPurpose from '../lib/models/DidDocumentKeyPurpose';
 import ErrorCode from '../lib/ErrorCode';
 import JasmineIonErrorValidator from './JasmineIonErrorValidator';
 import JwkEs256k from '../lib/models/JwkEs256k';
-import DidDocumentKeyPurpose from '../lib/models/DidDocumentKeyPurpose';
+import { IonKey } from '../lib/index';
 
 describe('IonKey', async () => {
   describe('generateEs256kOperationKeyPair()', async () => {

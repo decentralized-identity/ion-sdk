@@ -4,7 +4,6 @@ import IonError from '../lib/IonError';
  * Encapsulates the helper functions for the tests.
  */
 export default class JasmineIonErrorValidator {
-
   /**
    * Fails the current spec if the execution of the function does not throw the expected IonError.
    *
