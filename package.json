@@ -10,7 +10,8 @@
     "base64url": "3.0.1",
     "canonicalize": "1.0.1",
     "jose": "2.0.2",
-    "multihashes": "0.4.14"
+    "multihashes": "0.4.14",
+    "uri-js": "4.4.0"
   },
   "devDependencies": {
     "@types/jasmine": "3.3.12",

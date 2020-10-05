@@ -1,7 +1,7 @@
-import { JWK } from 'jose';
 import DidDocumentKeyModel from './models/DidDocumentKeyModel';
 import DidDocumentKeyPurpose from './models/DidDocumentKeyPurpose';
 import DidDocumentKeyValidator from './DidDocumentKeyValidator';
+import { JWK } from 'jose';
 import JwkEs256k from './models/JwkEs256k';
 
 /**
