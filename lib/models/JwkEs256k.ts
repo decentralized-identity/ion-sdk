@@ -7,4 +7,4 @@ export default interface JwkEs256k {
   x: string;
   y: string;
   d?: string; // Only used by a private key.
-}
+};

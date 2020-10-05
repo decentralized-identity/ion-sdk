@@ -1,3 +1,4 @@
+import * as URI from 'uri-js';
 import DidDocumentKeyModel from './models/DidDocumentKeyModel';
 import DidDocumentKeyValidator from './DidDocumentKeyValidator';
 import Encoder from './Encoder';
@@ -160,10 +161,9 @@ export default class IonDid {
     }
 
     if (typeof serviceEndpoint.endpoint === 'string') {
-      try {
-        // Validating endpoint string is a URL, no need to assign to a variable, it will throw if not valid.
-        new URL(serviceEndpoint.endpoint);
-      } catch {
+      // Validating endpoint string is a URL, no need to assign to a variable, it will throw if not valid.
+      const uri = URI.parse(serviceEndpoint.endpoint);
+      if (uri.error !== undefined) {
         throw new IonError(ErrorCode.IonDidServiceEndpointStringNotValidUrl, `Service endpoint string '${serviceEndpoint.endpoint}' is not a URL.`);
       }
     }

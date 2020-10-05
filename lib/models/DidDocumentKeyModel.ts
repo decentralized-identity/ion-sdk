@@ -8,4 +8,4 @@ export default interface DidDocumentKeyModel {
   type: string;
   jwk: object;
   purpose: DidDocumentKeyPurpose[];
-}
+};
