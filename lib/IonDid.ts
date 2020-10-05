@@ -161,7 +161,6 @@ export default class IonDid {
     }
 
     if (typeof serviceEndpoint.endpoint === 'string') {
-      // Validating endpoint string is a URL, no need to assign to a variable, it will throw if not valid.
       const uri = URI.parse(serviceEndpoint.endpoint);
       if (uri.error !== undefined) {
         throw new IonError(ErrorCode.IonDidServiceEndpointStringNotValidUrl, `Service endpoint string '${serviceEndpoint.endpoint}' is not a URL.`);
