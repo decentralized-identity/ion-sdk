@@ -1,4 +1,4 @@
-import DidDocumentKeyPurpose from './DidDocumentKeyPurpose';
+import DidDocumentKeyPurpose from '../enums/DidDocumentKeyPurpose';
 
 /**
  * Data model representing a public key in the DID Document.
@@ -6,6 +6,6 @@ import DidDocumentKeyPurpose from './DidDocumentKeyPurpose';
 export default interface DidDocumentKeyModel {
   id: string;
   type: string;
-  jwk: object;
-  purpose: DidDocumentKeyPurpose[];
+  publicKeyJwk: object;
+  purposes: DidDocumentKeyPurpose[];
 };

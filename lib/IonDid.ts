@@ -5,10 +5,10 @@ import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
 import IonSdkConfig from './IonSdkConfig';
+import IonServiceModel from './models/IonServiceModel';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
-import ServiceEndpointModel from './models/ServiceEndpointModel';
 
 /**
  * Class containing DID related operations.
@@ -17,18 +17,18 @@ export default class IonDid {
   /**
    * Creates a long-form DID.
    * @param didDocumentKeys Public keys to be included in the resolved DID Document.
-   * @param serviceEndpoints  Service endpoints to be included in the resolved DID Document.
+   * @param services  Services to be included in the resolved DID Document.
    */
   public static createLongFormDid (input: {
     recoveryKey: JwkEs256k;
     updateKey: JwkEs256k;
     didDocumentKeys: DidDocumentKeyModel[];
-    serviceEndpoints: ServiceEndpointModel[];
+    services: IonServiceModel[];
   }): string {
     const recoveryKey = input.recoveryKey;
     const updateKey = input.updateKey;
     const didDocumentKeys = input.didDocumentKeys;
-    const serviceEndpoints = input.serviceEndpoints;
+    const services = input.services;
 
     // Validate recovery and update public keys.
     IonDid.validateEs256kOperationPublicKey(recoveryKey);
@@ -37,16 +37,16 @@ export default class IonDid {
     // Validate all given DID Document keys.
     IonDid.validateDidDocumentKeys(didDocumentKeys);
 
-    // Validate all given service endpoints.
-    for (const serviceEndpoint of serviceEndpoints) {
-      IonDid.validateServiceEndpoint(serviceEndpoint);
+    // Validate all given service.
+    for (const service of services) {
+      IonDid.validateService(service);
     }
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
 
     const document = {
-      public_keys: didDocumentKeys,
-      service_endpoints: serviceEndpoints
+      publicKeys: didDocumentKeys,
+      services
     };
 
     const patches = [{
@@ -55,7 +55,7 @@ export default class IonDid {
     }];
 
     const delta = {
-      update_commitment: Multihash.canonicalizeThenDoubleHashThenEncode(updateKey, hashAlgorithmInMultihashCode),
+      updateCommitment: Multihash.canonicalizeThenDoubleHashThenEncode(updateKey, hashAlgorithmInMultihashCode),
       patches
     };
 
@@ -64,8 +64,8 @@ export default class IonDid {
     const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
 
     const suffixData = {
-      delta_hash: deltaHash,
-      recovery_commitment: Multihash.canonicalizeThenDoubleHashThenEncode(recoveryKey, hashAlgorithmInMultihashCode)
+      deltaHash,
+      recoveryCommitment: Multihash.canonicalizeThenDoubleHashThenEncode(recoveryKey, hashAlgorithmInMultihashCode)
     };
 
     const didUniqueSuffix = IonDid.computeDidUniqueSuffix(suffixData);
@@ -79,8 +79,8 @@ export default class IonDid {
     }
 
     const initialState = {
-      suffix_data: suffixData,
-      delta: delta
+      suffixData,
+      delta
     };
 
     // Initial state must be canonicalized as per spec.
@@ -91,28 +91,28 @@ export default class IonDid {
     return longFormDid;
   }
 
-  private static validateEs256kOperationPublicKey (jwk: JwkEs256k) {
+  private static validateEs256kOperationPublicKey (publicKeyJwk: JwkEs256k) {
     const allowedProperties = new Set(['kty', 'crv', 'x', 'y']);
-    for (const property in jwk) {
+    for (const property in publicKeyJwk) {
       if (!allowedProperties.has(property)) {
         throw new IonError(ErrorCode.IonDidEs256kJwkHasUnexpectedProperty, `SECP256K1 JWK key has unexpected property '${property}'.`);
       }
     }
 
-    if (jwk.crv !== 'secp256k1') {
-      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidCrv, `SECP256K1 JWK 'crv' property must be 'secp256k1' but got '${jwk.crv}.'`);
+    if (publicKeyJwk.crv !== 'secp256k1') {
+      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidCrv, `SECP256K1 JWK 'crv' property must be 'secp256k1' but got '${publicKeyJwk.crv}.'`);
     }
 
-    if (jwk.kty !== 'EC') {
-      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidKty, `SECP256K1 JWK 'kty' property must be 'EC' but got '${jwk.kty}.'`);
+    if (publicKeyJwk.kty !== 'EC') {
+      throw new IonError(ErrorCode.IonDidEs256kJwkMissingOrInvalidKty, `SECP256K1 JWK 'kty' property must be 'EC' but got '${publicKeyJwk.kty}.'`);
     }
 
     // `x` and `y` need 43 Base64URL encoded bytes to contain 256 bits.
-    if (jwk.x.length !== 43) {
+    if (publicKeyJwk.x.length !== 43) {
       throw new IonError(ErrorCode.IonDidEs256kJwkHasIncorrectLengthOfX, `SECP256K1 JWK 'x' property must be 43 bytes.`);
     }
 
-    if (jwk.y.length !== 43) {
+    if (publicKeyJwk.y.length !== 43) {
       throw new IonError(ErrorCode.IonDidEs256kJwkHasIncorrectLengthOfY, `SECP256K1 JWK 'y' property must be 43 bytes.`);
     }
   }
@@ -121,8 +121,8 @@ export default class IonDid {
     // Validate each public key.
     const publicKeyIdSet: Set<string> = new Set();
     for (const publicKey of publicKeys) {
-      if (Array.isArray(publicKey.jwk)) {
-        throw new IonError(ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'jwk' property is not a non-array object.`);
+      if (Array.isArray(publicKey.publicKeyJwk)) {
+        throw new IonError(ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'publicKeyJwk' property is not a non-array object.`);
       }
 
       DidDocumentKeyValidator.validateId(publicKey.id);
@@ -133,37 +133,37 @@ export default class IonDid {
       }
       publicKeyIdSet.add(publicKey.id);
 
-      DidDocumentKeyValidator.validatePurposes(publicKey.purpose);
+      DidDocumentKeyValidator.validatePurposes(publicKey.purposes);
     }
   }
 
-  private static validateServiceEndpoint (serviceEndpoint: ServiceEndpointModel) {
+  private static validateService (service: IonServiceModel) {
     const maxIdLength = 50;
-    if (serviceEndpoint.id.length > maxIdLength) {
-      const errorMessage = `Service endpoint id length ${serviceEndpoint.id.length} exceeds max allowed length of ${maxIdLength}.`;
-      throw new IonError(ErrorCode.IonDidServiceEndpointIdTooLong, errorMessage);
+    if (service.id.length > maxIdLength) {
+      const errorMessage = `Service endpoint id length ${service.id.length} exceeds max allowed length of ${maxIdLength}.`;
+      throw new IonError(ErrorCode.IonDidServiceIdTooLong, errorMessage);
     }
 
-    if (!Encoder.isBase64UrlString(serviceEndpoint.id)) {
-      throw new IonError(ErrorCode.IonDidServiceEndpointIdNotInBase64UrlCharacterSet, `Service endpoint ID '${serviceEndpoint.id}' is not a Base64URL string.`);
+    if (!Encoder.isBase64UrlString(service.id)) {
+      throw new IonError(ErrorCode.IonDidServiceIdNotInBase64UrlCharacterSet, `Service endpoint ID '${service.id}' is not a Base64URL string.`);
     }
 
     const maxTypeLength = 30;
-    if (serviceEndpoint.type.length > maxTypeLength) {
-      const errorMessage = `Service endpoint type length ${serviceEndpoint.type.length} exceeds max allowed length of ${maxTypeLength}.`;
-      throw new IonError(ErrorCode.IonDidServiceEndpointTypeTooLong, errorMessage);
+    if (service.type.length > maxTypeLength) {
+      const errorMessage = `Service endpoint type length ${service.type.length} exceeds max allowed length of ${maxTypeLength}.`;
+      throw new IonError(ErrorCode.IonDidServiceTypeTooLong, errorMessage);
     }
 
-    // Throw error if `endpoint` is an array.
-    if (Array.isArray(serviceEndpoint.endpoint)) {
+    // Throw error if `serviceEndpoint` is an array.
+    if (Array.isArray(service.serviceEndpoint)) {
       const errorMessage = 'Service endpoint value cannot be an array.';
       throw new IonError(ErrorCode.IonDidServiceEndpointValueCannotBeAnArray, errorMessage);
     }
 
-    if (typeof serviceEndpoint.endpoint === 'string') {
-      const uri = URI.parse(serviceEndpoint.endpoint);
+    if (typeof service.serviceEndpoint === 'string') {
+      const uri = URI.parse(service.serviceEndpoint);
       if (uri.error !== undefined) {
-        throw new IonError(ErrorCode.IonDidServiceEndpointStringNotValidUrl, `Service endpoint string '${serviceEndpoint.endpoint}' is not a URL.`);
+        throw new IonError(ErrorCode.IonDidServiceEndpointStringNotValidUrl, `Service endpoint string '${service.serviceEndpoint}' is not a URL.`);
       }
     }
   }

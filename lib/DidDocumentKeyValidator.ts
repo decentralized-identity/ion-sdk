@@ -1,4 +1,4 @@
-import DidDocumentKeyPurpose from './models/DidDocumentKeyPurpose';
+import DidDocumentKeyPurpose from './enums/DidDocumentKeyPurpose';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';

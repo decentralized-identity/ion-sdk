@@ -1,5 +1,5 @@
 import DidDocumentKeyModel from './models/DidDocumentKeyModel';
-import DidDocumentKeyPurpose from './models/DidDocumentKeyPurpose';
+import DidDocumentKeyPurpose from './enums/DidDocumentKeyPurpose';
 import DidDocumentKeyValidator from './DidDocumentKeyValidator';
 import { JWK } from 'jose';
 import JwkEs256k from './models/JwkEs256k';
@@ -21,14 +21,14 @@ export default class IonKey {
     DidDocumentKeyValidator.validatePurposes(purposes);
 
     const [publicKey, privateKey] = await IonKey.generateEs256kKeyPair();
-    const idDocumentKeyModel = {
+    const didDocumentKeyModel = {
       id,
       type: 'EcdsaSecp256k1VerificationKey2019',
-      jwk: publicKey,
-      purpose: purposes
+      publicKeyJwk: publicKey,
+      purposes
     };
 
-    return [idDocumentKeyModel, privateKey];
+    return [didDocumentKeyModel, privateKey];
   }
 
   /**
