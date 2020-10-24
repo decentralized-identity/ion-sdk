@@ -2,7 +2,7 @@ import * as jwkEs256k1Public from './vectors/inputs/jwkEs256k1Public.json';
 import * as jwkEs256k2Public from './vectors/inputs/jwkEs256k2Public.json';
 import * as publicKeyModel1 from './vectors/inputs/publicKeyModel1.json';
 import * as service1 from './vectors/inputs/service1.json';
-import { DidDocumentKeyPurpose, IonDid, IonKey, IonSdkConfig } from '../lib/index';
+import { IonDid, IonKey, IonPublicKeyPurpose, IonSdkConfig } from '../lib/index';
 import ErrorCode from '../lib/ErrorCode';
 import JasmineIonErrorValidator from './JasmineIonErrorValidator';
 
@@ -101,7 +101,7 @@ describe('IonDid', async () => {
     it('should throw error if given DID Document JWK is an array.', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
-      const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [DidDocumentKeyPurpose.General] });
+      const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
       anyDidDocumentKey.publicKeyJwk = ['invalid object type'];
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
@@ -113,8 +113,8 @@ describe('IonDid', async () => {
     it('should throw error if given DID Document keys with the same ID.', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
-      const [anyDidDocumentKey1] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [DidDocumentKeyPurpose.General] });
-      const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [DidDocumentKeyPurpose.Auth] }); // Key ID duplicate.
+      const [anyDidDocumentKey1] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.AssertionMethod] });
+      const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] }); // Key ID duplicate.
       const didDocumentKeys = [anyDidDocumentKey1, anyDidDocumentKey2];
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
@@ -126,7 +126,7 @@ describe('IonDid', async () => {
     it('should throw error if given DID Document key ID exceeds maximum length.', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
-      const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [DidDocumentKeyPurpose.General] });
+      const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
       anyDidDocumentKey.id = 'superDuperLongDidDocumentKeyIdentifierThatExceedsMaximumLength'; // Overwrite with super long string.
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
@@ -235,10 +235,10 @@ describe('IonDid', async () => {
       const updateKey = recoveryKey;
 
       // Add many keys so that 'delta' property size exceeds max limit.
-      const [anyDidDocumentKey1] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId1', purposes: [DidDocumentKeyPurpose.General] });
-      const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId2', purposes: [DidDocumentKeyPurpose.General] });
-      const [anyDidDocumentKey3] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId3', purposes: [DidDocumentKeyPurpose.General] });
-      const [anyDidDocumentKey4] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId4', purposes: [DidDocumentKeyPurpose.General] });
+      const [anyDidDocumentKey1] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId1', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId2', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey3] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId3', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey4] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId4', purposes: [IonPublicKeyPurpose.Authentication] });
       const didDocumentKeys = [anyDidDocumentKey1, anyDidDocumentKey2, anyDidDocumentKey3, anyDidDocumentKey4];
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(

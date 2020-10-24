@@ -1,9 +1,9 @@
 import * as URI from 'uri-js';
-import DidDocumentKeyModel from './models/DidDocumentKeyModel';
-import DidDocumentKeyValidator from './DidDocumentKeyValidator';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
+import IonPublicKeyModel from './models/IonPublicKeyModel';
+import IonPublicKeyValidator from './IonPublicKeyValidator';
 import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
 import JsonCanonicalizer from './JsonCanonicalizer';
@@ -17,12 +17,12 @@ export default class IonDid {
   /**
    * Creates a long-form DID.
    * @param didDocumentKeys Public keys to be included in the resolved DID Document.
-   * @param services  Services to be included in the resolved DID Document.
+   * @param services Services to be included in the resolved DID Document.
    */
   public static createLongFormDid (input: {
     recoveryKey: JwkEs256k;
     updateKey: JwkEs256k;
-    didDocumentKeys: DidDocumentKeyModel[];
+    didDocumentKeys: IonPublicKeyModel[];
     services: IonServiceModel[];
   }): string {
     const recoveryKey = input.recoveryKey;
@@ -117,7 +117,7 @@ export default class IonDid {
     }
   }
 
-  private static validateDidDocumentKeys (publicKeys: DidDocumentKeyModel[]) {
+  private static validateDidDocumentKeys (publicKeys: IonPublicKeyModel[]) {
     // Validate each public key.
     const publicKeyIdSet: Set<string> = new Set();
     for (const publicKey of publicKeys) {
@@ -125,7 +125,7 @@ export default class IonDid {
         throw new IonError(ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'publicKeyJwk' property is not a non-array object.`);
       }
 
-      DidDocumentKeyValidator.validateId(publicKey.id);
+      IonPublicKeyValidator.validateId(publicKey.id);
 
       // 'id' must be unique across all given keys.
       if (publicKeyIdSet.has(publicKey.id)) {
@@ -133,7 +133,7 @@ export default class IonDid {
       }
       publicKeyIdSet.add(publicKey.id);
 
-      DidDocumentKeyValidator.validatePurposes(publicKey.purposes);
+      IonPublicKeyValidator.validatePurposes(publicKey.purposes);
     }
   }
 
