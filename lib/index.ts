@@ -1,16 +1,16 @@
 // NOTE: Aliases to classes and interfaces are used for external consumption.
 
 // SDK exports.
-import DidDocumentKeyPurpose from './models/DidDocumentKeyPurpose';
 import IonDid from './IonDid';
 import IonKey from './IonKey';
+import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
 import IonSdkConfig from './IonSdkConfig';
-import ServiceEndpointModel from './models/ServiceEndpointModel';
+import IonServiceModel from './models/IonServiceModel';
 
 export {
-  DidDocumentKeyPurpose,
+  IonPublicKeyPurpose,
   IonDid,
   IonKey,
   IonSdkConfig,
-  ServiceEndpointModel
+  IonServiceModel
 };

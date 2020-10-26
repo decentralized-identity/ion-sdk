@@ -1,12 +1,12 @@
-import DidDocumentKeyPurpose from './models/DidDocumentKeyPurpose';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
+import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
 
 /**
  * Class containing operations related to keys specified within a DID Document.
  */
-export default class DidDocumentKeyValidator {
+export default class IonPublicKeyValidator {
   /**
    * Validates the given public key ID.
    */
@@ -24,13 +24,13 @@ export default class DidDocumentKeyValidator {
   /**
    * Validates the given key purposes.
    */
-  public static validatePurposes (purposes: DidDocumentKeyPurpose[]) {
+  public static validatePurposes (purposes: IonPublicKeyPurpose[]) {
     if (purposes.length === 0) {
       throw new IonError(ErrorCode.IonKeyPurposeNotDefined, `ION key 'purpose' is not defined.`);
     }
 
     // Validate that all purposes are be unique.
-    const processedPurposes: Set<DidDocumentKeyPurpose> = new Set();
+    const processedPurposes: Set<IonPublicKeyPurpose> = new Set();
     for (const purpose of purposes) {
       if (processedPurposes.has(purpose)) {
         throw new IonError(ErrorCode.IonKeyPurposeDuplicated, `ION key purpose '${purpose}' already specified.`);

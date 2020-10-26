@@ -1,6 +1,6 @@
-import DidDocumentKeyModel from './models/DidDocumentKeyModel';
-import DidDocumentKeyPurpose from './models/DidDocumentKeyPurpose';
-import DidDocumentKeyValidator from './DidDocumentKeyValidator';
+import IonPublicKeyModel from './models/IonPublicKeyModel';
+import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
+import IonPublicKeyValidator from './IonPublicKeyValidator';
 import { JWK } from 'jose';
 import JwkEs256k from './models/JwkEs256k';
 
@@ -13,22 +13,22 @@ export default class IonKey {
    * Mainly used for testing.
    * @returns [publicKey, privateKey]
    */
-  public static async generateEs256kDidDocumentKeyPair (input: { id: string, purposes: DidDocumentKeyPurpose[] }): Promise<[DidDocumentKeyModel, JwkEs256k]> {
+  public static async generateEs256kDidDocumentKeyPair (input: { id: string, purposes: IonPublicKeyPurpose[] }): Promise<[IonPublicKeyModel, JwkEs256k]> {
     const id = input.id;
     const purposes = input.purposes;
 
-    DidDocumentKeyValidator.validateId(id);
-    DidDocumentKeyValidator.validatePurposes(purposes);
+    IonPublicKeyValidator.validateId(id);
+    IonPublicKeyValidator.validatePurposes(purposes);
 
     const [publicKey, privateKey] = await IonKey.generateEs256kKeyPair();
-    const idDocumentKeyModel = {
+    const IonPublicKeyModel = {
       id,
       type: 'EcdsaSecp256k1VerificationKey2019',
-      jwk: publicKey,
-      purpose: purposes
+      publicKeyJwk: publicKey,
+      purposes
     };
 
-    return [idDocumentKeyModel, privateKey];
+    return [IonPublicKeyModel, privateKey];
   }
 
   /**
