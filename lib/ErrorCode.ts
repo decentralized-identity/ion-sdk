@@ -2,22 +2,20 @@
  * ION SDK error codes.
  */
 export default {
-  IonDidDeltaExceedsMaximumSize: 'IonDidDeltaExceedsMaximumSize',
-  IonDidDocumentPublicKeyIdDuplicated: 'IonDidDocumentPublicKeyIdDuplicated',
-  IonDidDocumentPublicKeyMissingOrIncorrectType: 'IonDidDocumentPublicKeyMissingOrIncorrectType',
-  IonDidEs256kJwkHasUnexpectedProperty: 'IonDidEs256kJwkHasUnexpectedProperty',
-  IonDidEs256kJwkMissingOrInvalidCrv: 'IonDidEs256kJwkMissingOrInvalidCrv',
-  IonDidEs256kJwkMissingOrInvalidKty: 'IonDidEs256kJwkMissingOrInvalidKty',
-  IonDidEs256kJwkHasIncorrectLengthOfX: 'IonDidEs256kJwkHasIncorrectLengthOfX',
-  IonDidEs256kJwkHasIncorrectLengthOfY: 'IonDidEs256kJwkHasIncorrectLengthOfY',
-  IonDidServiceEndpointStringNotValidUrl: 'IonDidServiceEndpointStringNotValidUrl',
-  IonDidServiceEndpointValueCannotBeAnArray: 'IonDidServiceEndpointValueCannotBeAnArray',
-  IonDidServiceIdNotInBase64UrlCharacterSet: 'IonDidServiceIdNotInBase64UrlCharacterSet',
-  IonDidServiceIdTooLong: 'IonDidServiceIdTooLong',
-  IonDidServiceTypeTooLong: 'IonDidServiceTypeTooLong',
-  IonKeyIdNotUsingBase64UrlCharacterSet: 'IonKeyIdNotUsingBase64UrlCharacterSet',
-  IonKeyIdTooLong: 'IonKeyIdTooLong',
-  IonKeyPurposeDuplicated: 'IonKeyPurposeDuplicated',
-  IonKeyPurposeNotDefined: 'IonKeyPurposeNotDefined',
-  MultihashUnsupportedHashAlgorithm: 'MultihashUnsupportedHashAlgorithm'
+  DeltaExceedsMaximumSize: 'DeltaExceedsMaximumSize',
+  DidDocumentPublicKeyIdDuplicated: 'DidDocumentPublicKeyIdDuplicated',
+  DidDocumentPublicKeyMissingOrIncorrectType: 'DidDocumentPublicKeyMissingOrIncorrectType',
+  IdNotUsingBase64UrlCharacterSet: 'IdNotUsingBase64UrlCharacterSet',
+  IdTooLong: 'IdTooLong',
+  JwkEs256kMissingOrInvalidCrv: 'JwkEs256kMissingOrInvalidCrv',
+  JwkEs256kMissingOrInvalidKty: 'JwkEs256kMissingOrInvalidKty',
+  JwkEs256kHasIncorrectLengthOfX: 'JwkEs256kHasIncorrectLengthOfX',
+  JwkEs256kHasIncorrectLengthOfY: 'JwkEs256kHasIncorrectLengthOfY',
+  MultihashUnsupportedHashAlgorithm: 'MultihashUnsupportedHashAlgorithm',
+  PublicKeyJwkEs256kHasUnexpectedProperty: 'PublicKeyJwkEs256kHasUnexpectedProperty',
+  PublicKeyPurposeDuplicated: 'PublicKeyPurposeDuplicated',
+  PublicKeyPurposeNotDefined: 'PublicKeyPurposeNotDefined',
+  ServiceEndpointCannotBeAnArray: 'ServiceEndpointCannotBeAnArray',
+  ServiceEndpointStringNotValidUri: 'ServiceEndpointStringNotValidUri',
+  ServiceTypeTooLong: 'ServiceTypeTooLong'
 };

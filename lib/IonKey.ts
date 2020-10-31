@@ -1,6 +1,6 @@
+import InputValidator from './InputValidator';
 import IonPublicKeyModel from './models/IonPublicKeyModel';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
-import IonPublicKeyValidator from './IonPublicKeyValidator';
 import { JWK } from 'jose';
 import JwkEs256k from './models/JwkEs256k';
 
@@ -17,8 +17,8 @@ export default class IonKey {
     const id = input.id;
     const purposes = input.purposes;
 
-    IonPublicKeyValidator.validateId(id);
-    IonPublicKeyValidator.validatePurposes(purposes);
+    InputValidator.validateId(id);
+    InputValidator.validatePublicKeyPurposes(purposes);
 
     const [publicKey, privateKey] = await IonKey.generateEs256kKeyPair();
     const IonPublicKeyModel = {

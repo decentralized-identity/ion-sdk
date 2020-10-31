@@ -50,7 +50,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
-        ErrorCode.IonDidEs256kJwkHasUnexpectedProperty
+        ErrorCode.PublicKeyJwkEs256kHasUnexpectedProperty
       );
     });
 
@@ -61,7 +61,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
-        ErrorCode.IonDidEs256kJwkMissingOrInvalidCrv
+        ErrorCode.JwkEs256kMissingOrInvalidCrv
       );
     });
 
@@ -72,7 +72,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
-        ErrorCode.IonDidEs256kJwkMissingOrInvalidKty
+        ErrorCode.JwkEs256kMissingOrInvalidKty
       );
     });
 
@@ -83,7 +83,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
-        ErrorCode.IonDidEs256kJwkHasIncorrectLengthOfX
+        ErrorCode.JwkEs256kHasIncorrectLengthOfX
       );
     });
 
@@ -94,7 +94,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
-        ErrorCode.IonDidEs256kJwkHasIncorrectLengthOfY
+        ErrorCode.JwkEs256kHasIncorrectLengthOfY
       );
     });
 
@@ -106,7 +106,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [anyDidDocumentKey], services: [] }),
-        ErrorCode.IonDidDocumentPublicKeyMissingOrIncorrectType
+        ErrorCode.DidDocumentPublicKeyMissingOrIncorrectType
       );
     });
 
@@ -119,7 +119,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys, services: [] }),
-        ErrorCode.IonDidDocumentPublicKeyIdDuplicated
+        ErrorCode.DidDocumentPublicKeyIdDuplicated
       );
     });
 
@@ -131,7 +131,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [anyDidDocumentKey], services: [] }),
-        ErrorCode.IonKeyIdTooLong
+        ErrorCode.IdTooLong
       );
     });
 
@@ -147,7 +147,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
-        ErrorCode.IonDidServiceIdTooLong
+        ErrorCode.IdTooLong
       );
     });
 
@@ -163,7 +163,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
-        ErrorCode.IonDidServiceIdNotInBase64UrlCharacterSet
+        ErrorCode.IdNotUsingBase64UrlCharacterSet
       );
     });
 
@@ -179,7 +179,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
-        ErrorCode.IonDidServiceTypeTooLong
+        ErrorCode.ServiceTypeTooLong
       );
     });
 
@@ -195,7 +195,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
-        ErrorCode.IonDidServiceEndpointValueCannotBeAnArray
+        ErrorCode.ServiceEndpointCannotBeAnArray
       );
     });
 
@@ -226,7 +226,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
-        ErrorCode.IonDidServiceEndpointStringNotValidUrl
+        ErrorCode.ServiceEndpointStringNotValidUri
       );
     });
 
@@ -243,7 +243,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys, services: [] }),
-        ErrorCode.IonDidDeltaExceedsMaximumSize
+        ErrorCode.DeltaExceedsMaximumSize
       );
     });
   });
