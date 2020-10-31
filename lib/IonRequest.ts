@@ -1,6 +1,7 @@
 import * as URI from 'uri-js';
 import ErrorCode from './ErrorCode';
 import InputValidator from './InputValidator';
+import IonCreateRequestModel from './models/IonCreateRequestModel';
 import IonError from './IonError';
 import IonPublicKeyModel from './models/IonPublicKeyModel';
 import IonSdkConfig from './IonSdkConfig';
@@ -19,7 +20,7 @@ export default class IonRequest {
     updateKey: JwkEs256k;
     didDocumentKeys: IonPublicKeyModel[];
     services: IonServiceModel[];
-  }): object {
+  }): IonCreateRequestModel {
     const recoveryKey = input.recoveryKey;
     const updateKey = input.updateKey;
     const didDocumentKeys = input.didDocumentKeys;

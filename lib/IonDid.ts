@@ -22,9 +22,9 @@ export default class IonDid {
     didDocumentKeys: IonPublicKeyModel[];
     services: IonServiceModel[];
   }): string {
-    const createOperationRequest = IonRequest.createCreateRequest(input) as any;
+    const createRequest = IonRequest.createCreateRequest(input);
 
-    const didUniqueSuffix = IonDid.computeDidUniqueSuffix(createOperationRequest.suffixData);
+    const didUniqueSuffix = IonDid.computeDidUniqueSuffix(createRequest.suffixData);
 
     // Add the network portion if not configured for mainnet.
     let shortFormDid;
@@ -35,8 +35,8 @@ export default class IonDid {
     }
 
     const initialState = {
-      suffixData: createOperationRequest.suffixData,
-      delta: createOperationRequest.delta
+      suffixData: createRequest.suffixData,
+      delta: createRequest.delta
     };
 
     // Initial state must be canonicalized as per spec.
