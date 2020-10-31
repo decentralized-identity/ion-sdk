@@ -14,7 +14,6 @@ export default {
   MultihashUnsupportedHashAlgorithm: 'MultihashUnsupportedHashAlgorithm',
   PublicKeyJwkEs256kHasUnexpectedProperty: 'PublicKeyJwkEs256kHasUnexpectedProperty',
   PublicKeyPurposeDuplicated: 'PublicKeyPurposeDuplicated',
-  PublicKeyPurposeNotDefined: 'PublicKeyPurposeNotDefined',
   ServiceEndpointCannotBeAnArray: 'ServiceEndpointCannotBeAnArray',
   ServiceEndpointStringNotValidUri: 'ServiceEndpointStringNotValidUri',
   ServiceTypeTooLong: 'ServiceTypeTooLong'

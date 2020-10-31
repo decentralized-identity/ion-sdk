@@ -7,5 +7,5 @@ export default interface IonPublicKeyModel {
   id: string;
   type: string;
   publicKeyJwk: object;
-  purposes: IonPublicKeyPurpose[];
+  purposes?: IonPublicKeyPurpose[];
 };
