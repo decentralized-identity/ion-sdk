@@ -1,0 +1,154 @@
+import * as URI from 'uri-js';
+import ErrorCode from './ErrorCode';
+import InputValidator from './InputValidator';
+import IonError from './IonError';
+import IonPublicKeyModel from './models/IonPublicKeyModel';
+import IonSdkConfig from './IonSdkConfig';
+import IonServiceModel from './models/IonServiceModel';
+import JsonCanonicalizer from './JsonCanonicalizer';
+import JwkEs256k from './models/JwkEs256k';
+import Multihash from './Multihash';
+import OperationType from './enums/OperationType';
+
+/**
+ * Class containing operations related to ION requests.
+ */
+export default class IonRequest {
+  public static createCreateRequest (input: {
+    recoveryKey: JwkEs256k;
+    updateKey: JwkEs256k;
+    didDocumentKeys: IonPublicKeyModel[];
+    services: IonServiceModel[];
+  }): object {
+    const recoveryKey = input.recoveryKey;
+    const updateKey = input.updateKey;
+    const didDocumentKeys = input.didDocumentKeys;
+    const services = input.services;
+
+    // Validate recovery and update public keys.
+    IonRequest.validateEs256kOperationPublicKey(recoveryKey);
+    IonRequest.validateEs256kOperationPublicKey(updateKey);
+
+    // Validate all given DID Document keys.
+    IonRequest.validateDidDocumentKeys(didDocumentKeys);
+
+    // Validate all given service.
+    for (const service of services) {
+      IonRequest.validateService(service);
+    }
+
+    const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
+
+    const document = {
+      publicKeys: didDocumentKeys,
+      services
+    };
+
+    const patches = [{
+      action: 'replace',
+      document
+    }];
+
+    const delta = {
+      updateCommitment: Multihash.canonicalizeThenDoubleHashThenEncode(updateKey, hashAlgorithmInMultihashCode),
+      patches
+    };
+
+    IonRequest.validateDeltaSize(delta);
+
+    const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
+
+    const suffixData = {
+      deltaHash,
+      recoveryCommitment: Multihash.canonicalizeThenDoubleHashThenEncode(recoveryKey, hashAlgorithmInMultihashCode)
+    };
+
+    const operationRequest = {
+      type: OperationType.Create,
+      suffixData: suffixData,
+      delta: delta
+    };
+
+    return operationRequest;
+  }
+
+  /**
+   * Validates the schema of a ES256K JWK public key.
+   */
+  private static validateEs256kOperationPublicKey (publicKeyJwk: JwkEs256k) {
+    const allowedProperties = new Set(['kty', 'crv', 'x', 'y']);
+    for (const property in publicKeyJwk) {
+      if (!allowedProperties.has(property)) {
+        throw new IonError(ErrorCode.PublicKeyJwkEs256kHasUnexpectedProperty, `SECP256K1 JWK key has unexpected property '${property}'.`);
+      }
+    }
+
+    if (publicKeyJwk.crv !== 'secp256k1') {
+      throw new IonError(ErrorCode.JwkEs256kMissingOrInvalidCrv, `SECP256K1 JWK 'crv' property must be 'secp256k1' but got '${publicKeyJwk.crv}.'`);
+    }
+
+    if (publicKeyJwk.kty !== 'EC') {
+      throw new IonError(ErrorCode.JwkEs256kMissingOrInvalidKty, `SECP256K1 JWK 'kty' property must be 'EC' but got '${publicKeyJwk.kty}.'`);
+    }
+
+    // `x` and `y` need 43 Base64URL encoded bytes to contain 256 bits.
+    if (publicKeyJwk.x.length !== 43) {
+      throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfX, `SECP256K1 JWK 'x' property must be 43 bytes.`);
+    }
+
+    if (publicKeyJwk.y.length !== 43) {
+      throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfY, `SECP256K1 JWK 'y' property must be 43 bytes.`);
+    }
+  }
+
+  private static validateDidDocumentKeys (publicKeys: IonPublicKeyModel[]) {
+    // Validate each public key.
+    const publicKeyIdSet: Set<string> = new Set();
+    for (const publicKey of publicKeys) {
+      if (Array.isArray(publicKey.publicKeyJwk)) {
+        throw new IonError(ErrorCode.DidDocumentPublicKeyMissingOrIncorrectType, `DID Document key 'publicKeyJwk' property is not a non-array object.`);
+      }
+
+      InputValidator.validateId(publicKey.id);
+
+      // 'id' must be unique across all given keys.
+      if (publicKeyIdSet.has(publicKey.id)) {
+        throw new IonError(ErrorCode.DidDocumentPublicKeyIdDuplicated, `DID Document key with ID '${publicKey.id}' already exists.`);
+      }
+      publicKeyIdSet.add(publicKey.id);
+
+      InputValidator.validatePublicKeyPurposes(publicKey.purposes);
+    }
+  }
+
+  private static validateService (service: IonServiceModel) {
+    InputValidator.validateId(service.id);
+
+    const maxTypeLength = 30;
+    if (service.type.length > maxTypeLength) {
+      const errorMessage = `Service endpoint type length ${service.type.length} exceeds max allowed length of ${maxTypeLength}.`;
+      throw new IonError(ErrorCode.ServiceTypeTooLong, errorMessage);
+    }
+
+    // Throw error if `serviceEndpoint` is an array.
+    if (Array.isArray(service.serviceEndpoint)) {
+      const errorMessage = 'Service endpoint value cannot be an array.';
+      throw new IonError(ErrorCode.ServiceEndpointCannotBeAnArray, errorMessage);
+    }
+
+    if (typeof service.serviceEndpoint === 'string') {
+      const uri = URI.parse(service.serviceEndpoint);
+      if (uri.error !== undefined) {
+        throw new IonError(ErrorCode.ServiceEndpointStringNotValidUri, `Service endpoint string '${service.serviceEndpoint}' is not a URI.`);
+      }
+    }
+  }
+
+  private static validateDeltaSize (delta: object) {
+    const deltaBuffer = JsonCanonicalizer.canonicalizeAsBuffer(delta);
+    if (deltaBuffer.length > IonSdkConfig.maxCanonicalizedDeltaSizeInBytes) {
+      const errorMessage = `Delta of ${deltaBuffer.length} bytes exceeded limit of ${IonSdkConfig.maxCanonicalizedDeltaSizeInBytes} bytes.`;
+      throw new IonError(ErrorCode.DeltaExceedsMaximumSize, errorMessage);
+    }
+  }
+}
