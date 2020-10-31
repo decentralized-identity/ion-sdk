@@ -24,9 +24,10 @@ export default class InputValidator {
   /**
    * Validates the given public key purposes.
    */
-  public static validatePublicKeyPurposes (purposes: IonPublicKeyPurpose[]) {
-    if (purposes.length === 0) {
-      throw new IonError(ErrorCode.PublicKeyPurposeNotDefined, `Public key 'purpose' is not defined.`);
+  public static validatePublicKeyPurposes (purposes?: IonPublicKeyPurpose[]) {
+    // Nothing to validate if `purposes` is undefined.
+    if (purposes === undefined) {
+      return;
     }
 
     // Validate that all purposes are be unique.

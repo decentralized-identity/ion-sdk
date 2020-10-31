@@ -60,11 +60,14 @@ describe('IonKey', async () => {
       );
     });
 
-    it('should throw error if given DID Document key does not have a purpose defined.', async () => {
-      await JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
-        async () => IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [] }),
-        ErrorCode.PublicKeyPurposeNotDefined
-      );
+    it('should allow DID Document key to not have a purpose defined.', async () => {
+      const [publicKeyModel1] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'id1', purposes: [] });
+      expect(publicKeyModel1.id).toEqual('id1');
+      expect(publicKeyModel1.purposes).toBeUndefined();
+
+      const [publicKeyModel2] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'id2' });
+      expect(publicKeyModel2.id).toEqual('id2');
+      expect(publicKeyModel2.purposes).toBeUndefined();
     });
 
     it('should throw error if given DID Document key has duplicated purposes.', async () => {

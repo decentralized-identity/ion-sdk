@@ -13,7 +13,7 @@ export default class IonKey {
    * Mainly used for testing.
    * @returns [publicKey, privateKey]
    */
-  public static async generateEs256kDidDocumentKeyPair (input: { id: string, purposes: IonPublicKeyPurpose[] }): Promise<[IonPublicKeyModel, JwkEs256k]> {
+  public static async generateEs256kDidDocumentKeyPair (input: { id: string, purposes?: IonPublicKeyPurpose[] }): Promise<[IonPublicKeyModel, JwkEs256k]> {
     const id = input.id;
     const purposes = input.purposes;
 
@@ -21,14 +21,18 @@ export default class IonKey {
     InputValidator.validatePublicKeyPurposes(purposes);
 
     const [publicKey, privateKey] = await IonKey.generateEs256kKeyPair();
-    const IonPublicKeyModel = {
+    const publicKeyModel: IonPublicKeyModel = {
       id,
       type: 'EcdsaSecp256k1VerificationKey2019',
-      publicKeyJwk: publicKey,
-      purposes
+      publicKeyJwk: publicKey
     };
 
-    return [IonPublicKeyModel, privateKey];
+    // Only add the `purposes` property If given `purposes` array has at least an entry.
+    if (purposes !== undefined && purposes.length > 0) {
+      publicKeyModel.purposes = purposes;
+    }
+
+    return [publicKeyModel, privateKey];
   }
 
   /**
