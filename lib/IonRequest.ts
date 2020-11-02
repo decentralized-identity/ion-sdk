@@ -2,6 +2,7 @@ import * as URI from 'uri-js';
 import ErrorCode from './ErrorCode';
 import InputValidator from './InputValidator';
 import IonCreateRequestModel from './models/IonCreateRequestModel';
+import IonDocumentModel from './models/IonDocumentModel';
 import IonError from './IonError';
 import IonPublicKeyModel from './models/IonPublicKeyModel';
 import IonSdkConfig from './IonSdkConfig';
@@ -15,16 +16,19 @@ import OperationType from './enums/OperationType';
  * Class containing operations related to ION requests.
  */
 export default class IonRequest {
+  /**
+   * Creates an ION DID create request.
+   * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
+   */
   public static createCreateRequest (input: {
     recoveryKey: JwkEs256k;
     updateKey: JwkEs256k;
-    didDocumentKeys: IonPublicKeyModel[];
-    services: IonServiceModel[];
+    document: IonDocumentModel;
   }): IonCreateRequestModel {
     const recoveryKey = input.recoveryKey;
     const updateKey = input.updateKey;
-    const didDocumentKeys = input.didDocumentKeys;
-    const services = input.services;
+    const didDocumentKeys = input.document.publicKeys;
+    const services = input.document.services;
 
     // Validate recovery and update public keys.
     IonRequest.validateEs256kOperationPublicKey(recoveryKey);
@@ -34,8 +38,10 @@ export default class IonRequest {
     IonRequest.validateDidDocumentKeys(didDocumentKeys);
 
     // Validate all given service.
-    for (const service of services) {
-      IonRequest.validateService(service);
+    if (services !== undefined) {
+      for (const service of services) {
+        IonRequest.validateService(service);
+      }
     }
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
@@ -102,7 +108,11 @@ export default class IonRequest {
     }
   }
 
-  private static validateDidDocumentKeys (publicKeys: IonPublicKeyModel[]) {
+  private static validateDidDocumentKeys (publicKeys?: IonPublicKeyModel[]) {
+    if (publicKeys === undefined) {
+      return;
+    }
+
     // Validate each public key.
     const publicKeyIdSet: Set<string> = new Set();
     for (const publicKey of publicKeys) {
