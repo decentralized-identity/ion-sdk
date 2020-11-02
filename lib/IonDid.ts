@@ -1,8 +1,7 @@
 import Encoder from './Encoder';
-import IonPublicKeyModel from './models/IonPublicKeyModel';
+import IonDocumentModel from './models/IonDocumentModel';
 import IonRequest from './IonRequest';
 import IonSdkConfig from './IonSdkConfig';
-import IonServiceModel from './models/IonServiceModel';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
@@ -13,14 +12,12 @@ import Multihash from './Multihash';
 export default class IonDid {
   /**
    * Creates a long-form DID.
-   * @param didDocumentKeys Public keys to be included in the resolved DID Document.
-   * @param services Services to be included in the resolved DID Document.
+   * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
    */
   public static createLongFormDid (input: {
     recoveryKey: JwkEs256k;
     updateKey: JwkEs256k;
-    didDocumentKeys: IonPublicKeyModel[];
-    services: IonServiceModel[];
+    document: IonDocumentModel;
   }): string {
     const createRequest = IonRequest.createCreateRequest(input);
 

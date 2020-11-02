@@ -18,7 +18,12 @@ describe('IonDid', async () => {
       const didDocumentKeys = [publicKeyModel1 as any];
       const services = [service1];
 
-      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys, services });
+      const document = {
+        publicKeys: didDocumentKeys,
+        services
+      };
+
+      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document });
 
       const expectedMethodSpecificId = 'did:ion:EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJwdWJsaWNLZXlNb2RlbDFJZCIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJ0WFNLQl9ydWJYUzdzQ2pYcXVwVkpFelRjVzNNc2ptRXZxMVlwWG45NlpnIiwieSI6ImRPaWNYcWJqRnhvR0otSzAtR0oxa0hZSnFpY19EX09NdVV3a1E3T2w2bmsifSwicHVycG9zZXMiOlsiYXV0aGVudGljYXRpb24iLCJrZXlBZ3JlZW1lbnQiXSwidHlwZSI6IkVjZHNhU2VjcDI1NmsxVmVyaWZpY2F0aW9uS2V5MjAxOSJ9XSwic2VydmljZXMiOlt7ImlkIjoic2VydmljZTFJZCIsInNlcnZpY2VFbmRwb2ludCI6Imh0dHA6Ly93d3cuc2VydmljZTEuY29tIiwidHlwZSI6InNlcnZpY2UxVHlwZSJ9XX19XSwidXBkYXRlQ29tbWl0bWVudCI6IkVpREtJa3dxTzY5SVBHM3BPbEhrZGI4Nm5ZdDBhTnhTSFp1MnItYmhFem5qZEEifSwic3VmZml4RGF0YSI6eyJkZWx0YUhhc2giOiJFaUNmRFdSbllsY0Q5RUdBM2RfNVoxQUh1LWlZcU1iSjluZmlxZHo1UzhWRGJnIiwicmVjb3ZlcnlDb21taXRtZW50IjoiRWlCZk9aZE10VTZPQnc4UGs4NzlRdFotMkotOUZiYmpTWnlvYUFfYnFENHpoQSJ9fQ';
       expect(longFormDid).toEqual(expectedMethodSpecificId);
@@ -28,7 +33,7 @@ describe('IonDid', async () => {
       IonSdkConfig.network = 'mainnet';
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
-      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] });
+      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } });
       expect(longFormDid.indexOf('mainnet')).toBeLessThan(0);
     });
 
@@ -36,7 +41,7 @@ describe('IonDid', async () => {
       IonSdkConfig.network = 'testnet';
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
-      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] });
+      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } });
 
       const didSegments = longFormDid.split(':');
       expect(didSegments.length).toEqual(5);
@@ -49,7 +54,7 @@ describe('IonDid', async () => {
       updateKey.d = 'notAllowedPropertyInPublicKey'; // 'd' is only allowed in private key.
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } }),
         ErrorCode.PublicKeyJwkEs256kHasUnexpectedProperty
       );
     });
@@ -60,7 +65,7 @@ describe('IonDid', async () => {
       updateKey.crv = 'wrongValue';
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } }),
         ErrorCode.JwkEs256kMissingOrInvalidCrv
       );
     });
@@ -71,7 +76,7 @@ describe('IonDid', async () => {
       updateKey.kty = 'wrongValue';
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } }),
         ErrorCode.JwkEs256kMissingOrInvalidKty
       );
     });
@@ -82,7 +87,7 @@ describe('IonDid', async () => {
       updateKey.x = 'wrongValueLength';
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } }),
         ErrorCode.JwkEs256kHasIncorrectLengthOfX
       );
     });
@@ -93,7 +98,7 @@ describe('IonDid', async () => {
       updateKey.y = 'wrongValueLength';
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } }),
         ErrorCode.JwkEs256kHasIncorrectLengthOfY
       );
     });
@@ -104,8 +109,10 @@ describe('IonDid', async () => {
       const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
       anyDidDocumentKey.publicKeyJwk = ['invalid object type'];
 
+      const document = { publicKeys: [anyDidDocumentKey] };
+
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [anyDidDocumentKey], services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.DidDocumentPublicKeyMissingOrIncorrectType
       );
     });
@@ -117,8 +124,10 @@ describe('IonDid', async () => {
       const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] }); // Key ID duplicate.
       const didDocumentKeys = [anyDidDocumentKey1, anyDidDocumentKey2];
 
+      const document = { publicKeys: didDocumentKeys };
+
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys, services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.DidDocumentPublicKeyIdDuplicated
       );
     });
@@ -129,8 +138,10 @@ describe('IonDid', async () => {
       const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
       anyDidDocumentKey.id = 'superDuperLongDidDocumentKeyIdentifierThatExceedsMaximumLength'; // Overwrite with super long string.
 
+      const document = { publicKeys: [anyDidDocumentKey] };
+
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [anyDidDocumentKey], services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.IdTooLong
       );
     });
@@ -145,8 +156,10 @@ describe('IonDid', async () => {
         serviceEndpoint: 'http://any.endpoint'
       }];
 
+      const document = { services };
+
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.IdTooLong
       );
     });
@@ -161,8 +174,10 @@ describe('IonDid', async () => {
         serviceEndpoint: 'http://any.endpoint'
       }];
 
+      const document = { services };
+
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.IdNotUsingBase64UrlCharacterSet
       );
     });
@@ -177,8 +192,10 @@ describe('IonDid', async () => {
         serviceEndpoint: 'http://any.endpoint'
       }];
 
+      const document = { services };
+
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.ServiceTypeTooLong
       );
     });
@@ -187,14 +204,16 @@ describe('IonDid', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
-      const services = [{
-        id: 'anyId',
-        type: 'anyType',
-        serviceEndpoint: []
-      }];
+      const document = {
+        services: [{
+          id: 'anyId',
+          type: 'anyType',
+          serviceEndpoint: []
+        }]
+      };
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.ServiceEndpointCannotBeAnArray
       );
     });
@@ -203,13 +222,15 @@ describe('IonDid', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
-      const services = [{
-        id: 'anyId',
-        type: 'anyType',
-        serviceEndpoint: { value: 'someValue' } // `object` based endpoint value.
-      }];
+      const document = {
+        services: [{
+          id: 'anyId',
+          type: 'anyType',
+          serviceEndpoint: { value: 'someValue' } // `object` based endpoint value.
+        }]
+      };
 
-      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services });
+      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document });
 
       expect(longFormDid).toBeDefined();
     });
@@ -218,14 +239,16 @@ describe('IonDid', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
-      const services = [{
-        id: 'anyId',
-        type: 'anyType',
-        serviceEndpoint: 'http://' // Invalid URI.
-      }];
+      const document = {
+        services: [{
+          id: 'anyId',
+          type: 'anyType',
+          serviceEndpoint: 'http://' // Invalid URI.
+        }]
+      };
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys: [], services }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.ServiceEndpointStringNotValidUri
       );
     });
@@ -240,9 +263,12 @@ describe('IonDid', async () => {
       const [anyDidDocumentKey3] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId3', purposes: [IonPublicKeyPurpose.Authentication] });
       const [anyDidDocumentKey4] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId4', purposes: [IonPublicKeyPurpose.Authentication] });
       const didDocumentKeys = [anyDidDocumentKey1, anyDidDocumentKey2, anyDidDocumentKey3, anyDidDocumentKey4];
+      const document = {
+        publicKeys: didDocumentKeys
+      };
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
-        () => IonDid.createLongFormDid({ recoveryKey, updateKey, didDocumentKeys, services: [] }),
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.DeltaExceedsMaximumSize
       );
     });
