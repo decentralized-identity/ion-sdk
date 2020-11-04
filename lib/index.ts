@@ -4,6 +4,7 @@
 import IonDid from './IonDid';
 import IonKey from './IonKey';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
+import IonRequest from './IonRequest';
 import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
 
@@ -12,5 +13,6 @@ export {
   IonDid,
   IonKey,
   IonSdkConfig,
-  IonServiceModel
+  IonServiceModel,
+  IonRequest
 };
