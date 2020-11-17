@@ -46,14 +46,9 @@ export default class IonRequest {
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
 
-    const document = {
-      publicKeys: didDocumentKeys,
-      services
-    };
-
     const patches = [{
       action: 'replace',
-      document
+      document: input.document
     }];
 
     const delta = {

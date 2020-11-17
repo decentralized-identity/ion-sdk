@@ -1,6 +1,6 @@
 {
   "name": "@decentralized-identity/ion-sdk",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "TypeScript SDK for ION",
   "repository": "https://github.com/decentralized-identity/ion-sdk",
   "license": "Apache-2.0",
