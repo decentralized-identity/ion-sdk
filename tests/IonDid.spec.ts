@@ -4,7 +4,10 @@ import * as publicKeyModel1 from './vectors/inputs/publicKeyModel1.json';
 import * as service1 from './vectors/inputs/service1.json';
 import { IonDid, IonKey, IonPublicKeyPurpose, IonSdkConfig } from '../lib/index';
 import ErrorCode from '../lib/ErrorCode';
+import IonDocumentModel from '../lib/models/IonDocumentModel';
+import IonNetwork from '../lib/enums/IonNetwork';
 import JasmineIonErrorValidator from './JasmineIonErrorValidator';
+import base64url from 'base64url';
 
 describe('IonDid', async () => {
   afterEach(() => {
@@ -29,23 +32,42 @@ describe('IonDid', async () => {
       expect(longFormDid).toEqual(expectedMethodSpecificId);
     });
 
+    it('should not generate invalid JSON when `services` and/or `publicKeys` in given document are `undefined`.', async () => {
+      const recoveryKey = jwkEs256k1Public;
+      const updateKey = jwkEs256k2Public;
+
+      const document: IonDocumentModel = {
+        publicKeys: undefined,
+        services: undefined
+      };
+
+      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document });
+
+      const indexOfLastColon = longFormDid.lastIndexOf(':');
+      const encodedInitialState = longFormDid.substring(indexOfLastColon + 1);
+
+      // Making sure the encoded initial state is still parsable as JSON.
+      const initialState = base64url.decode(encodedInitialState);
+      JSON.parse(initialState);
+    });
+
     it('should not include network segment in DID if SDK network is set to mainnet.', async () => {
-      IonSdkConfig.network = 'mainnet';
+      IonSdkConfig.network = IonNetwork.Mainnet;
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } });
       expect(longFormDid.indexOf('mainnet')).toBeLessThan(0);
     });
 
-    it('should include network segment in DID if SDK network is set to a string that is not mainnet.', async () => {
-      IonSdkConfig.network = 'testnet';
+    it('should include network segment as "test" in DID if SDK network testnet.', async () => {
+      IonSdkConfig.network = IonNetwork.Testnet;
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } });
 
       const didSegments = longFormDid.split(':');
       expect(didSegments.length).toEqual(5);
-      expect(didSegments[2]).toEqual('testnet');
+      expect(didSegments[2]).toEqual('test');
     });
 
     it('should throw error if given operation key contains unexpected property.', async () => {
