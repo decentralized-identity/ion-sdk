@@ -39,8 +39,13 @@ export default class IonRequest {
 
     // Validate all given service.
     if (services !== undefined) {
+      const serviceIdSet: Set<string> = new Set();
       for (const service of services) {
         IonRequest.validateService(service);
+        if (serviceIdSet.has(service.id)) {
+          throw new IonError(ErrorCode.DidDocumentServiceIdDuplicated, 'Service id has to be unique');
+        }
+        serviceIdSet.add(service.id);
       }
     }
 
