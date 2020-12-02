@@ -186,6 +186,31 @@ describe('IonDid', async () => {
       );
     });
 
+    it('should throw error if given service endpoint ID is a duplicate.', async () => {
+      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const updateKey = recoveryKey;
+
+      const services = [
+        {
+          id: 'id',
+          type: 'anyType',
+          serviceEndpoint: 'http://any.endpoint'
+        },
+        {
+          id: 'id',
+          type: 'otherType',
+          serviceEndpoint: 'http://any.other.endpoint'
+        }
+      ];
+
+      const document = { services };
+
+      JasmineIonErrorValidator.expectIonErrorToBeThrown(
+        () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
+        ErrorCode.DidDocumentServiceIdDuplicated
+      );
+    });
+
     it('should throw error if given service endpoint ID is not using Base64URL characters', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;

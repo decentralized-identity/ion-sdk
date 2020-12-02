@@ -5,6 +5,7 @@ export default {
   DeltaExceedsMaximumSize: 'DeltaExceedsMaximumSize',
   DidDocumentPublicKeyIdDuplicated: 'DidDocumentPublicKeyIdDuplicated',
   DidDocumentPublicKeyMissingOrIncorrectType: 'DidDocumentPublicKeyMissingOrIncorrectType',
+  DidDocumentServiceIdDuplicated: 'DidDocumentServiceIdDuplicated',
   IdNotUsingBase64UrlCharacterSet: 'IdNotUsingBase64UrlCharacterSet',
   IdTooLong: 'IdTooLong',
   JwkEs256kMissingOrInvalidCrv: 'JwkEs256kMissingOrInvalidCrv',
