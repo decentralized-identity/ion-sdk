@@ -1,4 +1,4 @@
-import { b64fromBuffer, b64urlEncode, b64toURLSafe } from '@waiting/base64';
+import { b64fromBuffer, b64toURLSafe, b64urlEncode } from '@waiting/base64';
 
 /**
  * Class that encodes binary blobs into strings.

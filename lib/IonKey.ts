@@ -47,10 +47,10 @@ export default class IonKey {
 
   private static async generateEs256kKeyPair (): Promise<[JwkEs256k, JwkEs256k]> {
     const keyPair = await secp256k1.Secp256k1KeyPair.generate({
-      secureRandom: () => randomBytes(32),
+      secureRandom: () => randomBytes(32)
     });
     const { publicKeyJwk, privateKeyJwk } = await keyPair.toJsonWebKeyPair(true);
-    
+
     return [publicKeyJwk, privateKeyJwk];
   }
 }
