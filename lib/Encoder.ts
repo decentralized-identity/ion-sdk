@@ -1,4 +1,4 @@
-import base64url from 'base64url';
+import { b64fromBuffer, b64urlEncode, b64toURLSafe } from '@waiting/base64';
 
 /**
  * Class that encodes binary blobs into strings.
@@ -9,7 +9,7 @@ export default class Encoder {
    * Encodes given Buffer into a Base64URL string.
    */
   public static encode (content: Buffer | string): string {
-    const encodedContent = base64url.encode(content);
+    const encodedContent = b64toURLSafe(content instanceof Buffer ? b64fromBuffer(content) : b64urlEncode(content));
     return encodedContent;
   }
 

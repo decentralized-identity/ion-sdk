@@ -7,15 +7,16 @@
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "dependencies": {
-    "base64url": "3.0.1",
+    "@transmute/did-key-secp256k1": "^0.2.1-unstable.35",
+    "@waiting/base64": "4.2.9",
     "canonicalize": "1.0.1",
-    "jose": "2.0.2",
     "multihashes": "0.4.14",
-    "uri-js": "4.4.0"
+    "uri-js": "4.4.0",
+    "randombytes": "2.1.0"
   },
   "devDependencies": {
     "@types/jasmine": "3.3.12",
-    "@types/node": "11.13.4",
+    "@types/node": "^11.13.4",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "@typescript-eslint/parser": "^4.3.0",
     "copyfiles": "2.3.0",
