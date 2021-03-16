@@ -1,8 +1,9 @@
 import InputValidator from './InputValidator';
 import IonPublicKeyModel from './models/IonPublicKeyModel';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
-import { JWK } from 'jose';
 import JwkEs256k from './models/JwkEs256k';
+const randomBytes = require('randombytes');
+const secp256k1 = require('@transmute/did-key-secp256k1');
 
 /**
  * Class containing operations related to keys used in ION.
@@ -45,18 +46,11 @@ export default class IonKey {
   }
 
   private static async generateEs256kKeyPair (): Promise<[JwkEs256k, JwkEs256k]> {
-    const keyPair = await JWK.generate('EC', 'secp256k1');
-    const publicKeyInternal = keyPair.toJWK();
+    const keyPair = await secp256k1.Secp256k1KeyPair.generate({
+      secureRandom: () => randomBytes(32)
+    });
+    const { publicKeyJwk, privateKeyJwk } = await keyPair.toJsonWebKeyPair(true);
 
-    // Remove the auto-populated `kid` field.
-    const publicKey = {
-      kty: publicKeyInternal.kty,
-      crv: publicKeyInternal.crv,
-      x: publicKeyInternal.x,
-      y: publicKeyInternal.y
-    };
-
-    const privateKey = Object.assign({ d: keyPair.d }, publicKey);
-    return [publicKey, privateKey];
+    return [publicKeyJwk, privateKeyJwk];
   }
 }

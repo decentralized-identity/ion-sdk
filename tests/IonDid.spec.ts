@@ -7,7 +7,7 @@ import ErrorCode from '../lib/ErrorCode';
 import IonDocumentModel from '../lib/models/IonDocumentModel';
 import IonNetwork from '../lib/enums/IonNetwork';
 import JasmineIonErrorValidator from './JasmineIonErrorValidator';
-import base64url from 'base64url';
+import { b64urlDecode } from '@waiting/base64';
 
 describe('IonDid', async () => {
   afterEach(() => {
@@ -47,7 +47,7 @@ describe('IonDid', async () => {
       const encodedInitialState = longFormDid.substring(indexOfLastColon + 1);
 
       // Making sure the encoded initial state is still parsable as JSON.
-      const initialState = base64url.decode(encodedInitialState);
+      const initialState = b64urlDecode(encodedInitialState);
       JSON.parse(initialState);
     });
 
