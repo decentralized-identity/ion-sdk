@@ -45,8 +45,8 @@
     "typescript": "3.9.6"
   },
   "scripts": {
-    "build": "tsc && copyfiles \"lib/**/*.json\" dist && copyfiles \"tests/**/*.js*\" dist && copyfiles \"package.json\" dist",
-    "browserify": "npm run build && npx browserify -p esmify ./dist/lib/index.js --standalone RawIonSdk > dist/raw-sdk.js",
+    "build": "tsc && copyfiles \"lib/**/*.json\" dist && copyfiles \"tests/**/*.js*\" dist && copyfiles \"package.json\" dist && npm run wrap",
+    "browserify": "npx browserify -p esmify ./dist/lib/index.js --standalone RawIonSdk > dist/raw-sdk.js",
     "wrap": "npm run browserify && gulp compile",
     "test": "npm run build && nyc jasmine --config=./tests/jasmine.json",
     "lint": "eslint --ext ts lib/ tests/",
