@@ -1,6 +1,6 @@
 dist/
-!dist/ion.js
-!dist/raw-sdk.js
+!*/dist/ion.js
+!*/dist/raw-sdk.js
 node_modules/
 nunitresults.xml
 
