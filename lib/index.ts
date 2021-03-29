@@ -10,6 +10,7 @@ import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
 import IonRequest from './IonRequest';
 import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
+import IonSignature from './IonSignature';
 import JwkEs256k from './models/JwkEs256k';
 
 export {
@@ -21,6 +22,7 @@ export {
   IonPublicKeyPurpose,
   IonSdkConfig,
   IonServiceModel,
+  IonSignature,
   IonRequest,
   JwkEs256k
 };
