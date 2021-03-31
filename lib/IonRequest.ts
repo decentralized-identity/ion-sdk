@@ -11,6 +11,8 @@ import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
 import OperationType from './enums/OperationType';
+import PatchAction from './enums/PatchAction';
+const secp256k1 = require('@transmute/did-key-secp256k1');
 
 /**
  * Class containing operations related to ION requests.
@@ -77,6 +79,74 @@ export default class IonRequest {
     };
 
     return operationRequest;
+  }
+
+  public static async createUpdateRequest (input: {
+    didSuffix: string;
+    updatePrivateKey: JwkEs256k;
+    nextUpdatePublicKey: JwkEs256k;
+    servicesToAdd?: any[];
+    idsOfServicesToRemove?: string[];
+  }): Promise<object> {
+    const servicesToAdd = input.servicesToAdd;
+    const idsOfServicesToRemove = input.idsOfServicesToRemove;
+
+    const patches = [];
+
+    if (servicesToAdd !== undefined && servicesToAdd.length > 0) {
+      const patch = {
+        action: PatchAction.AddServices,
+        services: servicesToAdd
+      };
+
+      patches.push(patch);
+    }
+
+    if (idsOfServicesToRemove !== undefined && idsOfServicesToRemove.length > 0) {
+      const patch = {
+        action: PatchAction.RemoveServices,
+        ids: idsOfServicesToRemove
+      };
+
+      patches.push(patch);
+    }
+
+    const updatePublicKey = {
+      crv: input.updatePrivateKey.crv,
+      kty: input.updatePrivateKey.kty,
+      x: input.updatePrivateKey.x,
+      y: input.updatePrivateKey.y,
+    };
+
+    const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
+    const revealValue = Multihash.canonicalizeThenHashThenEncode(updatePublicKey, hashAlgorithmInMultihashCode);
+
+    const nextUpdateCommitmentHash = Multihash.canonicalizeThenDoubleHashThenEncode(input.nextUpdatePublicKey, hashAlgorithmInMultihashCode);
+    const delta = {
+      patches,
+      updateCommitment: nextUpdateCommitmentHash
+    };
+    const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
+
+    const signedDataPayloadObject = {
+      updateKey: updatePublicKey,
+      deltaHash: deltaHash
+    };
+    const compactJws = await secp256k1.ES256K.sign(
+      signedDataPayloadObject,
+      input.updatePrivateKey,
+      { alg: 'ES256K' }
+    );
+
+    const updateOperationRequest = {
+      type: OperationType.Update,
+      didSuffix: input.didSuffix,
+      revealValue,
+      delta,
+      signedData: compactJws
+    };
+
+    return updateOperationRequest;
   }
 
   /**
