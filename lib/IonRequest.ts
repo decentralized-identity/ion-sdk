@@ -40,16 +40,7 @@ export default class IonRequest {
     IonRequest.validateDidDocumentKeys(didDocumentKeys);
 
     // Validate all given service.
-    if (services !== undefined) {
-      const serviceIdSet: Set<string> = new Set();
-      for (const service of services) {
-        IonRequest.validateService(service);
-        if (serviceIdSet.has(service.id)) {
-          throw new IonError(ErrorCode.DidDocumentServiceIdDuplicated, 'Service id has to be unique');
-        }
-        serviceIdSet.add(service.id);
-      }
-    }
+    IonRequest.validateServices(services);
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
 
@@ -81,18 +72,76 @@ export default class IonRequest {
     return operationRequest;
   }
 
+  public static async createRecoverRequest (input: {
+    didSuffix: string,
+    recoveryPrivateKey: JwkEs256k,
+    nextRecoveryPublicKey: JwkEs256k,
+    nextUpdatePublicKey: JwkEs256k,
+    document: IonDocumentModel
+  }): Promise<any> {
+    // Validate all given DID Document keys.
+    IonRequest.validateDidDocumentKeys(input.document.publicKeys);
+
+    // Validate all given service.
+    IonRequest.validateServices(input.document.services);
+
+    const recoveryPublicKey = {
+      crv: input.recoveryPrivateKey.crv,
+      kty: input.recoveryPrivateKey.kty,
+      x: input.recoveryPrivateKey.x,
+      y: input.recoveryPrivateKey.y
+    };
+
+    const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
+    const revealValue = Multihash.canonicalizeThenHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode);
+
+    const patches = [{
+      action: 'replace',
+      document: input.document
+    }];
+
+    const nextUpdateCommitmentHash = Multihash.canonicalizeThenDoubleHashThenEncode(input.nextUpdatePublicKey, hashAlgorithmInMultihashCode);
+    const delta = {
+      patches,
+      updateCommitment: nextUpdateCommitmentHash
+    };
+
+    const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
+    const nextRecoveryCommitmentHash = Multihash.canonicalizeThenDoubleHashThenEncode(input.nextRecoveryPublicKey, hashAlgorithmInMultihashCode);
+
+    const signedDataPayloadObject = {
+      recoveryCommitment: nextRecoveryCommitmentHash,
+      recoveryKey: recoveryPublicKey,
+      deltaHash: deltaHash
+    };
+
+    const compactJws = await secp256k1.ES256K.sign(
+      signedDataPayloadObject,
+      input.recoveryPrivateKey,
+      { alg: 'ES256K' }
+    );
+
+    return {
+      type: OperationType.Recover,
+      didSuffix: input.didSuffix,
+      revealValue: revealValue,
+      delta: delta,
+      signedData: compactJws
+    };
+  }
+
   public static async createUpdateRequest (input: {
     didSuffix: string;
     updatePrivateKey: JwkEs256k;
     nextUpdatePublicKey: JwkEs256k;
     servicesToAdd?: any[];
     idsOfServicesToRemove?: string[];
+    publicKeysToAdd?: any[];
+    idsOfPublicKeysToRemove?:any[];
   }): Promise<object> {
-    const servicesToAdd = input.servicesToAdd;
-    const idsOfServicesToRemove = input.idsOfServicesToRemove;
-
     const patches = [];
-
+    // Create patches for add services
+    const servicesToAdd = input.servicesToAdd;
     if (servicesToAdd !== undefined && servicesToAdd.length > 0) {
       const patch = {
         action: PatchAction.AddServices,
@@ -102,6 +151,8 @@ export default class IonRequest {
       patches.push(patch);
     }
 
+    // Create patches for remove services
+    const idsOfServicesToRemove = input.idsOfServicesToRemove;
     if (idsOfServicesToRemove !== undefined && idsOfServicesToRemove.length > 0) {
       const patch = {
         action: PatchAction.RemoveServices,
@@ -111,11 +162,33 @@ export default class IonRequest {
       patches.push(patch);
     }
 
+    // Create patches for adding public keys
+    const publicKeysToAdd = input.publicKeysToAdd;
+    if (publicKeysToAdd !== undefined && publicKeysToAdd.length > 0) {
+      const patch = {
+        action: PatchAction.AddPublicKeys,
+        publicKeys: publicKeysToAdd
+      };
+
+      patches.push(patch);
+    }
+
+    // Create patch for removing public keys
+    const idsOfPublicKeysToRemove = input.idsOfPublicKeysToRemove;
+    if (idsOfPublicKeysToRemove !== undefined && idsOfPublicKeysToRemove.length > 0) {
+      const patch = {
+        action: PatchAction.RemovePublicKeys,
+        ids: idsOfPublicKeysToRemove
+      };
+
+      patches.push(patch);
+    }
+
     const updatePublicKey = {
       crv: input.updatePrivateKey.crv,
       kty: input.updatePrivateKey.kty,
       x: input.updatePrivateKey.x,
-      y: input.updatePrivateKey.y,
+      y: input.updatePrivateKey.y
     };
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
@@ -199,6 +272,19 @@ export default class IonRequest {
       publicKeyIdSet.add(publicKey.id);
 
       InputValidator.validatePublicKeyPurposes(publicKey.purposes);
+    }
+  }
+
+  private static validateServices (services?: IonServiceModel[]) {
+    if (services !== undefined && services.length !== 0) {
+      const serviceIdSet: Set<string> = new Set();
+      for (const service of services) {
+        IonRequest.validateService(service);
+        if (serviceIdSet.has(service.id)) {
+          throw new IonError(ErrorCode.DidDocumentServiceIdDuplicated, 'Service id has to be unique');
+        }
+        serviceIdSet.add(service.id);
+      }
     }
   }
 
