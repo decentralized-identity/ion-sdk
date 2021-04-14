@@ -72,6 +72,39 @@ export default class IonRequest {
     return operationRequest;
   }
 
+  public static async createDeactivateRequest (input: {
+    didSuffix: string,
+    recoveryPrivateKey: JwkEs256k
+  }): Promise<any> {
+    const recoveryPublicKey = {
+      crv: input.recoveryPrivateKey.crv,
+      kty: input.recoveryPrivateKey.kty,
+      x: input.recoveryPrivateKey.x,
+      y: input.recoveryPrivateKey.y
+    };
+
+    const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
+    const revealValue = Multihash.canonicalizeThenHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode);
+
+    const signedDataPayloadObject = {
+      didSuffix: input.didSuffix,
+      recoveryKey: recoveryPublicKey
+    };
+
+    const compactJws = await secp256k1.ES256K.sign(
+      signedDataPayloadObject,
+      input.recoveryPrivateKey,
+      { alg: 'ES256K' }
+    );
+
+    return {
+      type: OperationType.Deactivate,
+      didSuffix: input.didSuffix,
+      revealValue: revealValue,
+      signedData: compactJws
+    };
+  }
+
   public static async createRecoverRequest (input: {
     didSuffix: string,
     recoveryPrivateKey: JwkEs256k,
