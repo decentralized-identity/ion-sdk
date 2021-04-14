@@ -2,11 +2,14 @@ import * as URI from 'uri-js';
 import ErrorCode from './ErrorCode';
 import InputValidator from './InputValidator';
 import IonCreateRequestModel from './models/IonCreateRequestModel';
+import IonDeactivateRequestModel from './models/IonDeactivateRequestModel';
 import IonDocumentModel from './models/IonDocumentModel';
 import IonError from './IonError';
 import IonPublicKeyModel from './models/IonPublicKeyModel';
+import IonRecoverRequestModel from './models/IonRecoverRequestModel';
 import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
+import IonUpdateRequestModel from './models/IonUpdateRequestModel';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
@@ -75,7 +78,7 @@ export default class IonRequest {
   public static async createDeactivateRequest (input: {
     didSuffix: string,
     recoveryPrivateKey: JwkEs256k
-  }): Promise<any> {
+  }): Promise<IonDeactivateRequestModel> {
     const recoveryPublicKey = {
       crv: input.recoveryPrivateKey.crv,
       kty: input.recoveryPrivateKey.kty,
@@ -111,7 +114,7 @@ export default class IonRequest {
     nextRecoveryPublicKey: JwkEs256k,
     nextUpdatePublicKey: JwkEs256k,
     document: IonDocumentModel
-  }): Promise<any> {
+  }): Promise<IonRecoverRequestModel> {
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(input.document.publicKeys);
 
@@ -167,11 +170,11 @@ export default class IonRequest {
     didSuffix: string;
     updatePrivateKey: JwkEs256k;
     nextUpdatePublicKey: JwkEs256k;
-    servicesToAdd?: any[];
+    servicesToAdd?: IonServiceModel[];
     idsOfServicesToRemove?: string[];
-    publicKeysToAdd?: any[];
-    idsOfPublicKeysToRemove?:any[];
-  }): Promise<object> {
+    publicKeysToAdd?: IonPublicKeyModel[];
+    idsOfPublicKeysToRemove?: string[];
+  }): Promise<IonUpdateRequestModel> {
     const patches = [];
     // Create patches for add services
     const servicesToAdd = input.servicesToAdd;
@@ -244,15 +247,13 @@ export default class IonRequest {
       { alg: 'ES256K' }
     );
 
-    const updateOperationRequest = {
+    return {
       type: OperationType.Update,
       didSuffix: input.didSuffix,
       revealValue,
       delta,
       signedData: compactJws
     };
-
-    return updateOperationRequest;
   }
 
   /**
