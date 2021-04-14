@@ -48,7 +48,7 @@ export default class IonRequest {
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
 
     const patches = [{
-      action: 'replace',
+      action: PatchAction.Replace,
       document: input.document
     }];
 
@@ -120,7 +120,7 @@ export default class IonRequest {
     const revealValue = Multihash.canonicalizeThenHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode);
 
     const patches = [{
-      action: 'replace',
+      action: PatchAction.Replace,
       document: input.document
     }];
 
