@@ -79,13 +79,7 @@ export default class IonRequest {
     didSuffix: string,
     recoveryPrivateKey: JwkEs256k
   }): Promise<IonDeactivateRequestModel> {
-    const recoveryPublicKey = {
-      crv: input.recoveryPrivateKey.crv,
-      kty: input.recoveryPrivateKey.kty,
-      x: input.recoveryPrivateKey.x,
-      y: input.recoveryPrivateKey.y
-    };
-
+    const recoveryPublicKey = this.getPublicKeyFromPrivateKey(input.recoveryPrivateKey);
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
     const revealValue = Multihash.canonicalizeThenHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode);
 
@@ -121,13 +115,7 @@ export default class IonRequest {
     // Validate all given service.
     IonRequest.validateServices(input.document.services);
 
-    const recoveryPublicKey = {
-      crv: input.recoveryPrivateKey.crv,
-      kty: input.recoveryPrivateKey.kty,
-      x: input.recoveryPrivateKey.x,
-      y: input.recoveryPrivateKey.y
-    };
-
+    const recoveryPublicKey = this.getPublicKeyFromPrivateKey(input.recoveryPrivateKey);
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
     const revealValue = Multihash.canonicalizeThenHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode);
 
@@ -220,13 +208,7 @@ export default class IonRequest {
       patches.push(patch);
     }
 
-    const updatePublicKey = {
-      crv: input.updatePrivateKey.crv,
-      kty: input.updatePrivateKey.kty,
-      x: input.updatePrivateKey.x,
-      y: input.updatePrivateKey.y
-    };
-
+    const updatePublicKey = this.getPublicKeyFromPrivateKey(input.updatePrivateKey);
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
     const revealValue = Multihash.canonicalizeThenHashThenEncode(updatePublicKey, hashAlgorithmInMultihashCode);
 
@@ -351,5 +333,14 @@ export default class IonRequest {
       const errorMessage = `Delta of ${deltaBuffer.length} bytes exceeded limit of ${IonSdkConfig.maxCanonicalizedDeltaSizeInBytes} bytes.`;
       throw new IonError(ErrorCode.DeltaExceedsMaximumSize, errorMessage);
     }
+  }
+
+  private static getPublicKeyFromPrivateKey (privateKey: JwkEs256k) {
+    return {
+      crv: privateKey.crv,
+      kty: privateKey.kty,
+      x: privateKey.x,
+      y: privateKey.y
+    };
   }
 }
