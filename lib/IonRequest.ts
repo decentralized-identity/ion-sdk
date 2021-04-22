@@ -1,4 +1,5 @@
 import * as URI from 'uri-js';
+import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import InputValidator from './InputValidator';
 import IonCreateRequestModel from './models/IonCreateRequestModel';
@@ -13,6 +14,7 @@ import IonUpdateRequestModel from './models/IonUpdateRequestModel';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
+import OperationKeyType from './enums/OperationKeyType';
 import OperationType from './enums/OperationType';
 import PatchAction from './enums/PatchAction';
 const secp256k1 = require('@transmute/did-key-secp256k1');
@@ -36,8 +38,8 @@ export default class IonRequest {
     const services = input.document.services;
 
     // Validate recovery and update public keys.
-    IonRequest.validateEs256kOperationKey(recoveryKey);
-    IonRequest.validateEs256kOperationKey(updateKey);
+    IonRequest.validateEs256kOperationKey(recoveryKey, OperationKeyType.Public);
+    IonRequest.validateEs256kOperationKey(updateKey, OperationKeyType.Public);
 
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(didDocumentKeys);
@@ -83,7 +85,7 @@ export default class IonRequest {
     IonRequest.validateDidSuffix(input.didSuffix);
 
     // Validates recovery private key
-    IonRequest.validateEs256kOperationKey(input.recoveryPrivateKey, true);
+    IonRequest.validateEs256kOperationKey(input.recoveryPrivateKey, OperationKeyType.Private);
 
     const recoveryPublicKey = this.getPublicKeyFromPrivateKey(input.recoveryPrivateKey);
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
@@ -119,13 +121,13 @@ export default class IonRequest {
     IonRequest.validateDidSuffix(input.didSuffix);
 
     // Validate recovery private key
-    IonRequest.validateEs256kOperationKey(input.recoveryPrivateKey, true);
+    IonRequest.validateEs256kOperationKey(input.recoveryPrivateKey, OperationKeyType.Private);
 
     // Validate next recovery public key
-    IonRequest.validateEs256kOperationKey(input.nextRecoveryPublicKey);
+    IonRequest.validateEs256kOperationKey(input.nextRecoveryPublicKey, OperationKeyType.Public);
 
     // Validate next update public key
-    IonRequest.validateEs256kOperationKey(input.nextUpdatePublicKey);
+    IonRequest.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
 
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(input.document.publicKeys);
@@ -185,10 +187,10 @@ export default class IonRequest {
     IonRequest.validateDidSuffix(input.didSuffix);
 
     // Validate update private key
-    IonRequest.validateEs256kOperationKey(input.updatePrivateKey, true);
+    IonRequest.validateEs256kOperationKey(input.updatePrivateKey, OperationKeyType.Private);
 
     // Validate next update public key
-    IonRequest.validateEs256kOperationKey(input.nextUpdatePublicKey);
+    IonRequest.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
 
     // Validate all given service.
     IonRequest.validateServices(input.servicesToAdd);
@@ -288,42 +290,46 @@ export default class IonRequest {
   /**
    * Validates the schema of a ES256K JWK key.
    */
-  private static validateEs256kOperationKey (publicKeyJwk: JwkEs256k, isPrivateKey?: boolean) {
+  private static validateEs256kOperationKey (operationKeyJwk: JwkEs256k, operationKeyType: OperationKeyType) {
     const allowedProperties = new Set(['kty', 'crv', 'x', 'y']);
-    if (isPrivateKey) {
+    if (operationKeyType === OperationKeyType.Private) {
       allowedProperties.add('d');
     }
-    for (const property in publicKeyJwk) {
+    for (const property in operationKeyJwk) {
       if (!allowedProperties.has(property)) {
         throw new IonError(ErrorCode.PublicKeyJwkEs256kHasUnexpectedProperty, `SECP256K1 JWK key has unexpected property '${property}'.`);
       }
     }
 
-    if (publicKeyJwk.crv !== 'secp256k1') {
-      throw new IonError(ErrorCode.JwkEs256kMissingOrInvalidCrv, `SECP256K1 JWK 'crv' property must be 'secp256k1' but got '${publicKeyJwk.crv}.'`);
+    if (operationKeyJwk.crv !== 'secp256k1') {
+      throw new IonError(ErrorCode.JwkEs256kMissingOrInvalidCrv, `SECP256K1 JWK 'crv' property must be 'secp256k1' but got '${operationKeyJwk.crv}.'`);
     }
 
-    if (publicKeyJwk.kty !== 'EC') {
-      throw new IonError(ErrorCode.JwkEs256kMissingOrInvalidKty, `SECP256K1 JWK 'kty' property must be 'EC' but got '${publicKeyJwk.kty}.'`);
+    if (operationKeyJwk.kty !== 'EC') {
+      throw new IonError(ErrorCode.JwkEs256kMissingOrInvalidKty, `SECP256K1 JWK 'kty' property must be 'EC' but got '${operationKeyJwk.kty}.'`);
     }
 
     // `x` and `y` need 43 Base64URL encoded bytes to contain 256 bits.
-    if (publicKeyJwk.x.length !== 43) {
+    if (operationKeyJwk.x.length !== 43) {
       throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfX, `SECP256K1 JWK 'x' property must be 43 bytes.`);
     }
 
-    if (publicKeyJwk.y.length !== 43) {
+    if (operationKeyJwk.y.length !== 43) {
       throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfY, `SECP256K1 JWK 'y' property must be 43 bytes.`);
     }
 
-    if (isPrivateKey && (publicKeyJwk.d === undefined || publicKeyJwk.d.length !== 43)) {
-      throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfY, `SECP256K1 JWK 'd' property must be 43 bytes.`);
+    if (operationKeyType === OperationKeyType.Private && (operationKeyJwk.d === undefined || operationKeyJwk.d.length !== 43)) {
+      throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfD, `SECP256K1 JWK 'd' property must be 43 bytes.`);
     }
   }
 
   private static validateDidSuffix (didSuffix: string) {
     if (didSuffix.length !== 46) {
       throw new IonError(ErrorCode.DidSuffixIncorrectLength, 'DID suffix must be 46 bytes.');
+    }
+
+    if (!Encoder.isBase64UrlString(didSuffix)) {
+      throw new IonError(ErrorCode.DidSuffixIncorrectEncoding, 'DID suffix must be base64url string.');
     }
   }
 

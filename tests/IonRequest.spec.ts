@@ -1,5 +1,6 @@
 import { IonDocumentModel } from '../lib';
 import IonRequest from '../lib/IonRequest';
+import OperationKeyType from '../lib/enums/OperationKeyType';
 import OperationType from '../lib/enums/OperationType';
 
 describe('IonRequest', () => {
@@ -113,10 +114,10 @@ describe('IonRequest', () => {
       const privKey = require('./vectors/inputs/jwkEs256k1Private.json');
       privKey.d = undefined;
       try {
-        IonRequest.validateEs256kOperationKey(privKey, true);
+        (IonRequest as any).validateEs256kOperationKey(privKey, OperationKeyType.Private);
         fail();
       } catch (e) {
-        expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfY: SECP256K1 JWK 'd' property must be 43 bytes.`);
+        expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfD: SECP256K1 JWK 'd' property must be 43 bytes.`);
       }
     });
 
@@ -124,21 +125,30 @@ describe('IonRequest', () => {
       const privKey = require('./vectors/inputs/jwkEs256k1Private.json');
       privKey.d = 'abc';
       try {
-        IonRequest.validateEs256kOperationKey(privKey, true);
+        (IonRequest as any).validateEs256kOperationKey(privKey, OperationKeyType.Private);
         fail();
       } catch (e) {
-        expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfY: SECP256K1 JWK 'd' property must be 43 bytes.`);
+        expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfD: SECP256K1 JWK 'd' property must be 43 bytes.`);
       }
     });
   });
 
   describe('validateDidSuffix', () => {
-    it('should throw if id is not valid', () => {
+    it('should throw if id is incorrect length', () => {
       try {
-        IonRequest.validateDidSuffix('someString');
+        (IonRequest as any).validateDidSuffix('someString');
         fail();
       } catch (e) {
         expect(e.message).toEqual('DidSuffixIncorrectLength: DID suffix must be 46 bytes.');
+      }
+    });
+
+    it('should throw if id is incorrect encoding', () => {
+      try {
+        (IonRequest as any).validateDidSuffix('123456789012345678901234567890123456789012345/');
+        fail();
+      } catch (e) {
+        expect(e.message).toEqual('DidSuffixIncorrectEncoding: DID suffix must be base64url string.');
       }
     });
   });
