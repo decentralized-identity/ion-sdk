@@ -36,8 +36,8 @@ export default class IonRequest {
     const services = input.document.services;
 
     // Validate recovery and update public keys.
-    IonRequest.validateEs256kOperationPublicKey(recoveryKey);
-    IonRequest.validateEs256kOperationPublicKey(updateKey);
+    IonRequest.validateEs256kOperationKey(recoveryKey);
+    IonRequest.validateEs256kOperationKey(updateKey);
 
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(didDocumentKeys);
@@ -79,6 +79,12 @@ export default class IonRequest {
     didSuffix: string,
     recoveryPrivateKey: JwkEs256k
   }): Promise<IonDeactivateRequestModel> {
+    // Validate DID suffix
+    IonRequest.validateDidSuffix(input.didSuffix);
+
+    // Validates recovery private key
+    IonRequest.validateEs256kOperationKey(input.recoveryPrivateKey, true);
+
     const recoveryPublicKey = this.getPublicKeyFromPrivateKey(input.recoveryPrivateKey);
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
     const revealValue = Multihash.canonicalizeThenHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode);
@@ -109,6 +115,18 @@ export default class IonRequest {
     nextUpdatePublicKey: JwkEs256k,
     document: IonDocumentModel
   }): Promise<IonRecoverRequestModel> {
+    // Validate DID suffix
+    IonRequest.validateDidSuffix(input.didSuffix);
+
+    // Validate recovery private key
+    IonRequest.validateEs256kOperationKey(input.recoveryPrivateKey, true);
+
+    // Validate next recovery public key
+    IonRequest.validateEs256kOperationKey(input.nextRecoveryPublicKey);
+
+    // Validate next update public key
+    IonRequest.validateEs256kOperationKey(input.nextUpdatePublicKey);
+
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(input.document.publicKeys);
 
@@ -163,6 +181,35 @@ export default class IonRequest {
     publicKeysToAdd?: IonPublicKeyModel[];
     idsOfPublicKeysToRemove?: string[];
   }): Promise<IonUpdateRequestModel> {
+    // Validate DID suffix
+    IonRequest.validateDidSuffix(input.didSuffix);
+
+    // Validate update private key
+    IonRequest.validateEs256kOperationKey(input.updatePrivateKey, true);
+
+    // Validate next update public key
+    IonRequest.validateEs256kOperationKey(input.nextUpdatePublicKey);
+
+    // Validate all given service.
+    IonRequest.validateServices(input.servicesToAdd);
+
+    // Validate all given DID Document keys.
+    IonRequest.validateDidDocumentKeys(input.publicKeysToAdd);
+
+    // Validate all given service id to remove.
+    if (input.idsOfServicesToRemove !== undefined) {
+      for (const id of input.idsOfServicesToRemove) {
+        InputValidator.validateId(id);
+      }
+    }
+
+    // Validate all given public key id to remove.
+    if (input.idsOfPublicKeysToRemove !== undefined) {
+      for (const id of input.idsOfPublicKeysToRemove) {
+        InputValidator.validateId(id);
+      }
+    }
+
     const patches = [];
     // Create patches for add services
     const servicesToAdd = input.servicesToAdd;
@@ -239,10 +286,13 @@ export default class IonRequest {
   }
 
   /**
-   * Validates the schema of a ES256K JWK public key.
+   * Validates the schema of a ES256K JWK key.
    */
-  private static validateEs256kOperationPublicKey (publicKeyJwk: JwkEs256k) {
+  private static validateEs256kOperationKey (publicKeyJwk: JwkEs256k, isPrivateKey?: boolean) {
     const allowedProperties = new Set(['kty', 'crv', 'x', 'y']);
+    if (isPrivateKey) {
+      allowedProperties.add('d');
+    }
     for (const property in publicKeyJwk) {
       if (!allowedProperties.has(property)) {
         throw new IonError(ErrorCode.PublicKeyJwkEs256kHasUnexpectedProperty, `SECP256K1 JWK key has unexpected property '${property}'.`);
@@ -264,6 +314,16 @@ export default class IonRequest {
 
     if (publicKeyJwk.y.length !== 43) {
       throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfY, `SECP256K1 JWK 'y' property must be 43 bytes.`);
+    }
+
+    if (isPrivateKey && (publicKeyJwk.d === undefined || publicKeyJwk.d.length !== 43)) {
+      throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfY, `SECP256K1 JWK 'd' property must be 43 bytes.`);
+    }
+  }
+
+  private static validateDidSuffix (didSuffix: string) {
+    if (didSuffix.length !== 46) {
+      throw new IonError(ErrorCode.DidSuffixIncorrectLength, 'DID suffix must be 46 bytes.');
     }
   }
 

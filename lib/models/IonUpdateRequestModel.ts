@@ -1,5 +1,7 @@
-import IonPublicKeyModel from './IonPublicKeyModel';
-import IonServiceModel from './IonServiceModel';
+import IonAddPublicKeysActionModel from './IonAddPublicKeysActionModel';
+import IonAddServicesActionModel from './IonAddServicesActionModel';
+import IonRemovePublicKeysActionModel from './IonRemovePublicKeysActionModel';
+import IonRemoveServicesActionModel from './IonRemoveServicesActionModel';
 import OperationType from '../enums/OperationType';
 
 /**
@@ -11,12 +13,7 @@ export default interface IonUpdateRequestModel {
   revealValue: string;
   delta: {
     updateCommitment: string,
-    patches: {
-        action: string,
-        servicesToAdd?: IonServiceModel[],
-        publicKeys?: IonPublicKeyModel[],
-        ids?: string[]
-    }[]
+    patches: (IonAddServicesActionModel | IonAddPublicKeysActionModel | IonRemoveServicesActionModel | IonRemovePublicKeysActionModel)[]
   },
   signedData: string
 }
