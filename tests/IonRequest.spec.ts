@@ -152,7 +152,7 @@ describe('IonRequest', () => {
       }
     });
 
-    it('should throw if id uses a different hash code', () => {
+    it('should throw if id is hashed with unsupported hash code', () => {
       try {
         (IonRequest as any).validateDidSuffix('ERSIwvEfss45KstbKYbmQCEcRpAHPg'); // this is sha1 (code 17), which is not the correct hashing algorithm (code 18)
         fail();
