@@ -324,13 +324,10 @@ export default class IonRequest {
   }
 
   private static validateDidSuffix (didSuffix: string) {
-    if (didSuffix.length !== 46) {
-      throw new IonError(ErrorCode.DidSuffixIncorrectLength, 'DID suffix must be 46 bytes.');
-    }
-
     if (!Encoder.isBase64UrlString(didSuffix)) {
       throw new IonError(ErrorCode.DidSuffixIncorrectEncoding, 'DID suffix must be base64url string.');
     }
+    InputValidator.validateEncodedMultihash(didSuffix, 'didSuffix');
   }
 
   private static validateDidDocumentKeys (publicKeys?: IonPublicKeyModel[]) {

@@ -15,6 +15,7 @@ export default {
   JwkEs256kHasIncorrectLengthOfX: 'JwkEs256kHasIncorrectLengthOfX',
   JwkEs256kHasIncorrectLengthOfY: 'JwkEs256kHasIncorrectLengthOfY',
   JwkEs256kHasIncorrectLengthOfD: 'JwkEs256kHasIncorrectLengthOfD',
+  MultihashStringNotAMultihash: 'MultihashStringNotAMultihash',
   MultihashUnsupportedHashAlgorithm: 'MultihashUnsupportedHashAlgorithm',
   PublicKeyJwkEs256kHasUnexpectedProperty: 'PublicKeyJwkEs256kHasUnexpectedProperty',
   PublicKeyPurposeDuplicated: 'PublicKeyPurposeDuplicated',

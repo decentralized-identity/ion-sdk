@@ -1,4 +1,4 @@
-import { b64fromBuffer, b64toURLSafe } from '@waiting/base64';
+import { b64fromBuffer, b64fromURLSafe, b64toURLSafe } from '@waiting/base64';
 
 /**
  * Class that encodes binary blobs into strings.
@@ -11,6 +11,15 @@ export default class Encoder {
   public static encode (content: Buffer): string {
     const encodedContent = b64toURLSafe(b64fromBuffer(content));
     return encodedContent;
+  }
+
+  /**
+   * Decodes the given Base64URL string into a Buffer.
+   *
+   * Turns the encoded string to regular base 64 and decode as buffer
+   */
+  public static decodeAsBuffer (encodedContent: string): Buffer {
+    return Buffer.from(b64fromURLSafe(encodedContent), 'base64');
   }
 
   /**
