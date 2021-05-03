@@ -85,11 +85,8 @@ export default class Multihash {
     encodedMultihash: string,
     inputContextForErrorLogging: string
   ) {
-    if (!Encoder.isBase64UrlString(encodedMultihash)) {
-      throw new IonError(ErrorCode.EncodedMultiHashIncorrectEncoding, `Given ${inputContextForErrorLogging} must be base64url string.`);
-    }
     let multihash;
-    const multihashBuffer = Encoder.decodeAsBuffer(encodedMultihash);
+    const multihashBuffer = Encoder.decodeAsBuffer(encodedMultihash, inputContextForErrorLogging);
     try {
       multihash = multihashes.decode(multihashBuffer);
     } catch {
