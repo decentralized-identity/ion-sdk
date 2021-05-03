@@ -7,7 +7,7 @@ export default {
   DidDocumentPublicKeyMissingOrIncorrectType: 'DidDocumentPublicKeyMissingOrIncorrectType',
   DidDocumentServiceIdDuplicated: 'DidDocumentServiceIdDuplicated',
   DidSuffixIncorrectLength: 'DidSuffixIncorrectLength',
-  EncodedMultiHashIncorrectEncoding: 'EncodedMultiHashIncorrectEncoding',
+  EncodedStringIncorrectEncoding: 'EncodedStringIncorrectEncoding',
   IdNotUsingBase64UrlCharacterSet: 'IdNotUsingBase64UrlCharacterSet',
   IdTooLong: 'IdTooLong',
   JwkEs256kMissingOrInvalidCrv: 'JwkEs256kMissingOrInvalidCrv',

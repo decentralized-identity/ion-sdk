@@ -139,7 +139,7 @@ describe('IonRequest', () => {
         (IonRequest as any).validateDidSuffix('123456789012345678901234567890123456789012345/');
         fail();
       } catch (e) {
-        expect(e.message).toEqual('EncodedMultiHashIncorrectEncoding: Given didSuffix must be base64url string.');
+        expect(e.message).toEqual('EncodedStringIncorrectEncoding: Given didSuffix must be base64url string.');
       }
     });
 

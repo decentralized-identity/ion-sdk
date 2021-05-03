@@ -20,7 +20,7 @@ export default class Encoder {
    */
   public static decodeAsBuffer (encodedContent: string, inputContextForErrorLogging: string): Buffer {
     if (!Encoder.isBase64UrlString(encodedContent)) {
-      throw new IonError(ErrorCode.EncodedMultiHashIncorrectEncoding, `Given ${inputContextForErrorLogging} must be base64url string.`);
+      throw new IonError(ErrorCode.EncodedStringIncorrectEncoding, `Given ${inputContextForErrorLogging} must be base64url string.`);
     }
     // Turns the encoded string to regular base 64 and then decode as buffer
     return Buffer.from(b64fromURLSafe(encodedContent), 'base64');
