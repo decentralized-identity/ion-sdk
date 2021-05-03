@@ -79,18 +79,23 @@ export default class Multihash {
   }
 
   /**
-   * Checks if the given hash is a multihash computed using the configured hashing algorithm.
+   * Checks if the given encoded hash is a multihash computed using the configured hashing algorithm.
    */
-  public static validateHashComputedUsingSupportedHashAlgorithm (
+  public static validateEncodedHashComputedUsingSupportedHashAlgorithm (
     encodedMultihash: string,
     inputContextForErrorLogging: string
   ) {
+    if (!Encoder.isBase64UrlString(encodedMultihash)) {
+      throw new IonError(ErrorCode.EncodedMultiHashIncorrectEncoding, `Given ${inputContextForErrorLogging} must be base64url string.`);
+    }
     let multihash;
+    const multihashBuffer = Encoder.decodeAsBuffer(encodedMultihash);
     try {
-      const multihashBuffer = Encoder.decodeAsBuffer(encodedMultihash);
       multihash = multihashes.decode(multihashBuffer);
     } catch {
-      throw new IonError(ErrorCode.MultihashStringNotAMultihash, `Given ${inputContextForErrorLogging} string '${encodedMultihash}' is not a multihash.`);
+      throw new IonError(
+        ErrorCode.MultihashStringNotAMultihash,
+        `Given ${inputContextForErrorLogging} string '${encodedMultihash}' is not a multihash after decoding.`);
     }
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;

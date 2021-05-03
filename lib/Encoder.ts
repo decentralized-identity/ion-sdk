@@ -15,10 +15,9 @@ export default class Encoder {
 
   /**
    * Decodes the given Base64URL string into a Buffer.
-   *
-   * Turns the encoded string to regular base 64 and decode as buffer
    */
   public static decodeAsBuffer (encodedContent: string): Buffer {
+    // Turns the encoded string to regular base 64 and then decode as buffer
     return Buffer.from(b64fromURLSafe(encodedContent), 'base64');
   }
 

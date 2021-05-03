@@ -139,7 +139,7 @@ describe('IonRequest', () => {
         (IonRequest as any).validateDidSuffix('123456789012345678901234567890123456789012345/');
         fail();
       } catch (e) {
-        expect(e.message).toEqual('DidSuffixIncorrectEncoding: DID suffix must be base64url string.');
+        expect(e.message).toEqual('EncodedMultiHashIncorrectEncoding: Given didSuffix must be base64url string.');
       }
     });
 
@@ -148,7 +148,7 @@ describe('IonRequest', () => {
         (IonRequest as any).validateDidSuffix('aaaaaaaa'); // base64 but not multihash
         fail();
       } catch (e) {
-        expect(e.message).toEqual(`MultihashStringNotAMultihash: Given didSuffix string 'aaaaaaaa' is not a multihash.`);
+        expect(e.message).toEqual(`MultihashStringNotAMultihash: Given didSuffix string 'aaaaaaaa' is not a multihash after decoding.`);
       }
     });
 

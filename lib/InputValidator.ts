@@ -2,19 +2,11 @@ import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
-import Multihash from './Multihash';
 
 /**
  * Class containing input validation methods.
  */
 export default class InputValidator {
-  /**
-   * Validates that the given input is a multihash computed using a configured hash algorithm.
-   */
-  public static validateEncodedMultihash (input: string, inputContextForErrorLogging: string) {
-    Multihash.validateHashComputedUsingSupportedHashAlgorithm(input, inputContextForErrorLogging);
-  }
-
   /**
    * Validates an `id` property (in `IonPublicKeyModel` and `IonServiceModel`).
    */
