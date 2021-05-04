@@ -2,6 +2,7 @@ import * as crypto from 'crypto';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
+import IonSdkConfig from './IonSdkConfig';
 import JsonCanonicalizer from './JsonCanonicalizer';
 
 const multihashes = require('multihashes');
@@ -75,5 +76,33 @@ export default class Multihash {
     const multihashBuffer = Multihash.hash(content, hashAlgorithmInMultihashCode);
     const multihashEncodedString = Encoder.encode(multihashBuffer);
     return multihashEncodedString;
+  }
+
+  /**
+   * Checks if the given encoded hash is a multihash computed using the configured hashing algorithm.
+   */
+  public static validateEncodedHashComputedUsingSupportedHashAlgorithm (
+    encodedMultihash: string,
+    inputContextForErrorLogging: string
+  ) {
+    let multihash;
+    const multihashBuffer = Encoder.decodeAsBuffer(encodedMultihash, inputContextForErrorLogging);
+    try {
+      multihash = multihashes.decode(multihashBuffer);
+    } catch {
+      throw new IonError(
+        ErrorCode.MultihashStringNotAMultihash,
+        `Given ${inputContextForErrorLogging} string '${encodedMultihash}' is not a multihash after decoding.`);
+    }
+
+    const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
+
+    if (hashAlgorithmInMultihashCode !== multihash.code) {
+      throw new IonError(
+        ErrorCode.MultihashUnsupportedHashAlgorithm,
+        `Given ${inputContextForErrorLogging} uses unsupported multihash algorithm with code ${multihash.code}, ` +
+        `should use ${hashAlgorithmInMultihashCode} or change IonSdkConfig to desired hashing algorithm.`
+      );
+    }
   }
 }

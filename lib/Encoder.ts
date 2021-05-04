@@ -1,4 +1,6 @@
-import { b64fromBuffer, b64toURLSafe } from '@waiting/base64';
+import { b64fromBuffer, b64fromURLSafe, b64toURLSafe } from '@waiting/base64';
+import ErrorCode from './ErrorCode';
+import IonError from './IonError';
 
 /**
  * Class that encodes binary blobs into strings.
@@ -11,6 +13,17 @@ export default class Encoder {
   public static encode (content: Buffer): string {
     const encodedContent = b64toURLSafe(b64fromBuffer(content));
     return encodedContent;
+  }
+
+  /**
+   * Decodes the given Base64URL string into a Buffer.
+   */
+  public static decodeAsBuffer (encodedContent: string, inputContextForErrorLogging: string): Buffer {
+    if (!Encoder.isBase64UrlString(encodedContent)) {
+      throw new IonError(ErrorCode.EncodedStringIncorrectEncoding, `Given ${inputContextForErrorLogging} must be base64url string.`);
+    }
+    // Turns the encoded string to regular base 64 and then decode as buffer
+    return Buffer.from(b64fromURLSafe(encodedContent), 'base64');
   }
 
   /**

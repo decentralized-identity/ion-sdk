@@ -1,5 +1,4 @@
 import * as URI from 'uri-js';
-import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import InputValidator from './InputValidator';
 import IonCreateRequestModel from './models/IonCreateRequestModel';
@@ -324,13 +323,7 @@ export default class IonRequest {
   }
 
   private static validateDidSuffix (didSuffix: string) {
-    if (didSuffix.length !== 46) {
-      throw new IonError(ErrorCode.DidSuffixIncorrectLength, 'DID suffix must be 46 bytes.');
-    }
-
-    if (!Encoder.isBase64UrlString(didSuffix)) {
-      throw new IonError(ErrorCode.DidSuffixIncorrectEncoding, 'DID suffix must be base64url string.');
-    }
+    Multihash.validateEncodedHashComputedUsingSupportedHashAlgorithm(didSuffix, 'didSuffix');
   }
 
   private static validateDidDocumentKeys (publicKeys?: IonPublicKeyModel[]) {

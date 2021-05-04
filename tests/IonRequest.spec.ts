@@ -134,21 +134,31 @@ describe('IonRequest', () => {
   });
 
   describe('validateDidSuffix', () => {
-    it('should throw if id is incorrect length', () => {
-      try {
-        (IonRequest as any).validateDidSuffix('someString');
-        fail();
-      } catch (e) {
-        expect(e.message).toEqual('DidSuffixIncorrectLength: DID suffix must be 46 bytes.');
-      }
-    });
-
     it('should throw if id is incorrect encoding', () => {
       try {
         (IonRequest as any).validateDidSuffix('123456789012345678901234567890123456789012345/');
         fail();
       } catch (e) {
-        expect(e.message).toEqual('DidSuffixIncorrectEncoding: DID suffix must be base64url string.');
+        expect(e.message).toEqual('EncodedStringIncorrectEncoding: Given didSuffix must be base64url string.');
+      }
+    });
+
+    it('should throw if id is not multihash', () => {
+      try {
+        (IonRequest as any).validateDidSuffix('aaaaaaaa'); // base64 but not multihash
+        fail();
+      } catch (e) {
+        expect(e.message).toEqual(`MultihashStringNotAMultihash: Given didSuffix string 'aaaaaaaa' is not a multihash after decoding.`);
+      }
+    });
+
+    it('should throw if id is hashed with unsupported hash code', () => {
+      try {
+        (IonRequest as any).validateDidSuffix('ERSIwvEfss45KstbKYbmQCEcRpAHPg'); // this is sha1 (code 17), which is not the correct hashing algorithm (code 18)
+        fail();
+      } catch (e) {
+        // eslint-disable-next-line
+        expect(e.message).toEqual(`MultihashUnsupportedHashAlgorithm: Given didSuffix uses unsupported multihash algorithm with code 17, should use 18 or change IonSdkConfig to desired hashing algorithm.`);
       }
     });
   });
