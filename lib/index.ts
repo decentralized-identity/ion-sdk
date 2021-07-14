@@ -1,6 +1,7 @@
 // NOTE: Aliases to classes and interfaces are used for external consumption.
 
 // SDK exports.
+import ISigner from './interfaces/ISigner';
 import IonDid from './IonDid';
 import IonDocumentModel from './models/IonDocumentModel';
 import IonKey from './IonKey';
@@ -13,6 +14,7 @@ import IonServiceModel from './models/IonServiceModel';
 import JwkEs256k from './models/JwkEs256k';
 
 export {
+  ISigner,
   IonDid,
   IonDocumentModel,
   IonKey,
