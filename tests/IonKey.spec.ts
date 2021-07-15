@@ -5,7 +5,7 @@ import JwkEs256k from '../lib/models/JwkEs256k';
 
 describe('IonKey', async () => {
   describe('generateEs256kOperationKeyPair()', async () => {
-    it('should create a long-form DID successfully.', async () => {
+    it('should create a key pair successfully.', async () => {
       const [publicKey, privateKey] = await IonKey.generateEs256kOperationKeyPair();
 
       expect(Object.keys(publicKey).length).toEqual(4);
@@ -21,7 +21,7 @@ describe('IonKey', async () => {
   });
 
   describe('generateEs256kDidDocumentKeyPair()', async () => {
-    it('should create a long-form DID successfully.', async () => {
+    it('should create a key pair successfully.', async () => {
       const keyId = 'anyId';
       const [didDocumentPublicKey, privateKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: keyId, purposes: [IonPublicKeyPurpose.Authentication] });
 

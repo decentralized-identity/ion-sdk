@@ -12,6 +12,7 @@ import IonRequest from './IonRequest';
 import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
 import JwkEs256k from './models/JwkEs256k';
+import LocalSigner from './LocalSigner';
 
 export {
   ISigner,
@@ -24,5 +25,6 @@ export {
   IonSdkConfig,
   IonServiceModel,
   IonRequest,
-  JwkEs256k
+  JwkEs256k,
+  LocalSigner
 };
