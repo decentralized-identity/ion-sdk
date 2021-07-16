@@ -1,5 +1,6 @@
 import * as URI from 'uri-js';
 import ErrorCode from './ErrorCode';
+import ISigner from './interfaces/ISigner';
 import InputValidator from './InputValidator';
 import IonCreateRequestModel from './models/IonCreateRequestModel';
 import IonDeactivateRequestModel from './models/IonDeactivateRequestModel';
@@ -16,7 +17,6 @@ import Multihash from './Multihash';
 import OperationKeyType from './enums/OperationKeyType';
 import OperationType from './enums/OperationType';
 import PatchAction from './enums/PatchAction';
-const secp256k1 = require('@transmute/did-key-secp256k1');
 
 /**
  * Class containing operations related to ION requests.
@@ -37,8 +37,8 @@ export default class IonRequest {
     const services = input.document.services;
 
     // Validate recovery and update public keys.
-    IonRequest.validateEs256kOperationKey(recoveryKey, OperationKeyType.Public);
-    IonRequest.validateEs256kOperationKey(updateKey, OperationKeyType.Public);
+    InputValidator.validateEs256kOperationKey(recoveryKey, OperationKeyType.Public);
+    InputValidator.validateEs256kOperationKey(updateKey, OperationKeyType.Public);
 
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(didDocumentKeys);
@@ -78,28 +78,24 @@ export default class IonRequest {
 
   public static async createDeactivateRequest (input: {
     didSuffix: string,
-    recoveryPrivateKey: JwkEs256k
+    recoveryPublicKey: JwkEs256k,
+    signer: ISigner
   }): Promise<IonDeactivateRequestModel> {
     // Validate DID suffix
     IonRequest.validateDidSuffix(input.didSuffix);
 
-    // Validates recovery private key
-    IonRequest.validateEs256kOperationKey(input.recoveryPrivateKey, OperationKeyType.Private);
+    // Validates recovery public key
+    InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
 
-    const recoveryPublicKey = this.getPublicKeyFromPrivateKey(input.recoveryPrivateKey);
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
-    const revealValue = Multihash.canonicalizeThenHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode);
+    const revealValue = Multihash.canonicalizeThenHashThenEncode(input.recoveryPublicKey, hashAlgorithmInMultihashCode);
 
-    const signedDataPayloadObject = {
+    const dataToBeSigned = {
       didSuffix: input.didSuffix,
-      recoveryKey: recoveryPublicKey
+      recoveryKey: input.recoveryPublicKey
     };
 
-    const compactJws = await secp256k1.ES256K.sign(
-      signedDataPayloadObject,
-      input.recoveryPrivateKey,
-      { alg: 'ES256K' }
-    );
+    const compactJws = await input.signer.sign({ alg: 'ES256K' }, dataToBeSigned);
 
     return {
       type: OperationType.Deactivate,
@@ -111,22 +107,23 @@ export default class IonRequest {
 
   public static async createRecoverRequest (input: {
     didSuffix: string,
-    recoveryPrivateKey: JwkEs256k,
+    recoveryPublicKey: JwkEs256k,
     nextRecoveryPublicKey: JwkEs256k,
     nextUpdatePublicKey: JwkEs256k,
-    document: IonDocumentModel
+    document: IonDocumentModel,
+    signer: ISigner
   }): Promise<IonRecoverRequestModel> {
     // Validate DID suffix
     IonRequest.validateDidSuffix(input.didSuffix);
 
-    // Validate recovery private key
-    IonRequest.validateEs256kOperationKey(input.recoveryPrivateKey, OperationKeyType.Private);
+    // Validate recovery public key
+    InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
 
     // Validate next recovery public key
-    IonRequest.validateEs256kOperationKey(input.nextRecoveryPublicKey, OperationKeyType.Public);
+    InputValidator.validateEs256kOperationKey(input.nextRecoveryPublicKey, OperationKeyType.Public);
 
     // Validate next update public key
-    IonRequest.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
+    InputValidator.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
 
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(input.document.publicKeys);
@@ -134,9 +131,8 @@ export default class IonRequest {
     // Validate all given service.
     IonRequest.validateServices(input.document.services);
 
-    const recoveryPublicKey = this.getPublicKeyFromPrivateKey(input.recoveryPrivateKey);
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
-    const revealValue = Multihash.canonicalizeThenHashThenEncode(recoveryPublicKey, hashAlgorithmInMultihashCode);
+    const revealValue = Multihash.canonicalizeThenHashThenEncode(input.recoveryPublicKey, hashAlgorithmInMultihashCode);
 
     const patches = [{
       action: PatchAction.Replace,
@@ -152,17 +148,13 @@ export default class IonRequest {
     const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
     const nextRecoveryCommitmentHash = Multihash.canonicalizeThenDoubleHashThenEncode(input.nextRecoveryPublicKey, hashAlgorithmInMultihashCode);
 
-    const signedDataPayloadObject = {
+    const dataToBeSigned = {
       recoveryCommitment: nextRecoveryCommitmentHash,
-      recoveryKey: recoveryPublicKey,
+      recoveryKey: input.recoveryPublicKey,
       deltaHash: deltaHash
     };
 
-    const compactJws = await secp256k1.ES256K.sign(
-      signedDataPayloadObject,
-      input.recoveryPrivateKey,
-      { alg: 'ES256K' }
-    );
+    const compactJws = await input.signer.sign({ alg: 'ES256K' }, dataToBeSigned);
 
     return {
       type: OperationType.Recover,
@@ -175,8 +167,9 @@ export default class IonRequest {
 
   public static async createUpdateRequest (input: {
     didSuffix: string;
-    updatePrivateKey: JwkEs256k;
+    updatePublicKey: JwkEs256k;
     nextUpdatePublicKey: JwkEs256k;
+    signer: ISigner;
     servicesToAdd?: IonServiceModel[];
     idsOfServicesToRemove?: string[];
     publicKeysToAdd?: IonPublicKeyModel[];
@@ -185,11 +178,11 @@ export default class IonRequest {
     // Validate DID suffix
     IonRequest.validateDidSuffix(input.didSuffix);
 
-    // Validate update private key
-    IonRequest.validateEs256kOperationKey(input.updatePrivateKey, OperationKeyType.Private);
+    // Validate update public key
+    InputValidator.validateEs256kOperationKey(input.updatePublicKey, OperationKeyType.Public);
 
     // Validate next update public key
-    IonRequest.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
+    InputValidator.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
 
     // Validate all given service.
     IonRequest.validateServices(input.servicesToAdd);
@@ -256,9 +249,8 @@ export default class IonRequest {
       patches.push(patch);
     }
 
-    const updatePublicKey = this.getPublicKeyFromPrivateKey(input.updatePrivateKey);
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
-    const revealValue = Multihash.canonicalizeThenHashThenEncode(updatePublicKey, hashAlgorithmInMultihashCode);
+    const revealValue = Multihash.canonicalizeThenHashThenEncode(input.updatePublicKey, hashAlgorithmInMultihashCode);
 
     const nextUpdateCommitmentHash = Multihash.canonicalizeThenDoubleHashThenEncode(input.nextUpdatePublicKey, hashAlgorithmInMultihashCode);
     const delta = {
@@ -267,15 +259,12 @@ export default class IonRequest {
     };
     const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
 
-    const signedDataPayloadObject = {
-      updateKey: updatePublicKey,
+    const dataToBeSigned = {
+      updateKey: input.updatePublicKey,
       deltaHash: deltaHash
     };
-    const compactJws = await secp256k1.ES256K.sign(
-      signedDataPayloadObject,
-      input.updatePrivateKey,
-      { alg: 'ES256K' }
-    );
+
+    const compactJws = await input.signer.sign({ alg: 'ES256K' }, dataToBeSigned);
 
     return {
       type: OperationType.Update,
@@ -284,42 +273,6 @@ export default class IonRequest {
       delta,
       signedData: compactJws
     };
-  }
-
-  /**
-   * Validates the schema of a ES256K JWK key.
-   */
-  private static validateEs256kOperationKey (operationKeyJwk: JwkEs256k, operationKeyType: OperationKeyType) {
-    const allowedProperties = new Set(['kty', 'crv', 'x', 'y']);
-    if (operationKeyType === OperationKeyType.Private) {
-      allowedProperties.add('d');
-    }
-    for (const property in operationKeyJwk) {
-      if (!allowedProperties.has(property)) {
-        throw new IonError(ErrorCode.PublicKeyJwkEs256kHasUnexpectedProperty, `SECP256K1 JWK key has unexpected property '${property}'.`);
-      }
-    }
-
-    if (operationKeyJwk.crv !== 'secp256k1') {
-      throw new IonError(ErrorCode.JwkEs256kMissingOrInvalidCrv, `SECP256K1 JWK 'crv' property must be 'secp256k1' but got '${operationKeyJwk.crv}.'`);
-    }
-
-    if (operationKeyJwk.kty !== 'EC') {
-      throw new IonError(ErrorCode.JwkEs256kMissingOrInvalidKty, `SECP256K1 JWK 'kty' property must be 'EC' but got '${operationKeyJwk.kty}.'`);
-    }
-
-    // `x` and `y` need 43 Base64URL encoded bytes to contain 256 bits.
-    if (operationKeyJwk.x.length !== 43) {
-      throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfX, `SECP256K1 JWK 'x' property must be 43 bytes.`);
-    }
-
-    if (operationKeyJwk.y.length !== 43) {
-      throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfY, `SECP256K1 JWK 'y' property must be 43 bytes.`);
-    }
-
-    if (operationKeyType === OperationKeyType.Private && (operationKeyJwk.d === undefined || operationKeyJwk.d.length !== 43)) {
-      throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfD, `SECP256K1 JWK 'd' property must be 43 bytes.`);
-    }
   }
 
   private static validateDidSuffix (didSuffix: string) {
@@ -392,14 +345,5 @@ export default class IonRequest {
       const errorMessage = `Delta of ${deltaBuffer.length} bytes exceeded limit of ${IonSdkConfig.maxCanonicalizedDeltaSizeInBytes} bytes.`;
       throw new IonError(ErrorCode.DeltaExceedsMaximumSize, errorMessage);
     }
-  }
-
-  private static getPublicKeyFromPrivateKey (privateKey: JwkEs256k) {
-    return {
-      crv: privateKey.crv,
-      kty: privateKey.kty,
-      x: privateKey.x,
-      y: privateKey.y
-    };
   }
 }

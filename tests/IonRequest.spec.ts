@@ -1,6 +1,6 @@
-import { IonDocumentModel } from '../lib';
+import IonDocumentModel from '../lib/models/IonDocumentModel';
 import IonRequest from '../lib/IonRequest';
-import OperationKeyType from '../lib/enums/OperationKeyType';
+import LocalSigner from '../lib/LocalSigner';
 import OperationType from '../lib/enums/OperationType';
 
 describe('IonRequest', () => {
@@ -37,8 +37,9 @@ describe('IonRequest', () => {
       const services = [service];
       const input = {
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
-        updatePrivateKey: require('./vectors/inputs/jwkEs256k1Private.json'),
+        updatePublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
         nextUpdatePublicKey: require('./vectors/inputs/jwkEs256k2Public.json'),
+        signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json')),
         servicesToAdd: services,
         idsOfServicesToRemove: ['someId1'],
         publicKeysToAdd: publicKeys,
@@ -49,7 +50,7 @@ describe('IonRequest', () => {
       expect(result.didSuffix).toEqual('EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg');
       expect(result.type).toEqual(OperationType.Update);
       expect(result.revealValue).toEqual('EiAJ-97Is59is6FKAProwDo870nmwCeP8n5nRRFwPpUZVQ');
-      expect(result.signedData).toEqual('eyJhbGciOiJFUzI1NksifQ.eyJ1cGRhdGVLZXkiOnsiY3J2Ijoic2VjcDI1NmsxIiwia3R5IjoiRUMiLCJ4IjoibklxbFJDeDBleUJTWGNRbnFEcFJlU3Y0enVXaHdDUldzc29jOUxfbmo2QSIsInkiOiJpRzI5Vks2bDJVNXNLQlpVU0plUHZ5RnVzWGdTbEsyZERGbFdhQ004RjdrIn0sImRlbHRhSGFzaCI6IkVpQXZsbVVRYy1jaDg0Slp5bmdQdkJzUkc3eWh4aUFSenlYOE5lNFQ4LTlyTncifQ.mbXK3d_KruRQB5ZviM-ow3UaIdUY3m1o1o9TdHAW23Z11upHglVr7Yfb-cvmJL6iL0qZxWiT9R5hpoIOPOkWJQ');
+      expect(result.signedData).toEqual('eyJhbGciOiJFUzI1NksifQ.eyJ1cGRhdGVLZXkiOnsia3R5IjoiRUMiLCJjcnYiOiJzZWNwMjU2azEiLCJ4IjoibklxbFJDeDBleUJTWGNRbnFEcFJlU3Y0enVXaHdDUldzc29jOUxfbmo2QSIsInkiOiJpRzI5Vks2bDJVNXNLQlpVU0plUHZ5RnVzWGdTbEsyZERGbFdhQ004RjdrIn0sImRlbHRhSGFzaCI6IkVpQXZsbVVRYy1jaDg0Slp5bmdQdkJzUkc3eWh4aUFSenlYOE5lNFQ4LTlyTncifQ.Q9MuoQqFlhYhuLDgx4f-0UM9QyCfZp_cXt7vnQ4ict5P4_ZWKwG4OXxxqFvdzE-e3ZkEbvfR0YxEIpYO9MrPFw');
       expect(result.delta.updateCommitment).toEqual('EiDKIkwqO69IPG3pOlHkdb86nYt0aNxSHZu2r-bhEznjdA');
       expect(result.delta.patches.length).toEqual(4); // add/remove service and add/remove key
     });
@@ -57,8 +58,9 @@ describe('IonRequest', () => {
     it('should generate an update request with the no arguments', async () => {
       const input = {
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
-        updatePrivateKey: require('./vectors/inputs/jwkEs256k1Private.json'),
-        nextUpdatePublicKey: require('./vectors/inputs/jwkEs256k2Public.json')
+        updatePublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
+        nextUpdatePublicKey: require('./vectors/inputs/jwkEs256k2Public.json'),
+        signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json'))
       };
 
       const result = await IonRequest.createUpdateRequest(input);
@@ -80,56 +82,34 @@ describe('IonRequest', () => {
       };
       const result = await IonRequest.createRecoverRequest({
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
-        recoveryPrivateKey: require('./vectors/inputs/jwkEs256k1Private.json'),
+        recoveryPublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
         nextRecoveryPublicKey: require('./vectors/inputs/jwkEs256k2Public.json'),
         nextUpdatePublicKey: require('./vectors/inputs/jwkEs256k3Public.json'),
-        document
+        document,
+        signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json'))
       });
 
       expect(result.didSuffix).toEqual('EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg');
       expect(result.revealValue).toEqual('EiAJ-97Is59is6FKAProwDo870nmwCeP8n5nRRFwPpUZVQ');
       expect(result.type).toEqual(OperationType.Recover);
-      expect(result.signedData).toEqual('eyJhbGciOiJFUzI1NksifQ.eyJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaURLSWt3cU82OUlQRzNwT2xIa2RiODZuWXQwYU54U0hadTJyLWJoRXpuamRBIiwicmVjb3ZlcnlLZXkiOnsiY3J2Ijoic2VjcDI1NmsxIiwia3R5IjoiRUMiLCJ4IjoibklxbFJDeDBleUJTWGNRbnFEcFJlU3Y0enVXaHdDUldzc29jOUxfbmo2QSIsInkiOiJpRzI5Vks2bDJVNXNLQlpVU0plUHZ5RnVzWGdTbEsyZERGbFdhQ004RjdrIn0sImRlbHRhSGFzaCI6IkVpQm9HNlFtamlTSm5ON2phaldnaV9vZDhjR3dYSm9Nc2RlWGlWWTc3NXZ2SkEifQ.ZL5ThTp1rLPtcsf6rUk8DwkkkmP8f70Mor-lk2Jru5VJlMBlPOKb3saCqlCxlopD8e-sGZsyx3xi4Pf4KeY_NQ');
+      expect(result.signedData).toEqual('eyJhbGciOiJFUzI1NksifQ.eyJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaURLSWt3cU82OUlQRzNwT2xIa2RiODZuWXQwYU54U0hadTJyLWJoRXpuamRBIiwicmVjb3ZlcnlLZXkiOnsia3R5IjoiRUMiLCJjcnYiOiJzZWNwMjU2azEiLCJ4IjoibklxbFJDeDBleUJTWGNRbnFEcFJlU3Y0enVXaHdDUldzc29jOUxfbmo2QSIsInkiOiJpRzI5Vks2bDJVNXNLQlpVU0plUHZ5RnVzWGdTbEsyZERGbFdhQ004RjdrIn0sImRlbHRhSGFzaCI6IkVpQm9HNlFtamlTSm5ON2phaldnaV9vZDhjR3dYSm9Nc2RlWGlWWTc3NXZ2SkEifQ.58n6Fel9DmRAXxwcJMUwYaUhmj5kigKMNrGjr7eJaJcjOmjvwlKLSjiovWiYrb9yjkfMAjpgbAdU_2EDI1_lZw');
       expect(result.delta.updateCommitment).toEqual('EiBJGXo0XUiqZQy0r-fQUHKS3RRVXw5nwUpqGVXEGuTs-g');
       expect(result.delta.patches.length).toEqual(1); // replace
     });
   });
 
   describe('createDeactivateRequest', () => {
-    it('shuold generate a deactivate request with the given arguments', async () => {
+    it('should generate a deactivate request with the given arguments', async () => {
       const result = await IonRequest.createDeactivateRequest({
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
-        recoveryPrivateKey: require('./vectors/inputs/jwkEs256k1Private.json')
+        recoveryPublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
+        signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json'))
       });
 
       expect(result.didSuffix).toEqual('EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg');
       expect(result.type).toEqual(OperationType.Deactivate);
       expect(result.revealValue).toEqual('EiAJ-97Is59is6FKAProwDo870nmwCeP8n5nRRFwPpUZVQ');
-      expect(result.signedData).toEqual('eyJhbGciOiJFUzI1NksifQ.eyJkaWRTdWZmaXgiOiJFaUR5T1FiYlpBYTNhaVJ6ZUNrVjdMT3gzU0VSampIOTNFWG9JTTNVb040b1dnIiwicmVjb3ZlcnlLZXkiOnsiY3J2Ijoic2VjcDI1NmsxIiwia3R5IjoiRUMiLCJ4IjoibklxbFJDeDBleUJTWGNRbnFEcFJlU3Y0enVXaHdDUldzc29jOUxfbmo2QSIsInkiOiJpRzI5Vks2bDJVNXNLQlpVU0plUHZ5RnVzWGdTbEsyZERGbFdhQ004RjdrIn19.9rSNNrh5vaT0cSsHt4lElKTm7rbxNhmIGGSA238O91dxs9-OKDM_ktfK5RmhBd7qfM6wJTJcdPCOnufTj5jbRA');
-    });
-  });
-
-  describe('validateEs256kOperationKey', () => {
-    it('should throw if given private key does not have d', () => {
-      const privKey = require('./vectors/inputs/jwkEs256k1Private.json');
-      privKey.d = undefined;
-      try {
-        (IonRequest as any).validateEs256kOperationKey(privKey, OperationKeyType.Private);
-        fail();
-      } catch (e) {
-        expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfD: SECP256K1 JWK 'd' property must be 43 bytes.`);
-      }
-    });
-
-    it('should throw if given private key d value is not the correct length', () => {
-      const privKey = require('./vectors/inputs/jwkEs256k1Private.json');
-      privKey.d = 'abc';
-      try {
-        (IonRequest as any).validateEs256kOperationKey(privKey, OperationKeyType.Private);
-        fail();
-      } catch (e) {
-        expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfD: SECP256K1 JWK 'd' property must be 43 bytes.`);
-      }
+      expect(result.signedData).toEqual('eyJhbGciOiJFUzI1NksifQ.eyJkaWRTdWZmaXgiOiJFaUR5T1FiYlpBYTNhaVJ6ZUNrVjdMT3gzU0VSampIOTNFWG9JTTNVb040b1dnIiwicmVjb3ZlcnlLZXkiOnsia3R5IjoiRUMiLCJjcnYiOiJzZWNwMjU2azEiLCJ4IjoibklxbFJDeDBleUJTWGNRbnFEcFJlU3Y0enVXaHdDUldzc29jOUxfbmo2QSIsInkiOiJpRzI5Vks2bDJVNXNLQlpVU0plUHZ5RnVzWGdTbEsyZERGbFdhQ004RjdrIn19.uLgnDBmmFzST4VTmdJcmFKVicF0kQaBqEnRQLbqJydgIg_2oreihCA5sBBIUBlSXwvnA9xdK97ksJGmPQ7asPQ');
     });
   });
 
