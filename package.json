@@ -8,6 +8,7 @@
   "types": "dist/lib/index.d.ts",
   "dependencies": {
     "@transmute/did-key-secp256k1": "^0.2.1-unstable.35",
+    "@transmute/did-key-ed25519": "^0.2.1-unstable.35",
     "@waiting/base64": "4.2.9",
     "canonicalize": "1.0.1",
     "multihashes": "0.4.14",

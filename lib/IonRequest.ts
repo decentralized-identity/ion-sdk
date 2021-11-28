@@ -6,14 +6,12 @@ import IonCreateRequestModel from './models/IonCreateRequestModel';
 import IonDeactivateRequestModel from './models/IonDeactivateRequestModel';
 import IonDocumentModel from './models/IonDocumentModel';
 import IonError from './IonError';
-import IonKey from './IonKey';
 import IonPublicKeyModel from './models/IonPublicKeyModel';
 import IonRecoverRequestModel from './models/IonRecoverRequestModel';
 import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
 import IonUpdateRequestModel from './models/IonUpdateRequestModel';
 import JsonCanonicalizer from './JsonCanonicalizer';
-import JwkEd25519 from './models/JwkEd25519';
 import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
 import OperationKeyType from './enums/OperationKeyType';
@@ -29,8 +27,8 @@ export default class IonRequest {
    * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
    */
   public static createCreateRequest (input: {
-    recoveryKey: JwkEs256k | JwkEd25519;
-    updateKey: JwkEs256k | JwkEd25519;
+    recoveryKey: JwkEs256k;
+    updateKey: JwkEs256k;
     document: IonDocumentModel;
   }): IonCreateRequestModel {
     const recoveryKey = input.recoveryKey;
@@ -39,14 +37,8 @@ export default class IonRequest {
     const services = input.document.services;
 
     // Validate recovery and update public keys.
-    if (IonKey.isJwkEs256k(recoveryKey)) {
-      InputValidator.validateEs256kOperationKey(recoveryKey, OperationKeyType.Public);
-    }
-    // TODO, validate ed25519
-
-    if (IonKey.isJwkEs256k(updateKey)) {
-      InputValidator.validateEs256kOperationKey(updateKey, OperationKeyType.Public);
-    }
+    InputValidator.validateEs256kOperationKey(recoveryKey, OperationKeyType.Public);
+    InputValidator.validateEs256kOperationKey(updateKey, OperationKeyType.Public);
 
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(didDocumentKeys);
@@ -86,16 +78,14 @@ export default class IonRequest {
 
   public static async createDeactivateRequest (input: {
     didSuffix: string,
-    recoveryPublicKey: JwkEs256k | JwkEd25519,
+    recoveryPublicKey: JwkEs256k,
     signer: ISigner
   }): Promise<IonDeactivateRequestModel> {
     // Validate DID suffix
     IonRequest.validateDidSuffix(input.didSuffix);
 
     // Validates recovery public key
-    if (IonKey.isJwkEs256k(input.recoveryPublicKey)) {
-      InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
-    }
+    InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
     const revealValue = Multihash.canonicalizeThenHashThenEncode(input.recoveryPublicKey, hashAlgorithmInMultihashCode);
@@ -117,9 +107,9 @@ export default class IonRequest {
 
   public static async createRecoverRequest (input: {
     didSuffix: string,
-    recoveryPublicKey: JwkEs256k | JwkEd25519,
-    nextRecoveryPublicKey: JwkEs256k | JwkEd25519,
-    nextUpdatePublicKey: JwkEs256k | JwkEd25519,
+    recoveryPublicKey: JwkEs256k,
+    nextRecoveryPublicKey: JwkEs256k,
+    nextUpdatePublicKey: JwkEs256k,
     document: IonDocumentModel,
     signer: ISigner
   }): Promise<IonRecoverRequestModel> {
@@ -127,19 +117,13 @@ export default class IonRequest {
     IonRequest.validateDidSuffix(input.didSuffix);
 
     // Validate recovery public key
-    if (IonKey.isJwkEs256k(input.recoveryPublicKey)) {
-      InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
-    }
+    InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
 
     // Validate next recovery public key
-    if (IonKey.isJwkEs256k(input.nextRecoveryPublicKey)) {
-      InputValidator.validateEs256kOperationKey(input.nextRecoveryPublicKey, OperationKeyType.Public);
-    }
+    InputValidator.validateEs256kOperationKey(input.nextRecoveryPublicKey, OperationKeyType.Public);
 
     // Validate next update public key
-    if (IonKey.isJwkEs256k(input.nextUpdatePublicKey)) {
-      InputValidator.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
-    }
+    InputValidator.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
 
     // Validate all given DID Document keys.
     IonRequest.validateDidDocumentKeys(input.document.publicKeys);
@@ -183,8 +167,8 @@ export default class IonRequest {
 
   public static async createUpdateRequest (input: {
     didSuffix: string;
-    updatePublicKey: JwkEs256k | JwkEd25519;
-    nextUpdatePublicKey: JwkEs256k | JwkEd25519;
+    updatePublicKey: JwkEs256k;
+    nextUpdatePublicKey: JwkEs256k;
     signer: ISigner;
     servicesToAdd?: IonServiceModel[];
     idsOfServicesToRemove?: string[];
@@ -195,14 +179,10 @@ export default class IonRequest {
     IonRequest.validateDidSuffix(input.didSuffix);
 
     // Validate update public key
-    if (IonKey.isJwkEs256k(input.updatePublicKey)) {
-      InputValidator.validateEs256kOperationKey(input.updatePublicKey, OperationKeyType.Public);
-    }
+    InputValidator.validateEs256kOperationKey(input.updatePublicKey, OperationKeyType.Public);
 
     // Validate next update public key
-    if (IonKey.isJwkEs256k(input.nextUpdatePublicKey)) {
-      InputValidator.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
-    }
+    InputValidator.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
 
     // Validate all given service.
     IonRequest.validateServices(input.servicesToAdd);
