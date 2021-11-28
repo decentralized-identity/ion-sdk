@@ -102,7 +102,7 @@ export default class IonKey {
   }
 
   public static isJwkEs256k (key: JwkEs256k | JwkEd25519): key is JwkEs256k {
-    return key.crv === 'secp256k1' || key.kty === 'EC';
+    return key.crv === 'secp256k1' && key.kty === 'EC';
   };
 
   public static isJwkEd25519 (key: JwkEs256k | JwkEd25519): key is JwkEd25519 {
