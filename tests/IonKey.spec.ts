@@ -121,7 +121,7 @@ describe('IonKey', async () => {
 
       expect(privateKey.d).toBeDefined();
 
-      const publicKey = didDocumentPublicKey.publicKeyJwk as JwkEs256k;
+      const publicKey = didDocumentPublicKey.publicKeyJwk;
       expect(publicKey.d).toBeUndefined();
       expect(publicKey.crv).toEqual(privateKey.crv);
       expect(publicKey.kty).toEqual(privateKey.kty);
