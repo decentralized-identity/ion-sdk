@@ -114,7 +114,7 @@ describe('IonKey', async () => {
 
       expect(didDocumentPublicKey.id).toEqual(keyId);
       expect(didDocumentPublicKey.purposes).toEqual([IonPublicKeyPurpose.Authentication]);
-      expect(didDocumentPublicKey.type).toEqual('Ed25519VerificationKey2018');
+      expect(didDocumentPublicKey.type).toEqual('JsonWebKey2020');
 
       expect(Object.keys(didDocumentPublicKey.publicKeyJwk).length).toEqual(3);
       expect(Object.keys(privateKey).length).toEqual(4);

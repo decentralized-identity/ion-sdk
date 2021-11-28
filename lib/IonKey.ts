@@ -71,7 +71,7 @@ export default class IonKey {
     const [publicKey, privateKey] = await IonKey.generateEd25519KeyPair();
     const publicKeyModel: IonPublicKeyModel = {
       id,
-      type: 'Ed25519VerificationKey2018',
+      type: 'JsonWebKey2020',
       publicKeyJwk: publicKey
     };
 
