@@ -1,8 +1,9 @@
 import ISigner from './interfaces/ISigner';
 import InputValidator from './InputValidator';
+import { JWS } from '@transmute/jose-ld';
 import JwkEs256k from './models/JwkEs256k';
 import OperationKeyType from './enums/OperationKeyType';
-const secp256k1 = require('@transmute/did-key-secp256k1');
+import { Secp256k1KeyPair } from '@transmute/secp256k1-key-pair';
 
 /**
  * An ISigner implementation that uses a given local private key.
@@ -20,7 +21,17 @@ export default class LocalSigner implements ISigner {
   }
 
   public async sign (header: object, content: object): Promise<string> {
-    const compactJws = await secp256k1.ES256K.sign(content, this.privateKey, header);
+    const key = await Secp256k1KeyPair.from({
+      type: 'JsonWebKey2020',
+      publicKeyJwk: this.privateKey,
+      privateKeyJwk: this.privateKey
+    } as any);
+    const signer = key.signer();
+    const jwsSigner = await JWS.createSigner(signer, 'ES256K', {
+      detached: false,
+      header
+    });
+    const compactJws = await jwsSigner.sign({ data: content });
     return compactJws;
   }
 }
