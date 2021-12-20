@@ -21,9 +21,13 @@ export default class LocalSigner implements ISigner {
   }
 
   public async sign (header: object, content: object): Promise<string> {
+    const publicKeyJwk = {
+      ...this.privateKey,
+      d: undefined
+    };
     const key = await Secp256k1KeyPair.from({
       type: 'JsonWebKey2020',
-      publicKeyJwk: this.privateKey,
+      publicKeyJwk,
       privateKeyJwk: this.privateKey
     } as any);
     const signer = key.signer();
