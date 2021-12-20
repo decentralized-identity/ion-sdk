@@ -1,4 +1,4 @@
-import { IonKey, IonPublicKeyPurpose } from '../lib/index';
+import { IonKey, IonPublicKeyPurpose, JwkEd25519 } from '../lib/index';
 import ErrorCode from '../lib/ErrorCode';
 import JasmineIonErrorValidator from './JasmineIonErrorValidator';
 import JwkEs256k from '../lib/models/JwkEs256k';
@@ -121,7 +121,7 @@ describe('IonKey', async () => {
 
       expect(privateKey.d).toBeDefined();
 
-      const publicKey = didDocumentPublicKey.publicKeyJwk;
+      const publicKey = didDocumentPublicKey.publicKeyJwk as JwkEd25519;
       expect(publicKey.d).toBeUndefined();
       expect(publicKey.crv).toEqual(privateKey.crv);
       expect(publicKey.kty).toEqual(privateKey.kty);
