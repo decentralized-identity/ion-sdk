@@ -11,6 +11,7 @@ import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
 import IonRequest from './IonRequest';
 import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
+import JwkEd25519 from './models/JwkEd25519';
 import JwkEs256k from './models/JwkEs256k';
 import LocalSigner from './LocalSigner';
 
@@ -22,9 +23,10 @@ export {
   IonNetwork,
   IonPublicKeyModel,
   IonPublicKeyPurpose,
+  IonRequest,
   IonSdkConfig,
   IonServiceModel,
-  IonRequest,
+  JwkEd25519,
   JwkEs256k,
   LocalSigner
 };

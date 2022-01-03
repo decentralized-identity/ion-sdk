@@ -1,0 +1,10 @@
+{
+  "id": "publicKeyModelEd25519",
+  "type": "JsonWebKey2020",
+  "publicKeyJwk": {
+    "crv": "Ed25519",
+    "x": "hCxaMR6NUOXI1C7w6Xz1mchc2wS8FVvXhngsgZ0htsY",
+    "kty": "OKP"
+  },
+  "purposes": ["authentication", "keyAgreement"]
+}

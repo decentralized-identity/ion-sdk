@@ -129,7 +129,7 @@ describe('IonDid', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
-      anyDidDocumentKey.publicKeyJwk = ['invalid object type'];
+      (anyDidDocumentKey as any).publicKeyJwk = ['invalid object type'];
 
       const document = { publicKeys: [anyDidDocumentKey] };
 
