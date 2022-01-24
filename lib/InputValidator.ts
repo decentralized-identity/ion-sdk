@@ -12,7 +12,7 @@ import OperationKeyType from './enums/OperationKeyType';
  */
 export default class InputValidator {
   /**
-   * Validates the schema of a ES256K JWK key.
+   * Validates the schema of a Ed25519 or secp256k1 JWK
    */
   public static validateOperationKey (operationKeyJwk: JwkEs256k | JwkEd25519, operationKeyType: OperationKeyType) {
     if (IonKey.isJwkEs256k(operationKeyJwk)) {
