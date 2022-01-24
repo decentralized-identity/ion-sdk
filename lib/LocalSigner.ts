@@ -56,7 +56,7 @@ export default class LocalSigner implements ISigner {
       const compactJws = await jwsSigner.sign({ data: content });
       return compactJws;
     } else {
-      throw new IonError(ErrorCode.UnsupportedKeyType, `JWK key should be Es256k or Ed25119.`);
+      throw new IonError(ErrorCode.UnsupportedKeyType, `JWK key should be secp256k1 or Ed25119.`);
     }
   }
 }
