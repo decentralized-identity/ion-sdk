@@ -26,5 +26,6 @@ export default {
   PublicKeyPurposeDuplicated: 'PublicKeyPurposeDuplicated',
   ServiceEndpointCannotBeAnArray: 'ServiceEndpointCannotBeAnArray',
   ServiceEndpointStringNotValidUri: 'ServiceEndpointStringNotValidUri',
-  ServiceTypeTooLong: 'ServiceTypeTooLong'
+  ServiceTypeTooLong: 'ServiceTypeTooLong',
+  UnsupportedKeyType: 'UnsupportedKeyType'
 };
