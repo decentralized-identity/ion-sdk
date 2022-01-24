@@ -25,4 +25,28 @@ describe('IonKey', async () => {
       }
     });
   });
+
+  describe('validateEd25519OperationKey', () => {
+    it('should throw if given private key does not have d', () => {
+      const publicKey = require('./vectors/inputs/jwkEd255191Public.json');
+      try {
+        InputValidator.validateEd25519OperationKey(publicKey, OperationKeyType.Private);
+        fail();
+      } catch (e) {
+        expect(e.message).toEqual(`JwkEd25519HasIncorrectLengthOfD: Ed25519 JWK 'd' property must be 43 bytes.`);
+      }
+    });
+
+    it('should throw if given private key d value is not the correct length', () => {
+      const privateKey = require('./vectors/inputs/jwkEd255191Private.json');
+      const privateKeyClone = Object.assign({}, privateKey); // Make a copy so this test does not affect other tests.
+      privateKeyClone.d = 'abc';
+      try {
+        InputValidator.validateEd25519OperationKey(privateKeyClone, OperationKeyType.Private);
+        fail();
+      } catch (e) {
+        expect(e.message).toEqual(`JwkEd25519HasIncorrectLengthOfD: Ed25519 JWK 'd' property must be 43 bytes.`);
+      }
+    });
+  });
 });
