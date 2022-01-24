@@ -20,7 +20,7 @@ export default class InputValidator {
     } else if (IonKey.isJwkEd25519(operationKeyJwk)) {
       InputValidator.validateEd25519OperationKey(operationKeyJwk, operationKeyType);
     } else {
-      throw new IonError(ErrorCode.UnsupportedKeyType, `JWK key should be Es256k or Ed25119.`);
+      throw new IonError(ErrorCode.UnsupportedKeyType, `JWK key should be secp256k1 or Ed25519.`);
     }
   }
 
