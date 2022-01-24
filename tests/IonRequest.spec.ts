@@ -191,7 +191,7 @@ describe('IonRequest with Ed25519 keys', () => {
       };
 
       const result = await IonRequest.createUpdateRequest(input);
-      expect(result.didSuffix).toEqual('EiBks49Ah-ZxE1-6Se-PUDk_4_ffylpeqmfMCWUBwwTM-g');
+      expect(result.didSuffix).toEqual(didSuffix);
       expect(result.type).toEqual(OperationType.Update);
       expect(result.revealValue).toEqual('EiDEn43TJxGpPXjVD-HWeR2i-OQSF8jUKxWA62OvCjc64w');
       expect(result.signedData).toEqual('eyJhbGciOiJFUzI1NksifQ.eyJ1cGRhdGVLZXkiOnsiY3J2IjoiRWQyNTUxOSIsIngiOiJ5eC11Z3M4Sl9kM0JfVEUwcFY3c3E0Q016RFRFRDNScVRRY1cyZGxENjVnIiwia3R5IjoiT0tQIn0sImRlbHRhSGFzaCI6IkVpQzItdEx2MjlqWkFnRVhmY2NxYXVaaXNJb1p5TTlZVjZGMUduZXR2cEE3aXcifQ.tOQ9Gh0aFXiBEtioFPbNbf0YL_rIaQigk1gD5dnMLIUZead_LN2sU6KE_LG4XdV5Zhser6_aNouSg7zTN4aHAg');

@@ -1,6 +1,9 @@
+import * as jwkEd255191Public from './vectors/inputs/jwkEd255191Public.json';
+import * as jwkEd255192Public from './vectors/inputs/jwkEd255192Public.json';
 import * as jwkEs256k1Public from './vectors/inputs/jwkEs256k1Public.json';
 import * as jwkEs256k2Public from './vectors/inputs/jwkEs256k2Public.json';
 import * as publicKeyModel1 from './vectors/inputs/publicKeyModel1.json';
+import * as publicKeyModelEd25519 from './vectors/inputs/publicKeyModelEd25519.json';
 import * as service1 from './vectors/inputs/service1.json';
 import { IonDid, IonKey, IonPublicKeyPurpose, IonSdkConfig } from '../lib/index';
 import ErrorCode from '../lib/ErrorCode';
@@ -15,7 +18,7 @@ describe('IonDid', async () => {
   });
 
   describe('createLongFormDid()', async () => {
-    it('vector test - should create a long-form DID correctly.', async () => {
+    it('vector test - should create a long-form DID correctly with ES256K keys.', async () => {
       const recoveryKey = jwkEs256k1Public;
       const updateKey = jwkEs256k2Public;
       const didDocumentKeys = [publicKeyModel1 as any];
@@ -29,6 +32,23 @@ describe('IonDid', async () => {
       const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document });
 
       const expectedMethodSpecificId = 'did:ion:EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJwdWJsaWNLZXlNb2RlbDFJZCIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiJ0WFNLQl9ydWJYUzdzQ2pYcXVwVkpFelRjVzNNc2ptRXZxMVlwWG45NlpnIiwieSI6ImRPaWNYcWJqRnhvR0otSzAtR0oxa0hZSnFpY19EX09NdVV3a1E3T2w2bmsifSwicHVycG9zZXMiOlsiYXV0aGVudGljYXRpb24iLCJrZXlBZ3JlZW1lbnQiXSwidHlwZSI6IkVjZHNhU2VjcDI1NmsxVmVyaWZpY2F0aW9uS2V5MjAxOSJ9XSwic2VydmljZXMiOlt7ImlkIjoic2VydmljZTFJZCIsInNlcnZpY2VFbmRwb2ludCI6Imh0dHA6Ly93d3cuc2VydmljZTEuY29tIiwidHlwZSI6InNlcnZpY2UxVHlwZSJ9XX19XSwidXBkYXRlQ29tbWl0bWVudCI6IkVpREtJa3dxTzY5SVBHM3BPbEhrZGI4Nm5ZdDBhTnhTSFp1MnItYmhFem5qZEEifSwic3VmZml4RGF0YSI6eyJkZWx0YUhhc2giOiJFaUNmRFdSbllsY0Q5RUdBM2RfNVoxQUh1LWlZcU1iSjluZmlxZHo1UzhWRGJnIiwicmVjb3ZlcnlDb21taXRtZW50IjoiRWlCZk9aZE10VTZPQnc4UGs4NzlRdFotMkotOUZiYmpTWnlvYUFfYnFENHpoQSJ9fQ';
+      expect(longFormDid).toEqual(expectedMethodSpecificId);
+    });
+
+    it('vector test - should create a long-form DID correctly with Ed25519 keys.', async () => {
+      const recoveryKey = jwkEd255191Public;
+      const updateKey = jwkEd255192Public;
+      const didDocumentKeys = [publicKeyModelEd25519 as any];
+      const services = [service1];
+
+      const document = {
+        publicKeys: didDocumentKeys,
+        services
+      };
+
+      const longFormDid = IonDid.createLongFormDid({ recoveryKey, updateKey, document });
+
+      const expectedMethodSpecificId = 'did:ion:EiBks49Ah-ZxE1-6Se-PUDk_4_ffylpeqmfMCWUBwwTM-g:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJwdWJsaWNLZXlNb2RlbEVkMjU1MTkiLCJwdWJsaWNLZXlKd2siOnsiY3J2IjoiRWQyNTUxOSIsImt0eSI6Ik9LUCIsIngiOiJoQ3hhTVI2TlVPWEkxQzd3Nlh6MW1jaGMyd1M4RlZ2WGhuZ3NnWjBodHNZIn0sInB1cnBvc2VzIjpbImF1dGhlbnRpY2F0aW9uIiwia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoic2VydmljZTFJZCIsInNlcnZpY2VFbmRwb2ludCI6Imh0dHA6Ly93d3cuc2VydmljZTEuY29tIiwidHlwZSI6InNlcnZpY2UxVHlwZSJ9XX19XSwidXBkYXRlQ29tbWl0bWVudCI6IkVpQ0VEZkdaZkdxeXJuMmVsTU1MbGRfMGxQVE8xTXlQbi1MdFlhZWJEYl9xQncifSwic3VmZml4RGF0YSI6eyJkZWx0YUhhc2giOiJFaUI2TVJSNFc5NFhhc21obVhXM2NhUlluWDdUWGYyZktwcUhuZGhqTmcwb2R3IiwicmVjb3ZlcnlDb21taXRtZW50IjoiRWlEbHNIVkFScDgwYTF2azhHQTlxMWcwaFNGbEp3VGdlQkZOMmkyME9sMlRJUSJ9fQ';
       expect(longFormDid).toEqual(expectedMethodSpecificId);
     });
 
@@ -88,7 +108,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } }),
-        ErrorCode.JwkEs256kMissingOrInvalidCrv
+        ErrorCode.UnsupportedKeyType
       );
     });
 
@@ -99,7 +119,7 @@ describe('IonDid', async () => {
 
       JasmineIonErrorValidator.expectIonErrorToBeThrown(
         () => IonDid.createLongFormDid({ recoveryKey, updateKey, document: { } }),
-        ErrorCode.JwkEs256kMissingOrInvalidKty
+        ErrorCode.UnsupportedKeyType
       );
     });
 
