@@ -2,6 +2,7 @@ import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
+import JwkEd25519 from './models/JwkEd25519';
 import JwkEs256k from './models/JwkEs256k';
 import OperationKeyType from './enums/OperationKeyType';
 
@@ -42,6 +43,38 @@ export default class InputValidator {
 
     if (operationKeyType === OperationKeyType.Private && (operationKeyJwk.d === undefined || operationKeyJwk.d.length !== 43)) {
       throw new IonError(ErrorCode.JwkEs256kHasIncorrectLengthOfD, `SECP256K1 JWK 'd' property must be 43 bytes.`);
+    }
+  }
+
+  /**
+   * Validates the schema of a Ed25519 JWK key.
+   */
+  public static validateEd25519OperationKey (operationKeyJwk: JwkEd25519, operationKeyType: OperationKeyType) {
+    const allowedProperties = new Set(['kty', 'crv', 'x']);
+    if (operationKeyType === OperationKeyType.Private) {
+      allowedProperties.add('d');
+    }
+    for (const property in operationKeyJwk) {
+      if (!allowedProperties.has(property)) {
+        throw new IonError(ErrorCode.PublicKeyJwkEd25519HasUnexpectedProperty, `Ed25519 JWK key has unexpected property '${property}'.`);
+      }
+    }
+
+    if (operationKeyJwk.crv !== 'Ed25519') {
+      throw new IonError(ErrorCode.JwkEd25519MissingOrInvalidCrv, `Ed25519 JWK 'crv' property must be 'Ed25519' but got '${operationKeyJwk.crv}.'`);
+    }
+
+    if (operationKeyJwk.kty !== 'OKP') {
+      throw new IonError(ErrorCode.JwkEd25519MissingOrInvalidKty, `Ed25519 JWK 'kty' property must be 'OKP' but got '${operationKeyJwk.kty}.'`);
+    }
+
+    // `x` needs 43 Base64URL encoded bytes to contain 256 bits.
+    if (operationKeyJwk.x.length !== 43) {
+      throw new IonError(ErrorCode.JwkEd25519HasIncorrectLengthOfX, `Ed25519 JWK 'x' property must be 43 bytes.`);
+    }
+
+    if (operationKeyType === OperationKeyType.Private && (operationKeyJwk.d === undefined || operationKeyJwk.d.length !== 43)) {
+      throw new IonError(ErrorCode.JwkEd25519HasIncorrectLengthOfD, `Ed25519 JWK 'd' property must be 43 bytes.`);
     }
   }
 
