@@ -1,6 +1,7 @@
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
+import IonKey from './IonKey';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
 import JwkEd25519 from './models/JwkEd25519';
 import JwkEs256k from './models/JwkEs256k';
@@ -10,6 +11,19 @@ import OperationKeyType from './enums/OperationKeyType';
  * Class containing input validation methods.
  */
 export default class InputValidator {
+  /**
+   * Validates the schema of a ES256K JWK key.
+   */
+  public static validateOperationKey (operationKeyJwk: JwkEs256k | JwkEd25519, operationKeyType: OperationKeyType) {
+    if (IonKey.isJwkEs256k(operationKeyJwk)) {
+      InputValidator.validateEs256kOperationKey(operationKeyJwk, operationKeyType);
+    } else if (IonKey.isJwkEd25519(operationKeyJwk)) {
+      InputValidator.validateEd25519OperationKey(operationKeyJwk, operationKeyType);
+    } else {
+      throw new IonError(ErrorCode.UnsupportedKeyType, `JWK key should be Es256k or Ed25119.`);
+    }
+  }
+
   /**
    * Validates the schema of a ES256K JWK key.
    */

@@ -22,13 +22,7 @@ export default class LocalSigner implements ISigner {
   }
 
   private constructor (private privateKey: JwkEs256k | JwkEd25519) {
-    if (IonKey.isJwkEs256k(privateKey)) {
-      InputValidator.validateEs256kOperationKey(privateKey, OperationKeyType.Private);
-    } else if (IonKey.isJwkEd25519(privateKey)) {
-      InputValidator.validateEd25519OperationKey(privateKey, OperationKeyType.Private);
-    } else {
-      throw new IonError(ErrorCode.UnsupportedKeyType, `JWK key should be Es256k or Ed25119.`);
-    }
+    InputValidator.validateOperationKey(privateKey, OperationKeyType.Private);
   }
 
   public async sign (header: object, content: object): Promise<string> {
