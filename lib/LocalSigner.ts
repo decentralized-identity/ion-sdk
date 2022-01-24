@@ -5,10 +5,9 @@ import InputValidator from './InputValidator';
 import IonError from './IonError';
 import IonKey from './IonKey';
 import { JWS } from '@transmute/jose-ld';
-import JwkEd25519 from './models/JwkEd25519';
-import JwkEs256k from './models/JwkEs256k';
 import OperationKeyType from './enums/OperationKeyType';
 import { Secp256k1KeyPair } from '@transmute/secp256k1-key-pair';
+import SidetreeKeyJwk from './models/SidetreeKeyJwk';
 
 /**
  * An ISigner implementation that uses a given local private key.
@@ -17,11 +16,11 @@ export default class LocalSigner implements ISigner {
   /**
    * Creates a new local signer using the given private key.
    */
-  public static create (privateKey: JwkEs256k | JwkEd25519): ISigner {
+  public static create (privateKey: SidetreeKeyJwk): ISigner {
     return new LocalSigner(privateKey);
   }
 
-  private constructor (private privateKey: JwkEs256k | JwkEd25519) {
+  private constructor (private privateKey: SidetreeKeyJwk) {
     InputValidator.validateOperationKey(privateKey, OperationKeyType.Private);
   }
 

@@ -12,12 +12,11 @@ import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
 import IonUpdateRequestModel from './models/IonUpdateRequestModel';
 import JsonCanonicalizer from './JsonCanonicalizer';
-import JwkEd25519 from './models/JwkEd25519';
-import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
 import OperationKeyType from './enums/OperationKeyType';
 import OperationType from './enums/OperationType';
 import PatchAction from './enums/PatchAction';
+import SidetreeKeyJwk from './models/SidetreeKeyJwk';
 
 /**
  * Class containing operations related to ION requests.
@@ -28,8 +27,8 @@ export default class IonRequest {
    * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
    */
   public static createCreateRequest (input: {
-    recoveryKey: JwkEs256k | JwkEd25519;
-    updateKey: JwkEs256k | JwkEd25519;
+    recoveryKey: SidetreeKeyJwk;
+    updateKey: SidetreeKeyJwk;
     document: IonDocumentModel;
   }): IonCreateRequestModel {
     const recoveryKey = input.recoveryKey;
@@ -79,7 +78,7 @@ export default class IonRequest {
 
   public static async createDeactivateRequest (input: {
     didSuffix: string,
-    recoveryPublicKey: JwkEs256k | JwkEd25519,
+    recoveryPublicKey: SidetreeKeyJwk,
     signer: ISigner
   }): Promise<IonDeactivateRequestModel> {
     // Validate DID suffix
@@ -108,9 +107,9 @@ export default class IonRequest {
 
   public static async createRecoverRequest (input: {
     didSuffix: string,
-    recoveryPublicKey: JwkEs256k | JwkEd25519,
-    nextRecoveryPublicKey: JwkEs256k | JwkEd25519,
-    nextUpdatePublicKey: JwkEs256k | JwkEd25519,
+    recoveryPublicKey: SidetreeKeyJwk,
+    nextRecoveryPublicKey: SidetreeKeyJwk,
+    nextUpdatePublicKey: SidetreeKeyJwk,
     document: IonDocumentModel,
     signer: ISigner
   }): Promise<IonRecoverRequestModel> {
@@ -168,8 +167,8 @@ export default class IonRequest {
 
   public static async createUpdateRequest (input: {
     didSuffix: string;
-    updatePublicKey: JwkEs256k | JwkEd25519;
-    nextUpdatePublicKey: JwkEs256k | JwkEd25519;
+    updatePublicKey: SidetreeKeyJwk;
+    nextUpdatePublicKey: SidetreeKeyJwk;
     signer: ISigner;
     servicesToAdd?: IonServiceModel[];
     idsOfServicesToRemove?: string[];

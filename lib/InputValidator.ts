@@ -6,6 +6,7 @@ import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
 import JwkEd25519 from './models/JwkEd25519';
 import JwkEs256k from './models/JwkEs256k';
 import OperationKeyType from './enums/OperationKeyType';
+import SidetreeKeyJwk from './models/SidetreeKeyJwk';
 
 /**
  * Class containing input validation methods.
@@ -14,7 +15,7 @@ export default class InputValidator {
   /**
    * Validates the schema of a Ed25519 or secp256k1 JWK
    */
-  public static validateOperationKey (operationKeyJwk: JwkEs256k | JwkEd25519, operationKeyType: OperationKeyType) {
+  public static validateOperationKey (operationKeyJwk: SidetreeKeyJwk, operationKeyType: OperationKeyType) {
     if (IonKey.isJwkEs256k(operationKeyJwk)) {
       InputValidator.validateEs256kOperationKey(operationKeyJwk, operationKeyType);
     } else if (IonKey.isJwkEd25519(operationKeyJwk)) {

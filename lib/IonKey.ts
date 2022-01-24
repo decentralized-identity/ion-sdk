@@ -5,6 +5,7 @@ import IonPublicKeyModel from './models/IonPublicKeyModel';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
 import JwkEd25519 from './models/JwkEd25519';
 import JwkEs256k from './models/JwkEs256k';
+import SidetreeKeyJwk from './models/SidetreeKeyJwk';
 const randomBytes = require('randombytes');
 
 /**
@@ -107,11 +108,11 @@ export default class IonKey {
     return [publicKeyJwk, privateKeyJwk];
   }
 
-  public static isJwkEs256k (key: JwkEs256k | JwkEd25519): key is JwkEs256k {
+  public static isJwkEs256k (key: SidetreeKeyJwk): key is JwkEs256k {
     return key.crv === 'secp256k1' && key.kty === 'EC';
   };
 
-  public static isJwkEd25519 (key: JwkEs256k | JwkEd25519): key is JwkEd25519 {
+  public static isJwkEd25519 (key: SidetreeKeyJwk): key is JwkEd25519 {
     return key.crv === 'Ed25519' && key.kty === 'OKP';
   };
 }

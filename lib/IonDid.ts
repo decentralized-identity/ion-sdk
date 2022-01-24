@@ -3,9 +3,8 @@ import IonDocumentModel from './models/IonDocumentModel';
 import IonRequest from './IonRequest';
 import IonSdkConfig from './IonSdkConfig';
 import JsonCanonicalizer from './JsonCanonicalizer';
-import JwkEd25519 from './models/JwkEd25519';
-import JwkEs256k from './models/JwkEs256k';
 import Multihash from './Multihash';
+import SidetreeKeyJwk from './models/SidetreeKeyJwk';
 
 /**
  * Class containing DID related operations.
@@ -16,8 +15,8 @@ export default class IonDid {
    * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
    */
   public static createLongFormDid (input: {
-    recoveryKey: JwkEs256k | JwkEd25519;
-    updateKey: JwkEs256k | JwkEd25519;
+    recoveryKey: SidetreeKeyJwk;
+    updateKey: SidetreeKeyJwk;
     document: IonDocumentModel;
   }): string {
     const createRequest = IonRequest.createCreateRequest(input);
