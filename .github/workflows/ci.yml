@@ -12,10 +12,11 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: 16.x
 
       - run: npm install
-
       - run: npm run lint
+      - run: npm run build
+      - run: npm run test:only # so we don't run the code coverage badge creation script and let the line below handle it
+      - run: npm run badge:cc:ci # throws if README output differs to README to be checked in (thus detects if tests are not run)
 
-      - run: npm test
