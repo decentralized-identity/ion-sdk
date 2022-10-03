@@ -14,11 +14,13 @@
     "canonicalize": "1.0.1",
     "multihashes": "0.4.14",
     "randombytes": "2.1.0",
+    "sha.js": "2.4.11",
     "uri-js": "4.4.0"
   },
   "devDependencies": {
     "@types/jasmine": "3.3.12",
     "@types/node": "^11.13.4",
+    "@types/sha.js": "^2.4.0",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "@typescript-eslint/parser": "^4.3.0",
     "copyfiles": "2.3.0",

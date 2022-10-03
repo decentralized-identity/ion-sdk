@@ -1,4 +1,4 @@
-import * as crypto from 'crypto';
+import * as shajs from 'sha.js';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import IonError from './IonError';
@@ -32,7 +32,7 @@ export default class Multihash {
     let hash;
     switch (hashAlgorithmInMultihashCode) {
       case 18: // SHA256
-        hash = crypto.createHash('sha256').update(content).digest();
+        hash = shajs('sha256').update(content).digest();
         break;
       default:
         throw new IonError(
