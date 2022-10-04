@@ -7,13 +7,12 @@
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "dependencies": {
-    "@transmute/ed25519-key-pair": "0.7.0-unstable.28",
+    "@noble/ed25519": "1.7.1",
+    "@noble/secp256k1": "1.7.0",
     "@transmute/jose-ld": "0.7.0-unstable.28",
-    "@transmute/secp256k1-key-pair": "0.7.0-unstable.28",
     "canonicalize": "1.0.1",
     "multiformats": "^9.9.0",
     "multihashes": "4.0.3",
-    "randombytes": "2.1.0",
     "sha.js": "2.4.11",
     "uri-js": "4.4.0"
   },

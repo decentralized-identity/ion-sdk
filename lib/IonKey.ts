@@ -1,11 +1,11 @@
-import { JsonWebKey2020, Secp256k1KeyPair } from '@transmute/secp256k1-key-pair';
-import { Ed25519KeyPair } from '@transmute/ed25519-key-pair';
+import * as Ed25519 from '@noble/ed25519';
+import * as Secp256k1 from '@noble/secp256k1';
 import InputValidator from './InputValidator';
 import IonPublicKeyModel from './models/IonPublicKeyModel';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
 import JwkEd25519 from './models/JwkEd25519';
 import JwkEs256k from './models/JwkEs256k';
-const randomBytes = require('randombytes');
+import { base64url } from 'multiformats/bases/base64';
 
 /**
  * Class containing operations related to keys used in ION.
@@ -48,15 +48,28 @@ export default class IonKey {
   }
 
   private static async generateEs256kKeyPair (): Promise<[JwkEs256k, JwkEs256k]> {
-    const keyPair = await Secp256k1KeyPair.generate({
-      secureRandom: () => randomBytes(32)
-    });
-    const exportedKeypair = await keyPair.export({
-      type: 'JsonWebKey2020',
-      privateKey: true
-    });
-    const { publicKeyJwk, privateKeyJwk } = exportedKeypair as JsonWebKey2020;
-    return [publicKeyJwk, privateKeyJwk];
+    const privateKeyBytes = Secp256k1.utils.randomPrivateKey();
+    // the public key is uncompressed which means that it contains both the x and y values.
+    // the first byte is a header that indicates whether the key is uncompressed (0x04 if uncompressed).
+    // bytes 1 - 32 represent X
+    // bytes 33 - 64 represent Y
+    const publicKeyBytes = await Secp256k1.getPublicKey(privateKeyBytes);
+
+    const d = base64url.baseEncode(privateKeyBytes);
+    // skip the first byte because it's used as a header to indicate whether the key is uncompressed
+    const x = base64url.baseEncode(publicKeyBytes.subarray(1, 33));
+    const y = base64url.baseEncode(publicKeyBytes.subarray(33, 65));
+
+    const publicJwk = {
+      // alg: 'ES256K',
+      kty: 'EC',
+      crv: 'secp256k1',
+      x,
+      y
+    };
+    const privateJwk = { ...publicJwk, d };
+
+    return [publicJwk, privateJwk];
   }
 
   /**
@@ -96,15 +109,21 @@ export default class IonKey {
   }
 
   private static async generateEd25519KeyPair (): Promise<[JwkEd25519, JwkEd25519]> {
-    const keyPair = await Ed25519KeyPair.generate({
-      secureRandom: () => randomBytes(32)
-    });
-    const exportedKeypair = await keyPair.export({
-      type: 'JsonWebKey2020',
-      privateKey: true
-    });
-    const { publicKeyJwk, privateKeyJwk } = exportedKeypair as JsonWebKey2020;
-    return [publicKeyJwk, privateKeyJwk];
+    const privateKeyBytes = Ed25519.utils.randomPrivateKey();
+    const publicKeyBytes = await Ed25519.getPublicKey(privateKeyBytes);
+
+    const d = base64url.baseEncode(privateKeyBytes);
+    const x = base64url.baseEncode(publicKeyBytes);
+
+    const publicJwk = {
+      // alg: 'EdDSA',
+      kty: 'OKP',
+      crv: 'Ed25519',
+      x
+    };
+    const privateJwk = { ...publicJwk, d };
+
+    return [publicJwk, privateJwk];
   }
 
   public static isJwkEs256k (key: JwkEs256k | JwkEd25519): key is JwkEs256k {
