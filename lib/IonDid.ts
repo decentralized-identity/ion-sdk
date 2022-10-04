@@ -37,8 +37,8 @@ export default class IonDid {
     };
 
     // Initial state must be canonicalized as per spec.
-    const canonicalizedInitialStateBuffer = JsonCanonicalizer.canonicalizeAsBuffer(initialState);
-    const encodedCanonicalizedInitialStateString = Encoder.encode(canonicalizedInitialStateBuffer);
+    const canonicalizedInitialStateBytes = JsonCanonicalizer.canonicalizeAsBytes(initialState);
+    const encodedCanonicalizedInitialStateString = Encoder.encode(canonicalizedInitialStateBytes);
 
     const longFormDid = `${shortFormDid}:${encodedCanonicalizedInitialStateString}`;
     return longFormDid;
@@ -48,8 +48,8 @@ export default class IonDid {
    * Computes the DID unique suffix given the encoded suffix data string.
    */
   private static computeDidUniqueSuffix (suffixData: object): string {
-    const canonicalizedStringBuffer = JsonCanonicalizer.canonicalizeAsBuffer(suffixData);
-    const multihash = Multihash.hash(canonicalizedStringBuffer, IonSdkConfig.hashAlgorithmInMultihashCode);
+    const canonicalizedStringBytes = JsonCanonicalizer.canonicalizeAsBytes(suffixData);
+    const multihash = Multihash.hash(canonicalizedStringBytes, IonSdkConfig.hashAlgorithmInMultihashCode);
     const encodedMultihash = Encoder.encode(multihash);
     return encodedMultihash;
   }

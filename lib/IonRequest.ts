@@ -340,9 +340,9 @@ export default class IonRequest {
   }
 
   private static validateDeltaSize (delta: object) {
-    const deltaBuffer = JsonCanonicalizer.canonicalizeAsBuffer(delta);
-    if (deltaBuffer.length > IonSdkConfig.maxCanonicalizedDeltaSizeInBytes) {
-      const errorMessage = `Delta of ${deltaBuffer.length} bytes exceeded limit of ${IonSdkConfig.maxCanonicalizedDeltaSizeInBytes} bytes.`;
+    const deltaBytes = JsonCanonicalizer.canonicalizeAsBytes(delta);
+    if (deltaBytes.length > IonSdkConfig.maxCanonicalizedDeltaSizeInBytes) {
+      const errorMessage = `Delta of ${deltaBytes.length} bytes exceeded limit of ${IonSdkConfig.maxCanonicalizedDeltaSizeInBytes} bytes.`;
       throw new IonError(ErrorCode.DeltaExceedsMaximumSize, errorMessage);
     }
   }

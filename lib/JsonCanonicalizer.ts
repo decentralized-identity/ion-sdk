@@ -1,3 +1,5 @@
+import Encoder from './Encoder';
+
 const canonicalize = require('canonicalize');
 
 /**
@@ -5,14 +7,14 @@ const canonicalize = require('canonicalize');
  */
 export default class JsonCanonicalizer {
   /**
-   * Canonicalizes the given content as a UTF8 buffer.
+   * Canonicalizes the given content as bytes.
    */
-  public static canonicalizeAsBuffer (content: object): Buffer {
+  public static canonicalizeAsBytes (content: object): Uint8Array {
     // We need to remove all properties with `undefined` as value so that JCS canonicalization will not produce invalid JSON.
     const contentWithoutUndefinedProperties = JsonCanonicalizer.removeAllUndefinedProperties(content);
     const canonicalizedString: string = canonicalize(contentWithoutUndefinedProperties);
-    const contentBuffer = Buffer.from(canonicalizedString);
-    return contentBuffer;
+    const contentBytes = Encoder.stringToBytes(canonicalizedString);
+    return contentBytes;
   }
 
   /**
