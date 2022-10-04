@@ -19,7 +19,7 @@ describe('IonRequest', () => {
         services
       };
       const input = { recoveryKey, updateKey, document };
-      const result = IonRequest.createCreateRequest(input);
+      const result = await IonRequest.createCreateRequest(input);
       expect(result.type).toEqual(OperationType.Create);
       expect(result.delta.updateCommitment).toEqual('EiDKIkwqO69IPG3pOlHkdb86nYt0aNxSHZu2r-bhEznjdA');
       expect(result.delta.patches.length).toEqual(1);

@@ -1,11 +1,11 @@
 import * as multihashes from 'multihashes';
-import * as shajs from 'sha.js';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
 import { HashCode } from 'multihashes';
 import IonError from './IonError';
 import IonSdkConfig from './IonSdkConfig';
 import JsonCanonicalizer from './JsonCanonicalizer';
+import { sha256 } from 'multiformats/hashes/sha2';
 
 /**
  * Class that performs hashing operations using the multihash format.
@@ -15,8 +15,8 @@ export default class Multihash {
    * Hashes the content using the hashing algorithm specified.
    * @param hashAlgorithmInMultihashCode The hashing algorithm to use.
    */
-  public static hash (content: Uint8Array, hashAlgorithmInMultihashCode: number): Uint8Array {
-    const conventionalHash = this.hashAsNonMultihashBytes(content, hashAlgorithmInMultihashCode);
+  public static async hash (content: Uint8Array, hashAlgorithmInMultihashCode: number): Promise<Uint8Array> {
+    const conventionalHash = await this.hashAsNonMultihashBytes(content, hashAlgorithmInMultihashCode);
     const multihash = multihashes.encode(conventionalHash, hashAlgorithmInMultihashCode as HashCode);
 
     return multihash;
@@ -27,11 +27,11 @@ export default class Multihash {
    * @param hashAlgorithmInMultihashCode The hashing algorithm to use.
    * @returns A multihash bytes.
    */
-  public static hashAsNonMultihashBytes (content: Uint8Array, hashAlgorithmInMultihashCode: number): Uint8Array {
+  public static async hashAsNonMultihashBytes (content: Uint8Array, hashAlgorithmInMultihashCode: number): Promise<Uint8Array> {
     let hash;
     switch (hashAlgorithmInMultihashCode) {
       case 18: // SHA256
-        hash = shajs('sha256').update(content).digest();
+        hash = await sha256.encode(content);
         break;
       default:
         throw new IonError(
@@ -47,10 +47,10 @@ export default class Multihash {
    * Canonicalize the given content, then double hashes the result using the latest supported hash algorithm, then encodes the multihash.
    * Mainly used for testing purposes.
    */
-  public static canonicalizeThenHashThenEncode (content: object, hashAlgorithmInMultihashCode: number) {
+  public static async canonicalizeThenHashThenEncode (content: object, hashAlgorithmInMultihashCode: number): Promise<string> {
     const canonicalizedStringBytes = JsonCanonicalizer.canonicalizeAsBytes(content);
 
-    const multihashEncodedString = Multihash.hashThenEncode(canonicalizedStringBytes, hashAlgorithmInMultihashCode);
+    const multihashEncodedString = await Multihash.hashThenEncode(canonicalizedStringBytes, hashAlgorithmInMultihashCode);
     return multihashEncodedString;
   }
 
@@ -58,12 +58,12 @@ export default class Multihash {
    * Canonicalize the given content, then double hashes the result using the latest supported hash algorithm, then encodes the multihash.
    * Mainly used for testing purposes.
    */
-  public static canonicalizeThenDoubleHashThenEncode (content: object, hashAlgorithmInMultihashCode: number) {
+  public static async canonicalizeThenDoubleHashThenEncode (content: object, hashAlgorithmInMultihashCode: number): Promise<string> {
     const contentBytes = JsonCanonicalizer.canonicalizeAsBytes(content);
 
     // Double hash.
-    const intermediateHashBytes = Multihash.hashAsNonMultihashBytes(contentBytes, hashAlgorithmInMultihashCode);
-    const multihashEncodedString = Multihash.hashThenEncode(intermediateHashBytes, hashAlgorithmInMultihashCode);
+    const intermediateHashBytes = await Multihash.hashAsNonMultihashBytes(contentBytes, hashAlgorithmInMultihashCode);
+    const multihashEncodedString = await Multihash.hashThenEncode(intermediateHashBytes, hashAlgorithmInMultihashCode);
     return multihashEncodedString;
   }
 
@@ -71,8 +71,8 @@ export default class Multihash {
    * Hashes the content using the hashing algorithm specified then encodes the multihash bytes as string.
    * @param hashAlgorithmInMultihashCode The hashing algorithm to use.
    */
-  public static hashThenEncode (content: Uint8Array, hashAlgorithmInMultihashCode: number): string {
-    const multihashBytes = Multihash.hash(content, hashAlgorithmInMultihashCode);
+  public static async hashThenEncode (content: Uint8Array, hashAlgorithmInMultihashCode: number): Promise<string> {
+    const multihashBytes = await Multihash.hash(content, hashAlgorithmInMultihashCode);
     const multihashEncodedString = Encoder.encode(multihashBytes);
     return multihashEncodedString;
   }

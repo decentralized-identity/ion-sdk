@@ -26,11 +26,11 @@ export default class IonRequest {
    * Creates an ION DID create request.
    * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
    */
-  public static createCreateRequest (input: {
+  public static async createCreateRequest (input: {
     recoveryKey: JwkEs256k;
     updateKey: JwkEs256k;
     document: IonDocumentModel;
-  }): IonCreateRequestModel {
+  }): Promise<IonCreateRequestModel> {
     const recoveryKey = input.recoveryKey;
     const updateKey = input.updateKey;
     const didDocumentKeys = input.document.publicKeys;
@@ -54,17 +54,17 @@ export default class IonRequest {
     }];
 
     const delta = {
-      updateCommitment: Multihash.canonicalizeThenDoubleHashThenEncode(updateKey, hashAlgorithmInMultihashCode),
+      updateCommitment: await Multihash.canonicalizeThenDoubleHashThenEncode(updateKey, hashAlgorithmInMultihashCode),
       patches
     };
 
     IonRequest.validateDeltaSize(delta);
 
-    const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
+    const deltaHash = await Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
 
     const suffixData = {
       deltaHash,
-      recoveryCommitment: Multihash.canonicalizeThenDoubleHashThenEncode(recoveryKey, hashAlgorithmInMultihashCode)
+      recoveryCommitment: await Multihash.canonicalizeThenDoubleHashThenEncode(recoveryKey, hashAlgorithmInMultihashCode)
     };
 
     const operationRequest = {
@@ -88,7 +88,7 @@ export default class IonRequest {
     InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
-    const revealValue = Multihash.canonicalizeThenHashThenEncode(input.recoveryPublicKey, hashAlgorithmInMultihashCode);
+    const revealValue = await Multihash.canonicalizeThenHashThenEncode(input.recoveryPublicKey, hashAlgorithmInMultihashCode);
 
     const dataToBeSigned = {
       didSuffix: input.didSuffix,
@@ -132,21 +132,21 @@ export default class IonRequest {
     IonRequest.validateServices(input.document.services);
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
-    const revealValue = Multihash.canonicalizeThenHashThenEncode(input.recoveryPublicKey, hashAlgorithmInMultihashCode);
+    const revealValue = await Multihash.canonicalizeThenHashThenEncode(input.recoveryPublicKey, hashAlgorithmInMultihashCode);
 
     const patches = [{
       action: PatchAction.Replace,
       document: input.document
     }];
 
-    const nextUpdateCommitmentHash = Multihash.canonicalizeThenDoubleHashThenEncode(input.nextUpdatePublicKey, hashAlgorithmInMultihashCode);
+    const nextUpdateCommitmentHash = await Multihash.canonicalizeThenDoubleHashThenEncode(input.nextUpdatePublicKey, hashAlgorithmInMultihashCode);
     const delta = {
       patches,
       updateCommitment: nextUpdateCommitmentHash
     };
 
-    const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
-    const nextRecoveryCommitmentHash = Multihash.canonicalizeThenDoubleHashThenEncode(input.nextRecoveryPublicKey, hashAlgorithmInMultihashCode);
+    const deltaHash = await Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
+    const nextRecoveryCommitmentHash = await Multihash.canonicalizeThenDoubleHashThenEncode(input.nextRecoveryPublicKey, hashAlgorithmInMultihashCode);
 
     const dataToBeSigned = {
       recoveryCommitment: nextRecoveryCommitmentHash,
@@ -250,18 +250,18 @@ export default class IonRequest {
     }
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
-    const revealValue = Multihash.canonicalizeThenHashThenEncode(input.updatePublicKey, hashAlgorithmInMultihashCode);
+    const revealValue = await Multihash.canonicalizeThenHashThenEncode(input.updatePublicKey, hashAlgorithmInMultihashCode);
 
-    const nextUpdateCommitmentHash = Multihash.canonicalizeThenDoubleHashThenEncode(input.nextUpdatePublicKey, hashAlgorithmInMultihashCode);
+    const nextUpdateCommitmentHash = await Multihash.canonicalizeThenDoubleHashThenEncode(input.nextUpdatePublicKey, hashAlgorithmInMultihashCode);
     const delta = {
       patches,
       updateCommitment: nextUpdateCommitmentHash
     };
-    const deltaHash = Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
+    const deltaHash = await Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
 
     const dataToBeSigned = {
       updateKey: input.updatePublicKey,
-      deltaHash: deltaHash
+      deltaHash
     };
 
     const compactJws = await input.signer.sign({ alg: 'ES256K' }, dataToBeSigned);
