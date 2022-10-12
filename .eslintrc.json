@@ -20,7 +20,13 @@
     "@typescript-eslint"
   ],
   "rules": {
-    "max-len": ["error", { "code": 160, "ignoreStrings": true }],
+    "max-len": [
+      "error",
+      {
+        "code": 160,
+        "ignoreStrings": true
+      }
+    ],
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
@@ -28,16 +34,29 @@
         "vars": "all",
         "args": "after-used",
         "ignoreRestSiblings": true,
-        "argsIgnorePattern": "^_"
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
       }
     ],
-    "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": true} ],
+    "quotes": [
+      "error",
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
     "func-style": [
       "error",
       "expression"
     ],
-    "semi": ["off"],
-    "@typescript-eslint/semi": ["error", "always"],
+    "semi": [
+      "off"
+    ],
+    "@typescript-eslint/semi": [
+      "error",
+      "always"
+    ],
     "sort-imports": "error"
   }
 }

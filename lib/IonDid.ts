@@ -14,14 +14,14 @@ export default class IonDid {
    * Creates a long-form DID.
    * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
    */
-  public static createLongFormDid (input: {
+  public static async createLongFormDid (input: {
     recoveryKey: JwkEs256k;
     updateKey: JwkEs256k;
     document: IonDocumentModel;
-  }): string {
-    const createRequest = IonRequest.createCreateRequest(input);
+  }): Promise<string> {
+    const createRequest = await IonRequest.createCreateRequest(input);
 
-    const didUniqueSuffix = IonDid.computeDidUniqueSuffix(createRequest.suffixData);
+    const didUniqueSuffix = await IonDid.computeDidUniqueSuffix(createRequest.suffixData);
 
     // Add the network portion if not configured for mainnet.
     let shortFormDid;
@@ -37,8 +37,8 @@ export default class IonDid {
     };
 
     // Initial state must be canonicalized as per spec.
-    const canonicalizedInitialStateBuffer = JsonCanonicalizer.canonicalizeAsBuffer(initialState);
-    const encodedCanonicalizedInitialStateString = Encoder.encode(canonicalizedInitialStateBuffer);
+    const canonicalizedInitialStateBytes = JsonCanonicalizer.canonicalizeAsBytes(initialState);
+    const encodedCanonicalizedInitialStateString = Encoder.encode(canonicalizedInitialStateBytes);
 
     const longFormDid = `${shortFormDid}:${encodedCanonicalizedInitialStateString}`;
     return longFormDid;
@@ -47,9 +47,9 @@ export default class IonDid {
   /**
    * Computes the DID unique suffix given the encoded suffix data string.
    */
-  private static computeDidUniqueSuffix (suffixData: object): string {
-    const canonicalizedStringBuffer = JsonCanonicalizer.canonicalizeAsBuffer(suffixData);
-    const multihash = Multihash.hash(canonicalizedStringBuffer, IonSdkConfig.hashAlgorithmInMultihashCode);
+  private static async computeDidUniqueSuffix (suffixData: object): Promise<string> {
+    const canonicalizedStringBytes = JsonCanonicalizer.canonicalizeAsBytes(suffixData);
+    const multihash = await Multihash.hash(canonicalizedStringBytes, IonSdkConfig.hashAlgorithmInMultihashCode);
     const encodedMultihash = Encoder.encode(multihash);
     return encodedMultihash;
   }

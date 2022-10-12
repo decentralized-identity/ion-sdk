@@ -1,11 +1,11 @@
-import * as crypto from 'crypto';
+import * as multihashes from 'multihashes';
 import Encoder from './Encoder';
 import ErrorCode from './ErrorCode';
+import { HashCode } from 'multihashes';
 import IonError from './IonError';
 import IonSdkConfig from './IonSdkConfig';
 import JsonCanonicalizer from './JsonCanonicalizer';
-
-const multihashes = require('multihashes');
+import { sha256 } from 'multiformats/hashes/sha2';
 
 /**
  * Class that performs hashing operations using the multihash format.
@@ -13,26 +13,25 @@ const multihashes = require('multihashes');
 export default class Multihash {
   /**
    * Hashes the content using the hashing algorithm specified.
-   * @param hashAlgorithmInMultihashCode The hashing algorithm to use. If not given, latest supported hashing algorithm will be used.
-   * @returns A multihash buffer.
+   * @param hashAlgorithmInMultihashCode The hashing algorithm to use.
    */
-  public static hash (content: Buffer, hashAlgorithmInMultihashCode: number): Buffer {
-    const conventionalHash = this.hashAsNonMultihashBuffer(content, hashAlgorithmInMultihashCode);
-    const multihash = multihashes.encode(conventionalHash, hashAlgorithmInMultihashCode);
+  public static async hash (content: Uint8Array, hashAlgorithmInMultihashCode: number): Promise<Uint8Array> {
+    const conventionalHash = await this.hashAsNonMultihashBytes(content, hashAlgorithmInMultihashCode);
+    const multihash = multihashes.encode(conventionalHash, hashAlgorithmInMultihashCode as HashCode);
 
     return multihash;
   }
 
   /**
    * Hashes the content using the hashing algorithm specified as a generic (non-multihash) hash.
-   * @param hashAlgorithmInMultihashCode The hashing algorithm to use. If not given, latest supported hashing algorithm will be used.
-   * @returns A multihash buffer.
+   * @param hashAlgorithmInMultihashCode The hashing algorithm to use.
+   * @returns A multihash bytes.
    */
-  public static hashAsNonMultihashBuffer (content: Buffer, hashAlgorithmInMultihashCode: number): Buffer {
+  public static async hashAsNonMultihashBytes (content: Uint8Array, hashAlgorithmInMultihashCode: number): Promise<Uint8Array> {
     let hash;
     switch (hashAlgorithmInMultihashCode) {
       case 18: // SHA256
-        hash = crypto.createHash('sha256').update(content).digest();
+        hash = await sha256.encode(content);
         break;
       default:
         throw new IonError(
@@ -48,10 +47,10 @@ export default class Multihash {
    * Canonicalize the given content, then double hashes the result using the latest supported hash algorithm, then encodes the multihash.
    * Mainly used for testing purposes.
    */
-  public static canonicalizeThenHashThenEncode (content: object, hashAlgorithmInMultihashCode: number) {
-    const canonicalizedStringBuffer = JsonCanonicalizer.canonicalizeAsBuffer(content);
+  public static async canonicalizeThenHashThenEncode (content: object, hashAlgorithmInMultihashCode: number): Promise<string> {
+    const canonicalizedStringBytes = JsonCanonicalizer.canonicalizeAsBytes(content);
 
-    const multihashEncodedString = Multihash.hashThenEncode(canonicalizedStringBuffer, hashAlgorithmInMultihashCode);
+    const multihashEncodedString = await Multihash.hashThenEncode(canonicalizedStringBytes, hashAlgorithmInMultihashCode);
     return multihashEncodedString;
   }
 
@@ -59,22 +58,22 @@ export default class Multihash {
    * Canonicalize the given content, then double hashes the result using the latest supported hash algorithm, then encodes the multihash.
    * Mainly used for testing purposes.
    */
-  public static canonicalizeThenDoubleHashThenEncode (content: object, hashAlgorithmInMultihashCode: number) {
-    const contentBuffer = JsonCanonicalizer.canonicalizeAsBuffer(content);
+  public static async canonicalizeThenDoubleHashThenEncode (content: object, hashAlgorithmInMultihashCode: number): Promise<string> {
+    const contentBytes = JsonCanonicalizer.canonicalizeAsBytes(content);
 
     // Double hash.
-    const intermediateHashBuffer = Multihash.hashAsNonMultihashBuffer(contentBuffer, hashAlgorithmInMultihashCode);
-    const multihashEncodedString = Multihash.hashThenEncode(intermediateHashBuffer, hashAlgorithmInMultihashCode);
+    const intermediateHashBytes = await Multihash.hashAsNonMultihashBytes(contentBytes, hashAlgorithmInMultihashCode);
+    const multihashEncodedString = await Multihash.hashThenEncode(intermediateHashBytes, hashAlgorithmInMultihashCode);
     return multihashEncodedString;
   }
 
   /**
-   * Hashes the content using the hashing algorithm specified then codes the multihash buffer.
+   * Hashes the content using the hashing algorithm specified then encodes the multihash bytes as string.
    * @param hashAlgorithmInMultihashCode The hashing algorithm to use.
    */
-  public static hashThenEncode (content: Buffer, hashAlgorithmInMultihashCode: number): string {
-    const multihashBuffer = Multihash.hash(content, hashAlgorithmInMultihashCode);
-    const multihashEncodedString = Encoder.encode(multihashBuffer);
+  public static async hashThenEncode (content: Uint8Array, hashAlgorithmInMultihashCode: number): Promise<string> {
+    const multihashBytes = await Multihash.hash(content, hashAlgorithmInMultihashCode);
+    const multihashEncodedString = Encoder.encode(multihashBytes);
     return multihashEncodedString;
   }
 
@@ -86,9 +85,9 @@ export default class Multihash {
     inputContextForErrorLogging: string
   ) {
     let multihash;
-    const multihashBuffer = Encoder.decodeAsBuffer(encodedMultihash, inputContextForErrorLogging);
+    const multihashBytes = Encoder.decodeAsBytes(encodedMultihash, inputContextForErrorLogging);
     try {
-      multihash = multihashes.decode(multihashBuffer);
+      multihash = multihashes.decode(multihashBytes);
     } catch {
       throw new IonError(
         ErrorCode.MultihashStringNotAMultihash,
