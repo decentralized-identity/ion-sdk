@@ -325,16 +325,34 @@ export default class IonRequest {
       throw new IonError(ErrorCode.ServiceTypeTooLong, errorMessage);
     }
 
-    // Throw error if `serviceEndpoint` is an array.
-    if (Array.isArray(service.serviceEndpoint)) {
-      const errorMessage = 'Service endpoint value cannot be an array.';
-      throw new IonError(ErrorCode.ServiceEndpointCannotBeAnArray, errorMessage);
-    }
-
-    if (typeof service.serviceEndpoint === 'string') {
-      const uri = URI.parse(service.serviceEndpoint);
-      if (uri.error !== undefined) {
-        throw new IonError(ErrorCode.ServiceEndpointStringNotValidUri, `Service endpoint string '${service.serviceEndpoint}' is not a URI.`);
+    // validate `serviceEndpoint` property
+    // (transform URI strings and JSON objects into array so that we can run validations more easily)
+    const serviceEndpoints = Array.isArray(service.serviceEndpoint)
+      ? service.serviceEndpoint
+      : [service.serviceEndpoint];
+    for (const serviceEndpoint of serviceEndpoints) {
+      // serviceEndpoint itself must be URI string or non-array object
+      if (typeof serviceEndpoint === 'string') {
+        const uri = URI.parse(serviceEndpoint);
+        if (uri.error !== undefined) {
+          throw new IonError(
+            ErrorCode.ServiceEndpointStringNotValidUri,
+            `Service endpoint string '${serviceEndpoint}' is not a URI.`
+          );
+        }
+      } else if (typeof serviceEndpoint === 'object') {
+        // Allow `object` type only if it is not an array.
+        if (Array.isArray(serviceEndpoint)) {
+          throw new IonError(
+            ErrorCode.ServiceEndpointCannotBeAnArray,
+            'Service endpoint value cannot be an array.'
+          );
+        }
+      } else {
+        throw new IonError(
+          ErrorCode.ServiceEndpointMustBeStringOrNonArrayObject,
+          'Service endpoint must be a URI string or an object or an array of those.'
+        );
       }
     }
   }

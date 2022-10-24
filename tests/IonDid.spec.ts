@@ -247,7 +247,7 @@ describe('IonDid', async () => {
       );
     });
 
-    it('should throw error if given service endpoint value is an array', async () => {
+    it('should allow array as service endpoint value', async () => {
       const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
@@ -259,10 +259,8 @@ describe('IonDid', async () => {
         }]
       };
 
-      JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
-        async () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
-        ErrorCode.ServiceEndpointCannotBeAnArray
-      );
+      const longFormDid = await IonDid.createLongFormDid({ recoveryKey, updateKey, document });
+      expect(longFormDid).toBeDefined();
     });
 
     it('should allow object as service endpoint value.', async () => {
@@ -297,6 +295,62 @@ describe('IonDid', async () => {
       JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
         async () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
         ErrorCode.ServiceEndpointStringNotValidUri
+      );
+    });
+
+    it('should throw error if given service endpoint string (inside array) is not a URL.', async () => {
+      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const updateKey = recoveryKey;
+
+      const document = {
+        services: [{
+          id: 'anyId',
+          type: 'anyType',
+          serviceEndpoint: [
+            'http://' // Invalid URI.
+          ]
+        }]
+      };
+
+      JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
+        async () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
+        ErrorCode.ServiceEndpointStringNotValidUri
+      );
+    });
+
+    it('should throw error if given service endpoint is an array within an array.', async () => {
+      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const updateKey = recoveryKey;
+
+      const document = {
+        services: [{
+          id: 'anyId',
+          type: 'anyType',
+          serviceEndpoint: [[]]
+        }]
+      };
+
+      JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
+        async () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
+        ErrorCode.ServiceEndpointCannotBeAnArray
+      );
+    });
+
+    it('should throw error if given service endpoint has an invalid type (inside array).', async () => {
+      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const updateKey = recoveryKey;
+
+      const document = {
+        services: [{
+          id: 'anyId',
+          type: 'anyType',
+          serviceEndpoint: [123]
+        }]
+      };
+
+      JasmineIonErrorValidator.expectIonErrorToBeThrownAsync(
+        async () => IonDid.createLongFormDid({ recoveryKey, updateKey, document }),
+        ErrorCode.ServiceEndpointMustBeStringOrNonArrayObject
       );
     });
 
