@@ -1,8 +1,8 @@
 // NOTE: Aliases to classes and interfaces are used for external consumption.
 
 // SDK exports.
+import AdaDid from './AdaDid';
 import ISigner from './interfaces/ISigner';
-import IonDid from './IonDid';
 import IonDocumentModel from './models/IonDocumentModel';
 import IonKey from './IonKey';
 import IonNetwork from './enums/IonNetwork';
@@ -17,7 +17,7 @@ import LocalSigner from './LocalSigner';
 
 export {
   ISigner,
-  IonDid,
+  AdaDid,
   IonDocumentModel,
   IonKey,
   IonNetwork,

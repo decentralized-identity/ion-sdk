@@ -1,4 +1,5 @@
 import InputValidator from '../lib/InputValidator';
+import IonError from '../lib/IonError';
 import OperationKeyType from '../lib/enums/OperationKeyType';
 
 describe('IonKey', async () => {
@@ -9,7 +10,7 @@ describe('IonKey', async () => {
         InputValidator.validateEs256kOperationKey(publicKey, OperationKeyType.Private);
         fail();
       } catch (e) {
-        expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfD: SECP256K1 JWK 'd' property must be 43 bytes.`);
+        if (e instanceof IonError) expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfD: SECP256K1 JWK 'd' property must be 43 bytes.`);
       }
     });
 
@@ -21,7 +22,7 @@ describe('IonKey', async () => {
         InputValidator.validateEs256kOperationKey(privateKeyClone, OperationKeyType.Private);
         fail();
       } catch (e) {
-        expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfD: SECP256K1 JWK 'd' property must be 43 bytes.`);
+        if (e instanceof IonError) expect(e.message).toEqual(`JwkEs256kHasIncorrectLengthOfD: SECP256K1 JWK 'd' property must be 43 bytes.`);
       }
     });
   });

@@ -9,7 +9,7 @@ import Multihash from './Multihash';
 /**
  * Class containing DID related operations.
  */
-export default class IonDid {
+export default class AdaDid {
   /**
    * Creates a long-form DID.
    * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
@@ -21,14 +21,15 @@ export default class IonDid {
   }): Promise<string> {
     const createRequest = await IonRequest.createCreateRequest(input);
 
-    const didUniqueSuffix = await IonDid.computeDidUniqueSuffix(createRequest.suffixData);
+    const didUniqueSuffix = await AdaDid.computeDidUniqueSuffix(createRequest.suffixData);
 
     // Add the network portion if not configured for mainnet.
     let shortFormDid;
-    if (IonSdkConfig.network === undefined || IonSdkConfig.network === 'mainnet') {
-      shortFormDid = `did:ion:${didUniqueSuffix}`;
+    if (IonSdkConfig.network === undefined ||
+        IonSdkConfig.network === 'mainnet') {
+      shortFormDid = `did:ada:${didUniqueSuffix}`;
     } else {
-      shortFormDid = `did:ion:${IonSdkConfig.network}:${didUniqueSuffix}`;
+      shortFormDid = `did:ada:${IonSdkConfig.network}:${didUniqueSuffix}`;
     }
 
     const initialState = {

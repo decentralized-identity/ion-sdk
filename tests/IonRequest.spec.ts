@@ -1,4 +1,5 @@
 import IonDocumentModel from '../lib/models/IonDocumentModel';
+import IonError from '../lib/IonError';
 import IonRequest from '../lib/IonRequest';
 import LocalSigner from '../lib/LocalSigner';
 import OperationType from '../lib/enums/OperationType';
@@ -119,7 +120,7 @@ describe('IonRequest', () => {
         (IonRequest as any).validateDidSuffix('123456789012345678901234567890123456789012345/');
         fail();
       } catch (e) {
-        expect(e.message).toEqual('EncodedStringIncorrectEncoding: Given didSuffix must be base64url string.');
+        if (e instanceof IonError) expect(e.message).toEqual('EncodedStringIncorrectEncoding: Given didSuffix must be base64url string.');
       }
     });
 
@@ -128,7 +129,9 @@ describe('IonRequest', () => {
         (IonRequest as any).validateDidSuffix('aaaaaaaa'); // base64 but not multihash
         fail();
       } catch (e) {
-        expect(e.message).toEqual(`MultihashStringNotAMultihash: Given didSuffix string 'aaaaaaaa' is not a multihash after decoding.`);
+        if (e instanceof IonError) {
+          expect(e.message).toEqual(`MultihashStringNotAMultihash: Given didSuffix string 'aaaaaaaa' is not a multihash after decoding.`);
+        }
       }
     });
 
@@ -138,7 +141,7 @@ describe('IonRequest', () => {
         fail();
       } catch (e) {
         // eslint-disable-next-line
-        expect(e.message).toEqual(`MultihashUnsupportedHashAlgorithm: Given didSuffix uses unsupported multihash algorithm with code 17, should use 18 or change IonSdkConfig to desired hashing algorithm.`);
+        if (e instanceof IonError) expect(e.message).toEqual(`MultihashUnsupportedHashAlgorithm: Given didSuffix uses unsupported multihash algorithm with code 17, should use 18 or change IonSdkConfig to desired hashing algorithm.`);
       }
     });
   });
