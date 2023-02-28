@@ -1,6 +1,6 @@
+import DidRequest from '../lib/DidRequest';
 import IonDocumentModel from '../lib/models/IonDocumentModel';
 import IonError from '../lib/IonError';
-import IonRequest from '../lib/IonRequest';
 import LocalSigner from '../lib/LocalSigner';
 import OperationType from '../lib/enums/OperationType';
 
@@ -20,7 +20,7 @@ describe('IonRequest', () => {
         services
       };
       const input = { recoveryKey, updateKey, document };
-      const result = await IonRequest.createCreateRequest(input);
+      const result = await DidRequest.createCreateRequest(input);
       expect(result.type).toEqual(OperationType.Create);
       expect(result.delta.updateCommitment).toEqual('EiDKIkwqO69IPG3pOlHkdb86nYt0aNxSHZu2r-bhEznjdA');
       expect(result.delta.patches.length).toEqual(1);
@@ -47,7 +47,7 @@ describe('IonRequest', () => {
         idsOfPublicKeysToRemove: ['someId2']
       };
 
-      const result = await IonRequest.createUpdateRequest(input);
+      const result = await DidRequest.createUpdateRequest(input);
       expect(result.didSuffix).toEqual('EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg');
       expect(result.type).toEqual(OperationType.Update);
       expect(result.revealValue).toEqual('EiAJ-97Is59is6FKAProwDo870nmwCeP8n5nRRFwPpUZVQ');
@@ -64,7 +64,7 @@ describe('IonRequest', () => {
         signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json'))
       };
 
-      const result = await IonRequest.createUpdateRequest(input);
+      const result = await DidRequest.createUpdateRequest(input);
       expect(result.didSuffix).toEqual('EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg');
     });
   });
@@ -81,7 +81,7 @@ describe('IonRequest', () => {
         publicKeys,
         services
       };
-      const result = await IonRequest.createRecoverRequest({
+      const result = await DidRequest.createRecoverRequest({
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
         recoveryPublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
         nextRecoveryPublicKey: require('./vectors/inputs/jwkEs256k2Public.json'),
@@ -101,7 +101,7 @@ describe('IonRequest', () => {
 
   describe('createDeactivateRequest', () => {
     it('should generate a deactivate request with the given arguments', async () => {
-      const result = await IonRequest.createDeactivateRequest({
+      const result = await DidRequest.createDeactivateRequest({
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
         recoveryPublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
         signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json'))
@@ -117,7 +117,7 @@ describe('IonRequest', () => {
   describe('validateDidSuffix', () => {
     it('should throw if id is incorrect encoding', () => {
       try {
-        (IonRequest as any).validateDidSuffix('123456789012345678901234567890123456789012345/');
+        (DidRequest as any).validateDidSuffix('123456789012345678901234567890123456789012345/');
         fail();
       } catch (e) {
         if (e instanceof IonError) expect(e.message).toEqual('EncodedStringIncorrectEncoding: Given didSuffix must be base64url string.');
@@ -126,7 +126,7 @@ describe('IonRequest', () => {
 
     it('should throw if id is not multihash', () => {
       try {
-        (IonRequest as any).validateDidSuffix('aaaaaaaa'); // base64 but not multihash
+        (DidRequest as any).validateDidSuffix('aaaaaaaa'); // base64 but not multihash
         fail();
       } catch (e) {
         if (e instanceof IonError) {
@@ -137,7 +137,7 @@ describe('IonRequest', () => {
 
     it('should throw if id is hashed with unsupported hash code', () => {
       try {
-        (IonRequest as any).validateDidSuffix('ERSIwvEfss45KstbKYbmQCEcRpAHPg'); // this is sha1 (code 17), which is not the correct hashing algorithm (code 18)
+        (DidRequest as any).validateDidSuffix('ERSIwvEfss45KstbKYbmQCEcRpAHPg'); // this is sha1 (code 17), which is not the correct hashing algorithm (code 18)
         fail();
       } catch (e) {
         // eslint-disable-next-line

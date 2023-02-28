@@ -1,6 +1,6 @@
+import DidRequest from './DidRequest';
 import Encoder from './Encoder';
 import IonDocumentModel from './models/IonDocumentModel';
-import IonRequest from './IonRequest';
 import IonSdkConfig from './IonSdkConfig';
 import JsonCanonicalizer from './JsonCanonicalizer';
 import JwkEs256k from './models/JwkEs256k';
@@ -19,7 +19,7 @@ export default class AdaDid {
     updateKey: JwkEs256k;
     document: IonDocumentModel;
   }): Promise<string> {
-    const createRequest = await IonRequest.createCreateRequest(input);
+    const createRequest = await DidRequest.createCreateRequest(input);
 
     const didUniqueSuffix = await AdaDid.computeDidUniqueSuffix(createRequest.suffixData);
 
@@ -40,8 +40,8 @@ export default class AdaDid {
     // Initial state must be canonicalized as per spec.
     const canonicalizedInitialStateBytes = JsonCanonicalizer.canonicalizeAsBytes(initialState);
     const encodedCanonicalizedInitialStateString = Encoder.encode(canonicalizedInitialStateBytes);
-
     const longFormDid = `${shortFormDid}:${encodedCanonicalizedInitialStateString}`;
+
     return longFormDid;
   }
 

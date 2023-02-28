@@ -10,7 +10,7 @@ import { base64url } from 'multiformats/bases/base64';
 /**
  * Class containing operations related to keys used in ION.
  */
-export default class IonKey {
+export default class DidKey {
   /**
    * Generates SECP256K1 key pair to be used in an operation.
    * Mainly used for testing.
@@ -23,7 +23,7 @@ export default class IonKey {
     InputValidator.validateId(id);
     InputValidator.validatePublicKeyPurposes(purposes);
 
-    const [publicKey, privateKey] = await IonKey.generateEs256kKeyPair();
+    const [publicKey, privateKey] = await DidKey.generateEs256kKeyPair();
     const publicKeyModel: IonPublicKeyModel = {
       id,
       type: 'EcdsaSecp256k1VerificationKey2019',
@@ -43,7 +43,7 @@ export default class IonKey {
    * @returns [publicKey, privateKey]
    */
   public static async generateEs256kOperationKeyPair (): Promise<[JwkEs256k, JwkEs256k]> {
-    const keyPair = await IonKey.generateEs256kKeyPair();
+    const keyPair = await DidKey.generateEs256kKeyPair();
     return keyPair;
   }
 
@@ -84,7 +84,7 @@ export default class IonKey {
     InputValidator.validateId(id);
     InputValidator.validatePublicKeyPurposes(purposes);
 
-    const [publicKey, privateKey] = await IonKey.generateEd25519KeyPair();
+    const [publicKey, privateKey] = await DidKey.generateEd25519KeyPair();
     const publicKeyModel: IonPublicKeyModel = {
       id,
       type: 'JsonWebKey2020',
@@ -104,7 +104,7 @@ export default class IonKey {
    * @returns [publicKey, privateKey]
    */
   public static async generateEd25519OperationKeyPair (): Promise<[JwkEd25519, JwkEd25519]> {
-    const keyPair = await IonKey.generateEd25519KeyPair();
+    const keyPair = await DidKey.generateEd25519KeyPair();
     return keyPair;
   }
 

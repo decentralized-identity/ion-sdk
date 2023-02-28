@@ -19,9 +19,9 @@ import OperationType from './enums/OperationType';
 import PatchAction from './enums/PatchAction';
 
 /**
- * Class containing operations related to ION requests.
+ * Class containing operations related to Cardano Ada requests.
  */
-export default class IonRequest {
+export default class DidRequest {
   /**
    * Creates an ION DID create request.
    * @param input.document The initial state to be associate with the ION DID to be created using a `replace` document patch action.
@@ -41,10 +41,10 @@ export default class IonRequest {
     InputValidator.validateEs256kOperationKey(updateKey, OperationKeyType.Public);
 
     // Validate all given DID Document keys.
-    IonRequest.validateDidDocumentKeys(didDocumentKeys);
+    DidRequest.validateDidDocumentKeys(didDocumentKeys);
 
     // Validate all given service.
-    IonRequest.validateServices(services);
+    DidRequest.validateServices(services);
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
 
@@ -58,7 +58,7 @@ export default class IonRequest {
       patches
     };
 
-    IonRequest.validateDeltaSize(delta);
+    DidRequest.validateDeltaSize(delta);
 
     const deltaHash = await Multihash.canonicalizeThenHashThenEncode(delta, hashAlgorithmInMultihashCode);
 
@@ -82,7 +82,7 @@ export default class IonRequest {
     signer: ISigner
   }): Promise<IonDeactivateRequestModel> {
     // Validate DID suffix
-    IonRequest.validateDidSuffix(input.didSuffix);
+    DidRequest.validateDidSuffix(input.didSuffix);
 
     // Validates recovery public key
     InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
@@ -114,7 +114,7 @@ export default class IonRequest {
     signer: ISigner
   }): Promise<IonRecoverRequestModel> {
     // Validate DID suffix
-    IonRequest.validateDidSuffix(input.didSuffix);
+    DidRequest.validateDidSuffix(input.didSuffix);
 
     // Validate recovery public key
     InputValidator.validateEs256kOperationKey(input.recoveryPublicKey, OperationKeyType.Public);
@@ -126,10 +126,10 @@ export default class IonRequest {
     InputValidator.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
 
     // Validate all given DID Document keys.
-    IonRequest.validateDidDocumentKeys(input.document.publicKeys);
+    DidRequest.validateDidDocumentKeys(input.document.publicKeys);
 
     // Validate all given service.
-    IonRequest.validateServices(input.document.services);
+    DidRequest.validateServices(input.document.services);
 
     const hashAlgorithmInMultihashCode = IonSdkConfig.hashAlgorithmInMultihashCode;
     const revealValue = await Multihash.canonicalizeThenHashThenEncode(input.recoveryPublicKey, hashAlgorithmInMultihashCode);
@@ -176,7 +176,7 @@ export default class IonRequest {
     idsOfPublicKeysToRemove?: string[];
   }): Promise<IonUpdateRequestModel> {
     // Validate DID suffix
-    IonRequest.validateDidSuffix(input.didSuffix);
+    DidRequest.validateDidSuffix(input.didSuffix);
 
     // Validate update public key
     InputValidator.validateEs256kOperationKey(input.updatePublicKey, OperationKeyType.Public);
@@ -185,10 +185,10 @@ export default class IonRequest {
     InputValidator.validateEs256kOperationKey(input.nextUpdatePublicKey, OperationKeyType.Public);
 
     // Validate all given service.
-    IonRequest.validateServices(input.servicesToAdd);
+    DidRequest.validateServices(input.servicesToAdd);
 
     // Validate all given DID Document keys.
-    IonRequest.validateDidDocumentKeys(input.publicKeysToAdd);
+    DidRequest.validateDidDocumentKeys(input.publicKeysToAdd);
 
     // Validate all given service id to remove.
     if (input.idsOfServicesToRemove !== undefined) {
@@ -307,7 +307,7 @@ export default class IonRequest {
     if (services !== undefined && services.length !== 0) {
       const serviceIdSet: Set<string> = new Set();
       for (const service of services) {
-        IonRequest.validateService(service);
+        DidRequest.validateService(service);
         if (serviceIdSet.has(service.id)) {
           throw new IonError(ErrorCode.DidDocumentServiceIdDuplicated, 'Service id has to be unique');
         }

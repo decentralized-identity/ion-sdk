@@ -2,15 +2,15 @@
 
 // SDK exports.
 import AdaDid from './AdaDid';
-import ISigner from './interfaces/ISigner';
+import AdaNetwork from './enums/AdaNetwork';
+import DidKey from './DidKey';
+import DidRequest from './DidRequest';
 import IonDocumentModel from './models/IonDocumentModel';
-import IonKey from './IonKey';
-import IonNetwork from './enums/IonNetwork';
 import IonPublicKeyModel from './models/IonPublicKeyModel';
 import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
-import IonRequest from './IonRequest';
 import IonSdkConfig from './IonSdkConfig';
 import IonServiceModel from './models/IonServiceModel';
+import ISigner from './interfaces/ISigner';
 import JwkEd25519 from './models/JwkEd25519';
 import JwkEs256k from './models/JwkEs256k';
 import LocalSigner from './LocalSigner';
@@ -19,11 +19,11 @@ export {
   ISigner,
   AdaDid,
   IonDocumentModel,
-  IonKey,
-  IonNetwork,
+  DidKey,
+  AdaNetwork,
   IonPublicKeyModel,
   IonPublicKeyPurpose,
-  IonRequest,
+  DidRequest,
   IonSdkConfig,
   IonServiceModel,
   JwkEd25519,

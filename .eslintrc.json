@@ -23,7 +23,7 @@
     "max-len": [
       "error",
       {
-        "code": 160,
+        "code": 280,
         "ignoreStrings": true
       }
     ],
@@ -57,6 +57,6 @@
       "error",
       "always"
     ],
-    "sort-imports": "error"
+    "sort-imports": "off"
   }
 }

@@ -2,11 +2,11 @@ import * as jwkEs256k1Public from './vectors/inputs/jwkEs256k1Public.json';
 import * as jwkEs256k2Public from './vectors/inputs/jwkEs256k2Public.json';
 import * as publicKeyModel1 from './vectors/inputs/publicKeyModel1.json';
 import * as service1 from './vectors/inputs/service1.json';
-import { AdaDid, IonKey, IonPublicKeyPurpose, IonSdkConfig } from '../lib/index';
+import { AdaDid, DidKey, IonPublicKeyPurpose, IonSdkConfig } from '../lib/index';
+import AdaNetwork from '../lib/enums/AdaNetwork';
 import Encoder from '../lib/Encoder';
 import ErrorCode from '../lib/ErrorCode';
 import IonDocumentModel from '../lib/models/IonDocumentModel';
-import IonNetwork from '../lib/enums/IonNetwork';
 import JasmineIonErrorValidator from './JasmineIonErrorValidator';
 
 describe('AdaDid', async () => {
@@ -52,16 +52,16 @@ describe('AdaDid', async () => {
     });
 
     it('should not include network segment in DID if SDK network is set to mainnet.', async () => {
-      IonSdkConfig.network = IonNetwork.Mainnet;
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      IonSdkConfig.network = AdaNetwork.Mainnet;
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       const longFormDid = await AdaDid.createLongFormDid({ recoveryKey, updateKey, document: { } });
       expect(longFormDid.indexOf('mainnet')).toBeLessThan(0);
     });
 
     it('should include network segment as "test" in DID if SDK network testnet.', async () => {
-      IonSdkConfig.network = IonNetwork.Testnet;
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      IonSdkConfig.network = AdaNetwork.Testnet;
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       const longFormDid = await AdaDid.createLongFormDid({ recoveryKey, updateKey, document: { } });
 
@@ -71,7 +71,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given operation key contains unexpected property.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       updateKey.d = 'notAllowedPropertyInPublicKey'; // 'd' is only allowed in private key.
 
@@ -82,7 +82,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given operation key contains incorrect crv value.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       updateKey.crv = 'wrongValue';
 
@@ -93,7 +93,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given operation key contains incorrect kty value.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       updateKey.kty = 'wrongValue';
 
@@ -104,7 +104,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given operation key contains invalid x length.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       updateKey.x = 'wrongValueLength';
 
@@ -115,7 +115,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given operation key contains invalid y length.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
       updateKey.y = 'wrongValueLength';
 
@@ -126,9 +126,9 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given DID Document JWK is an array.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
-      const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey] = await DidKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
       (anyDidDocumentKey as any).publicKeyJwk = ['invalid object type'];
 
       const document = { publicKeys: [anyDidDocumentKey] };
@@ -140,10 +140,10 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given DID Document keys with the same ID.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
-      const [anyDidDocumentKey1] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.AssertionMethod] });
-      const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] }); // Key ID duplicate.
+      const [anyDidDocumentKey1] = await DidKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.AssertionMethod] });
+      const [anyDidDocumentKey2] = await DidKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] }); // Key ID duplicate.
       const didDocumentKeys = [anyDidDocumentKey1, anyDidDocumentKey2];
 
       const document = { publicKeys: didDocumentKeys };
@@ -155,9 +155,9 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given DID Document key ID exceeds maximum length.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
-      const [anyDidDocumentKey] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey] = await DidKey.generateEs256kDidDocumentKeyPair({ id: 'anyId', purposes: [IonPublicKeyPurpose.Authentication] });
       anyDidDocumentKey.id = 'superDuperLongDidDocumentKeyIdentifierThatExceedsMaximumLength'; // Overwrite with super long string.
 
       const document = { publicKeys: [anyDidDocumentKey] };
@@ -169,7 +169,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given service endpoint ID exceeds maximum length.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
       const services = [{
@@ -187,7 +187,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given service endpoint ID is a duplicate.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
       const services = [
@@ -212,7 +212,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given service endpoint ID is not using Base64URL characters', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
       const services = [{
@@ -230,7 +230,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given service endpoint type exceeds maximum length.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
       const services = [{
@@ -248,7 +248,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given service endpoint value is an array', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
       const document = {
@@ -266,7 +266,7 @@ describe('AdaDid', async () => {
     });
 
     it('should allow object as service endpoint value.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
       const document = {
@@ -283,7 +283,7 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if given service endpoint string is not a URL.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
       const document = {
@@ -301,14 +301,14 @@ describe('AdaDid', async () => {
     });
 
     it('should throw error if resulting delta property exceeds maximum size.', async () => {
-      const [recoveryKey] = await IonKey.generateEs256kOperationKeyPair();
+      const [recoveryKey] = await DidKey.generateEs256kOperationKeyPair();
       const updateKey = recoveryKey;
 
       // Add many keys so that 'delta' property size exceeds max limit.
-      const [anyDidDocumentKey1] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId1', purposes: [IonPublicKeyPurpose.Authentication] });
-      const [anyDidDocumentKey2] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId2', purposes: [IonPublicKeyPurpose.Authentication] });
-      const [anyDidDocumentKey3] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId3', purposes: [IonPublicKeyPurpose.Authentication] });
-      const [anyDidDocumentKey4] = await IonKey.generateEs256kDidDocumentKeyPair({ id: 'anyId4', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey1] = await DidKey.generateEs256kDidDocumentKeyPair({ id: 'anyId1', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey2] = await DidKey.generateEs256kDidDocumentKeyPair({ id: 'anyId2', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey3] = await DidKey.generateEs256kDidDocumentKeyPair({ id: 'anyId3', purposes: [IonPublicKeyPurpose.Authentication] });
+      const [anyDidDocumentKey4] = await DidKey.generateEs256kDidDocumentKeyPair({ id: 'anyId4', purposes: [IonPublicKeyPurpose.Authentication] });
       const didDocumentKeys = [anyDidDocumentKey1, anyDidDocumentKey2, anyDidDocumentKey3, anyDidDocumentKey4];
       const document = {
         publicKeys: didDocumentKeys

@@ -1,4 +1,4 @@
-import IonNetwork from './enums/IonNetwork';
+import AdaNetwork from './enums/AdaNetwork';
 
 /**
  * Global configuration of the SDK.
@@ -17,5 +17,5 @@ export default class IonSdkConfig {
   /**
    * Network name in ION DID, okay to leave as `undefined` if mainnet.
    */
-  public static network: IonNetwork | undefined;
+  public static network: AdaNetwork | undefined;
 }
