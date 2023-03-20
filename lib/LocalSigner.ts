@@ -1,4 +1,4 @@
-import * as Secp256k1 from '@noble/secp256k1';
+import * as Secp256k1 from '@noble/curves/secp256k1';
 import Encoder from './Encoder';
 import ISigner from './interfaces/ISigner';
 import InputValidator from './InputValidator';
@@ -36,7 +36,7 @@ export default class LocalSigner implements ISigner {
     const contentHash = await sha256.encode(signingContentBytes);
 
     const privateKeyBytes = base64url.baseDecode(this.privateKey.d!);
-    const signature = await Secp256k1.sign(contentHash, privateKeyBytes, { der: false });
+    const signature = await Secp256k1.secp256k1.sign(contentHash, privateKeyBytes).toCompactRawBytes();
 
     const encodedSignature = base64url.baseEncode(signature);
 

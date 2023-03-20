@@ -5,3 +5,9 @@ nunitresults.xml
 # Istanbul code coverage folders
 .nyc_output/
 coverage/
+
+# IDE
+.idea
+
+# Mac
+.DS_Store
