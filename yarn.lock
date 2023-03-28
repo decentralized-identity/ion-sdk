@@ -280,7 +280,6 @@ __metadata:
     nyc: 15.0.1
     ts-node: 8.3.0
     tslint: 5.11.0
-    tslint-config-standard: 8.0.1
     typescript: ^4.9.5
     uri-js: 4.4.0
   languageName: unknown
@@ -1167,16 +1166,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"doctrine@npm:0.7.2":
-  version: 0.7.2
-  resolution: "doctrine@npm:0.7.2"
-  dependencies:
-    esutils: ^1.1.6
-    isarray: 0.0.1
-  checksum: 27d76a9a0f05c04a0011b8930ca79ffc28d93c7cebf6ea5baad8f387f2225999ad97bc3454a7e84bbfcc4f46ac78062dbda0a4197f3ed1b36df8db651baf4513
-  languageName: node
-  linkType: hard
-
 "doctrine@npm:^2.1.0":
   version: 2.1.0
   resolution: "doctrine@npm:2.1.0"
@@ -1594,13 +1583,6 @@ __metadata:
   version: 5.3.0
   resolution: "estraverse@npm:5.3.0"
   checksum: 072780882dc8416ad144f8fe199628d2b3e7bbc9989d9ed43795d2c90309a2047e6bc5979d7e2322a341163d22cfad9e21f4110597fe487519697389497e4e2b
-  languageName: node
-  linkType: hard
-
-"esutils@npm:^1.1.6":
-  version: 1.1.6
-  resolution: "esutils@npm:1.1.6"
-  checksum: 1c6dbba5c2f67d5400432b5700ba58a67b5131f8d1c35cd9cf7b7b39b5ce1a06d4e6ef14571617cf3c155fd98133620b846f0ba76d04b2e37ee58f5e6d737a07
   languageName: node
   linkType: hard
 
@@ -3711,40 +3693,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:1.9.0":
-  version: 1.9.0
-  resolution: "tslib@npm:1.9.0"
-  checksum: 6f153f1f3a05855fd83fca3e6c45b7d545176d9e3d52e3e592484a5f293193e36aa8cfc8dc086ae71e4a81ebb9ca9cc965604cc742e56428750a522df0c3b38c
-  languageName: node
-  linkType: hard
-
 "tslib@npm:^1.8.0, tslib@npm:^1.8.1":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd
-  languageName: node
-  linkType: hard
-
-"tslint-config-standard@npm:8.0.1":
-  version: 8.0.1
-  resolution: "tslint-config-standard@npm:8.0.1"
-  dependencies:
-    tslint-eslint-rules: ^5.3.1
-  checksum: 38ccb6a85866cb92742750e687a87fbc100c9310909d1fad48cb915b219519787bc61b62867b3e313020e5ac1ff06849f38790eefca10a524bf2ad27afc14af5
-  languageName: node
-  linkType: hard
-
-"tslint-eslint-rules@npm:^5.3.1":
-  version: 5.4.0
-  resolution: "tslint-eslint-rules@npm:5.4.0"
-  dependencies:
-    doctrine: 0.7.2
-    tslib: 1.9.0
-    tsutils: ^3.0.0
-  peerDependencies:
-    tslint: ^5.0.0
-    typescript: ^2.2.0 || ^3.0.0
-  checksum: 23c3392d472a7d202976066a8e042affb4fe2965b2bc554aeefe9260913489ba7b24df1a09cf71cbaa465ae03d48b4bdf3ee81c9a67c0b19aaab86043f30d755
   languageName: node
   linkType: hard
 
@@ -3783,7 +3735,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsutils@npm:^3.0.0, tsutils@npm:^3.21.0":
+"tsutils@npm:^3.21.0":
   version: 3.21.0
   resolution: "tsutils@npm:3.21.0"
   dependencies:
