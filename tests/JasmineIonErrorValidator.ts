@@ -1,4 +1,4 @@
-import IonError from '../lib/IonError';
+import IonError from '../lib/IonError.js';
 
 /**
  * Encapsulates the helper functions for the tests.
@@ -38,7 +38,7 @@ export default class JasmineIonErrorValidator {
 
     try {
       await functionToExecute();
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof IonError) {
         expect(e.code).toEqual(expectedErrorCode);
         validated = true;

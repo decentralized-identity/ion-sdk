@@ -1,17 +1,24 @@
-import IonDocumentModel from '../lib/models/IonDocumentModel';
-import IonRequest from '../lib/IonRequest';
-import LocalSigner from '../lib/LocalSigner';
-import OperationType from '../lib/enums/OperationType';
+import IonDocumentModel from '../lib/models/IonDocumentModel.js';
+import IonRequest from '../lib/IonRequest.js';
+import LocalSigner from '../lib/LocalSigner.js';
+import OperationType from '../lib/enums/OperationType.js';
+
+import jwkEs256k1Private from './vectors/inputs/jwkEs256k1Private.json' assert { type: 'json' };
+import jwkEs256k1Public from './vectors/inputs/jwkEs256k1Public.json' assert { type: 'json' };
+import jwkEs256k2Public from './vectors/inputs/jwkEs256k2Public.json' assert { type: 'json' };
+import jwkEs256k3Public from './vectors/inputs/jwkEs256k3Public.json' assert { type: 'json' };
+import publicKeyModel1 from './vectors/inputs/publicKeyModel1.json' assert { type: 'json' };
+import service1 from './vectors/inputs/service1.json' assert { type: 'json' };
 
 describe('IonRequest', () => {
   describe('createCreateRequest', () => {
     it('should generate a create request with desired arguments', async () => {
-      const recoveryKey = require('./vectors/inputs/jwkEs256k1Public.json');
-      const updateKey = require('./vectors/inputs/jwkEs256k2Public.json');
-      const publicKey = require('./vectors/inputs/publicKeyModel1.json');
-      const publicKeys = [publicKey];
+      const recoveryKey = jwkEs256k1Public;
+      const updateKey = jwkEs256k2Public;
+      const publicKey = publicKeyModel1;
+      const publicKeys = [publicKey as any];
 
-      const service = require('./vectors/inputs/service1.json');
+      const service = service1;
       const services = [service];
 
       const document : IonDocumentModel = {
@@ -30,16 +37,16 @@ describe('IonRequest', () => {
 
   describe('createUpdateRequest', () => {
     it('should generate an update request with the given arguments', async () => {
-      const publicKey = require('./vectors/inputs/publicKeyModel1.json');
-      const publicKeys = [publicKey];
+      const publicKey = publicKeyModel1;
+      const publicKeys = [publicKey as any];
 
-      const service = require('./vectors/inputs/service1.json');
+      const service = service1;
       const services = [service];
       const input = {
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
-        updatePublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
-        nextUpdatePublicKey: require('./vectors/inputs/jwkEs256k2Public.json'),
-        signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json')),
+        updatePublicKey: jwkEs256k1Public,
+        nextUpdatePublicKey: jwkEs256k2Public,
+        signer: LocalSigner.create(jwkEs256k1Private),
         servicesToAdd: services,
         idsOfServicesToRemove: ['someId1'],
         publicKeysToAdd: publicKeys,
@@ -58,9 +65,9 @@ describe('IonRequest', () => {
     it('should generate an update request with the no arguments', async () => {
       const input = {
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
-        updatePublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
-        nextUpdatePublicKey: require('./vectors/inputs/jwkEs256k2Public.json'),
-        signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json'))
+        updatePublicKey: jwkEs256k1Public,
+        nextUpdatePublicKey: jwkEs256k2Public,
+        signer: LocalSigner.create(jwkEs256k1Private)
       };
 
       const result = await IonRequest.createUpdateRequest(input);
@@ -70,10 +77,10 @@ describe('IonRequest', () => {
 
   describe('createRecoverRequest', () => {
     it('should generate a recover request with given arguments', async () => {
-      const publicKey = require('./vectors/inputs/publicKeyModel1.json');
-      const publicKeys = [publicKey];
+      const publicKey = publicKeyModel1;
+      const publicKeys = [publicKey as any];
 
-      const service = require('./vectors/inputs/service1.json');
+      const service = service1;
       const services = [service];
 
       const document : IonDocumentModel = {
@@ -82,11 +89,11 @@ describe('IonRequest', () => {
       };
       const result = await IonRequest.createRecoverRequest({
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
-        recoveryPublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
-        nextRecoveryPublicKey: require('./vectors/inputs/jwkEs256k2Public.json'),
-        nextUpdatePublicKey: require('./vectors/inputs/jwkEs256k3Public.json'),
+        recoveryPublicKey: jwkEs256k1Public,
+        nextRecoveryPublicKey: jwkEs256k2Public,
+        nextUpdatePublicKey: jwkEs256k3Public,
         document,
-        signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json'))
+        signer: LocalSigner.create(jwkEs256k1Private)
       });
 
       expect(result.didSuffix).toEqual('EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg');
@@ -102,8 +109,8 @@ describe('IonRequest', () => {
     it('should generate a deactivate request with the given arguments', async () => {
       const result = await IonRequest.createDeactivateRequest({
         didSuffix: 'EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg',
-        recoveryPublicKey: require('./vectors/inputs/jwkEs256k1Public.json'),
-        signer: LocalSigner.create(require('./vectors/inputs/jwkEs256k1Private.json'))
+        recoveryPublicKey: jwkEs256k1Public,
+        signer: LocalSigner.create(jwkEs256k1Private)
       });
 
       expect(result.didSuffix).toEqual('EiDyOQbbZAa3aiRzeCkV7LOx3SERjjH93EXoIM3UoN4oWg');
@@ -118,7 +125,7 @@ describe('IonRequest', () => {
       try {
         (IonRequest as any).validateDidSuffix('123456789012345678901234567890123456789012345/');
         fail();
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toEqual('EncodedStringIncorrectEncoding: Given didSuffix must be base64url string.');
       }
     });
@@ -127,7 +134,7 @@ describe('IonRequest', () => {
       try {
         (IonRequest as any).validateDidSuffix('aaaaaaaa'); // base64 but not multihash
         fail();
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toEqual(`MultihashStringNotAMultihash: Given didSuffix string 'aaaaaaaa' is not a multihash after decoding.`);
       }
     });
@@ -136,7 +143,7 @@ describe('IonRequest', () => {
       try {
         (IonRequest as any).validateDidSuffix('ERSIwvEfss45KstbKYbmQCEcRpAHPg'); // this is sha1 (code 17), which is not the correct hashing algorithm (code 18)
         fail();
-      } catch (e) {
+      } catch (e: any) {
         // eslint-disable-next-line
         expect(e.message).toEqual(`MultihashUnsupportedHashAlgorithm: Given didSuffix uses unsupported multihash algorithm with code 17, should use 18 or change IonSdkConfig to desired hashing algorithm.`);
       }

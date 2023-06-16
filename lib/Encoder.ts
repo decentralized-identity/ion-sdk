@@ -1,5 +1,5 @@
-import ErrorCode from './ErrorCode';
-import IonError from './IonError';
+import ErrorCode from './ErrorCode.js';
+import IonError from './IonError.js';
 import { base64url } from 'multiformats/bases/base64';
 
 /**

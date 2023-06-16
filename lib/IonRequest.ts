@@ -1,22 +1,22 @@
 import * as URI from 'uri-js';
-import ErrorCode from './ErrorCode';
-import ISigner from './interfaces/ISigner';
-import InputValidator from './InputValidator';
-import IonCreateRequestModel from './models/IonCreateRequestModel';
-import IonDeactivateRequestModel from './models/IonDeactivateRequestModel';
-import IonDocumentModel from './models/IonDocumentModel';
-import IonError from './IonError';
-import IonPublicKeyModel from './models/IonPublicKeyModel';
-import IonRecoverRequestModel from './models/IonRecoverRequestModel';
-import IonSdkConfig from './IonSdkConfig';
-import IonServiceModel from './models/IonServiceModel';
-import IonUpdateRequestModel from './models/IonUpdateRequestModel';
-import JsonCanonicalizer from './JsonCanonicalizer';
-import JwkEs256k from './models/JwkEs256k';
-import Multihash from './Multihash';
-import OperationKeyType from './enums/OperationKeyType';
-import OperationType from './enums/OperationType';
-import PatchAction from './enums/PatchAction';
+import ErrorCode from './ErrorCode.js';
+import ISigner from './interfaces/ISigner.js';
+import InputValidator from './InputValidator.js';
+import IonCreateRequestModel from './models/IonCreateRequestModel.js';
+import IonDeactivateRequestModel from './models/IonDeactivateRequestModel.js';
+import IonDocumentModel from './models/IonDocumentModel.js';
+import IonError from './IonError.js';
+import IonPublicKeyModel from './models/IonPublicKeyModel.js';
+import IonRecoverRequestModel from './models/IonRecoverRequestModel.js';
+import IonSdkConfig from './IonSdkConfig.js';
+import IonServiceModel from './models/IonServiceModel.js';
+import IonUpdateRequestModel from './models/IonUpdateRequestModel.js';
+import JsonCanonicalizer from './JsonCanonicalizer.js';
+import JwkEs256k from './models/JwkEs256k.js';
+import Multihash from './Multihash.js';
+import OperationKeyType from './enums/OperationKeyType.js';
+import OperationType from './enums/OperationType.js';
+import PatchAction from './enums/PatchAction.js';
 
 /**
  * Class containing operations related to ION requests.
