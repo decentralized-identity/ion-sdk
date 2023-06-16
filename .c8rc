@@ -1,0 +1,24 @@
+{
+  "all": true,
+  "cache": false,
+  "extension": [
+    ".js"
+  ],
+  "include": [
+    "dist/lib/**",
+    "lib/**"
+  ],
+  "exclude": [
+    "**/index.d.ts",
+    "**/index.ts",
+    "lib/**/**ErrorCode.ts",
+    "dist/lib/interfaces/**",
+    "dist/lib/models/**"
+  ],
+  "reporter": [
+    "text",
+    "cobertura",
+    "html",
+    "json-summary"
+  ]
+}

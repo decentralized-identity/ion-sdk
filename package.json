@@ -20,6 +20,7 @@
     "@types/node": "^18.13.0",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "@typescript-eslint/parser": "^4.3.0",
+    "c8": "^8.0.0",
     "copyfiles": "2.3.0",
     "eslint": "^7.10.0",
     "eslint-config-standard": "^14.1.1",
@@ -33,7 +34,6 @@
     "jasmine": "^5.0.1",
     "jasmine-reporters": "^2.5.2",
     "jasmine-spec-reporter": "^7.0.0",
-    "nyc": "15.0.1",
     "ts-node": "8.3.0",
     "tslint": "5.11.0",
     "tslint-config-standard": "8.0.1",
@@ -41,9 +41,8 @@
   },
   "scripts": {
     "build": "tsc && copyfiles \"lib/**/*.json\" dist && copyfiles \"tests/**/*.js*\" dist && copyfiles \"package.json\" dist",
-    "test": "npm run build && nyc jasmine --config=./tests/jasmine.json && npm run badge:cc",
-    "test:only": "nyc jasmine --config=./tests/jasmine.json",
-    "test:jasmine": "npm run build && jasmine --config=./tests/jasmine.json",
+    "test": "npm run build && c8 jasmine --config=./tests/jasmine.json && npm run badge:cc",
+    "test:only": "c8 jasmine --config=./tests/jasmine.json",
     "lint": "eslint --ext ts lib/ tests/",
     "lint:fix": "eslint --ext ts lib/ tests/ --fix",
     "badge:cc": "istanbul-badges-readme",
@@ -53,27 +52,5 @@
     "hooks": {
       "pre-commit": "npm run lint"
     }
-  },
-  "nyc": {
-    "all": true,
-    "cache": false,
-    "extension": [
-      ".ts"
-    ],
-    "include": [
-      "dist/lib/**",
-      "lib/**"
-    ],
-    "exclude": [
-      "**/index.d.ts",
-      "**/index.ts",
-      "lib/**/**ErrorCode.ts"
-    ],
-    "reporter": [
-      "text",
-      "cobertura",
-      "html",
-      "json-summary"
-    ]
   }
 }
