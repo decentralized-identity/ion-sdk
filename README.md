@@ -20,10 +20,16 @@ import { webcrypto } from 'node:crypto';
 // @ts-ignore
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
 
-// React Native needs crypto.getRandomValues polyfill and sha512
+// React Native needs crypto.getRandomValues polyfill and sha256 for `@noble/secp256k1`
 import 'react-native-get-random-values';
 import { hmac } from '@noble/hashes/hmac';
 import { sha256 } from '@noble/hashes/sha256';
 secp.etc.hmacSha256Sync = (k, ...m) => hmac(sha256, k, secp.etc.concatBytes(...m));
 secp.etc.hmacSha256Async = (k, ...m) => Promise.resolve(secp.etc.hmacSha256Sync(k, ...m));
+
+// React Native needs crypto.getRandomValues polyfill and sha512 for `@noble/ed25519`
+import 'react-native-get-random-values';
+import { sha512 } from '@noble/hashes/sha512';
+ed.etc.sha512Sync = (...m) => sha512(ed.etc.concatBytes(...m));
+ed.etc.sha512Async = (...m) => Promise.resolve(ed.etc.sha512Sync(...m));
 ```
