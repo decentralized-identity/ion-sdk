@@ -7,12 +7,6 @@ import JwkEd25519 from './models/JwkEd25519.js';
 import JwkEs256k from './models/JwkEs256k.js';
 import { base64url } from 'multiformats/bases/base64';
 
-// NOTE: @noble/secp256k1 requires globalThis.crypto polyfill for node.js <=18: https://github.com/paulmillr/noble-secp256k1/blob/main/README.md#usage
-// Remove when we move off of node.js v18 to v20, earliest possible time would be Oct 2023: https://github.com/nodejs/release#release-schedule
-import { webcrypto } from 'node:crypto';
-// @ts-ignore
-if (!globalThis.crypto) { globalThis.crypto = webcrypto; }
-
 /**
  * Class containing operations related to keys used in ION.
  */
