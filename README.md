@@ -15,7 +15,7 @@ npm i @decentralized-identity/ion-sdk --save
 This package depends on the [`@noble/ed25519`](https://github.com/paulmillr/noble-ed25519#usage) and [`@noble/secp256k1`](https://github.com/paulmillr/noble-secp256k1#usage) v2, thus additional steps are needed for some environments:
 
 ```ts
-// node.js 18 and earlier,  needs globalThis.crypto polyfill
+// node.js 18 and earlier, needs globalThis.crypto polyfill
 import { webcrypto } from 'node:crypto';
 // @ts-ignore
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
