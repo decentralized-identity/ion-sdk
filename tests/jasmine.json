@@ -1,10 +1,10 @@
 {
   "spec_dir": "./dist/tests",
   "spec_files": [
-      "**/*[sS]pec.js"
+    "**/*[sS]pec.js"
   ],
   "helpers": [
-      "jasmineReporter.js"
+    "jasmineReporter.cjs"
   ],
   "stopSpecOnExpectationFailure": true,
   "random": false

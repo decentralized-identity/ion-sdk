@@ -1,13 +1,14 @@
-import * as jwkEs256k1Public from './vectors/inputs/jwkEs256k1Public.json';
-import * as jwkEs256k2Public from './vectors/inputs/jwkEs256k2Public.json';
-import * as publicKeyModel1 from './vectors/inputs/publicKeyModel1.json';
-import * as service1 from './vectors/inputs/service1.json';
-import { IonDid, IonKey, IonPublicKeyPurpose, IonSdkConfig } from '../lib/index';
-import Encoder from '../lib/Encoder';
-import ErrorCode from '../lib/ErrorCode';
-import IonDocumentModel from '../lib/models/IonDocumentModel';
-import IonNetwork from '../lib/enums/IonNetwork';
-import JasmineIonErrorValidator from './JasmineIonErrorValidator';
+import { IonDid, IonKey, IonPublicKeyPurpose, IonSdkConfig } from '../lib/index.js';
+import Encoder from '../lib/Encoder.js';
+import ErrorCode from '../lib/ErrorCode.js';
+import IonDocumentModel from '../lib/models/IonDocumentModel.js';
+import IonNetwork from '../lib/enums/IonNetwork.js';
+import JasmineIonErrorValidator from './JasmineIonErrorValidator.js';
+
+import jwkEs256k1Public from './vectors/inputs/jwkEs256k1Public.json' assert { type: 'json' };
+import jwkEs256k2Public from './vectors/inputs/jwkEs256k2Public.json' assert { type: 'json' };
+import publicKeyModel1 from './vectors/inputs/publicKeyModel1.json' assert { type: 'json' };
+import service1 from './vectors/inputs/service1.json' assert { type: 'json' };
 
 describe('IonDid', async () => {
   afterEach(() => {
@@ -21,7 +22,7 @@ describe('IonDid', async () => {
       const didDocumentKeys = [publicKeyModel1 as any];
       const services = [service1];
 
-      const document = {
+      const document: IonDocumentModel = {
         publicKeys: didDocumentKeys,
         services
       };

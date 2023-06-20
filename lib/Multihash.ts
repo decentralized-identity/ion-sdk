@@ -1,10 +1,10 @@
 import * as multihashes from 'multihashes';
-import Encoder from './Encoder';
-import ErrorCode from './ErrorCode';
+import Encoder from './Encoder.js';
+import ErrorCode from './ErrorCode.js';
 import { HashCode } from 'multihashes';
-import IonError from './IonError';
-import IonSdkConfig from './IonSdkConfig';
-import JsonCanonicalizer from './JsonCanonicalizer';
+import IonError from './IonError.js';
+import IonSdkConfig from './IonSdkConfig.js';
+import JsonCanonicalizer from './JsonCanonicalizer.js';
 import { sha256 } from 'multiformats/hashes/sha2';
 
 /**

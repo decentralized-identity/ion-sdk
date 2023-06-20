@@ -1,9 +1,9 @@
-import Encoder from './Encoder';
-import ErrorCode from './ErrorCode';
-import IonError from './IonError';
-import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose';
-import JwkEs256k from './models/JwkEs256k';
-import OperationKeyType from './enums/OperationKeyType';
+import Encoder from './Encoder.js';
+import ErrorCode from './ErrorCode.js';
+import IonError from './IonError.js';
+import IonPublicKeyPurpose from './enums/IonPublicKeyPurpose.js';
+import JwkEs256k from './models/JwkEs256k.js';
+import OperationKeyType from './enums/OperationKeyType.js';
 
 /**
  * Class containing input validation methods.

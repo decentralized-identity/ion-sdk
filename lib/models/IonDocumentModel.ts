@@ -1,5 +1,5 @@
-import IonPublicKeyModel from './IonPublicKeyModel';
-import IonServiceModel from './IonServiceModel';
+import IonPublicKeyModel from './IonPublicKeyModel.js';
+import IonServiceModel from './IonServiceModel.js';
 
 /**
  * Defines the document structure used by ION.

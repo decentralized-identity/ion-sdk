@@ -1,9 +1,9 @@
 import * as Secp256k1 from '@noble/secp256k1';
-import Encoder from './Encoder';
-import ISigner from './interfaces/ISigner';
-import InputValidator from './InputValidator';
-import JwkEs256k from './models/JwkEs256k';
-import OperationKeyType from './enums/OperationKeyType';
+import Encoder from './Encoder.js';
+import ISigner from './interfaces/ISigner.js';
+import InputValidator from './InputValidator.js';
+import JwkEs256k from './models/JwkEs256k.js';
+import OperationKeyType from './enums/OperationKeyType.js';
 import { base64url } from 'multiformats/bases/base64';
 import { sha256 } from 'multiformats/hashes/sha2';
 
@@ -36,9 +36,10 @@ export default class LocalSigner implements ISigner {
     const contentHash = await sha256.encode(signingContentBytes);
 
     const privateKeyBytes = base64url.baseDecode(this.privateKey.d!);
-    const signature = await Secp256k1.sign(contentHash, privateKeyBytes, { der: false });
+    const signature = await Secp256k1.signAsync(contentHash, privateKeyBytes);
+    const signatureBytes = signature.toCompactRawBytes();
 
-    const encodedSignature = base64url.baseEncode(signature);
+    const encodedSignature = base64url.baseEncode(signatureBytes);
 
     const compactJws = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
     return compactJws;

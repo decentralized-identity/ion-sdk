@@ -1,4 +1,4 @@
-import IonServiceModel from './IonServiceModel';
+import IonServiceModel from './IonServiceModel.js';
 
 export default interface IonAddServicesActionModel {
     action: string;

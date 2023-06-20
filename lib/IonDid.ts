@@ -1,10 +1,10 @@
-import Encoder from './Encoder';
-import IonDocumentModel from './models/IonDocumentModel';
-import IonRequest from './IonRequest';
-import IonSdkConfig from './IonSdkConfig';
-import JsonCanonicalizer from './JsonCanonicalizer';
-import JwkEs256k from './models/JwkEs256k';
-import Multihash from './Multihash';
+import Encoder from './Encoder.js';
+import IonDocumentModel from './models/IonDocumentModel.js';
+import IonRequest from './IonRequest.js';
+import IonSdkConfig from './IonSdkConfig.js';
+import JsonCanonicalizer from './JsonCanonicalizer.js';
+import JwkEs256k from './models/JwkEs256k.js';
+import Multihash from './Multihash.js';
 
 /**
  * Class containing DID related operations.

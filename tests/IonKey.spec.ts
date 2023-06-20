@@ -1,7 +1,18 @@
-import { IonKey, IonPublicKeyPurpose, JwkEd25519 } from '../lib/index';
-import ErrorCode from '../lib/ErrorCode';
-import JasmineIonErrorValidator from './JasmineIonErrorValidator';
-import JwkEs256k from '../lib/models/JwkEs256k';
+import { IonKey, IonPublicKeyPurpose, JwkEd25519 } from '../lib/index.js';
+import ErrorCode from '../lib/ErrorCode.js';
+import JasmineIonErrorValidator from './JasmineIonErrorValidator.js';
+import JwkEs256k from '../lib/models/JwkEs256k.js';
+
+// NOTE: @noble/secp256k1 requires globalThis.crypto polyfill for node.js <=18: https://github.com/paulmillr/noble-secp256k1/blob/main/README.md#usage
+// Remove when we move off of node.js v18 to v20, earliest possible time would be Oct 2023: https://github.com/nodejs/release#release-schedule
+if (parseInt(process.versions.node) <= 18) {
+  import('node:crypto').then(({ webcrypto }) => {
+    // @ts-ignore
+    if (!globalThis.crypto) { globalThis.crypto = webcrypto; }
+    // Continue with your code that uses `crypto`
+  });
+}
+
 
 describe('IonKey', async () => {
   describe('generateEs256kOperationKeyPair()', async () => {

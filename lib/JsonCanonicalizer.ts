@@ -1,6 +1,5 @@
-import Encoder from './Encoder';
-
-const canonicalize = require('canonicalize');
+import * as canonicalize from 'canonicalize';
+import Encoder from './Encoder.js';
 
 /**
  * Class containing reusable JSON canonicalization operations using JSON Canonicalization Scheme (JCS).
@@ -12,7 +11,7 @@ export default class JsonCanonicalizer {
   public static canonicalizeAsBytes (content: object): Uint8Array {
     // We need to remove all properties with `undefined` as value so that JCS canonicalization will not produce invalid JSON.
     const contentWithoutUndefinedProperties = JsonCanonicalizer.removeAllUndefinedProperties(content);
-    const canonicalizedString: string = canonicalize(contentWithoutUndefinedProperties);
+    const canonicalizedString: string = canonicalize.default(contentWithoutUndefinedProperties)!;
     const contentBytes = Encoder.stringToBytes(canonicalizedString);
     return contentBytes;
   }

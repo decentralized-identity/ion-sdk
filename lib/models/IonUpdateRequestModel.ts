@@ -1,8 +1,8 @@
-import IonAddPublicKeysActionModel from './IonAddPublicKeysActionModel';
-import IonAddServicesActionModel from './IonAddServicesActionModel';
-import IonRemovePublicKeysActionModel from './IonRemovePublicKeysActionModel';
-import IonRemoveServicesActionModel from './IonRemoveServicesActionModel';
-import OperationType from '../enums/OperationType';
+import IonAddPublicKeysActionModel from './IonAddPublicKeysActionModel.js';
+import IonAddServicesActionModel from './IonAddServicesActionModel.js';
+import IonRemovePublicKeysActionModel from './IonRemovePublicKeysActionModel.js';
+import IonRemoveServicesActionModel from './IonRemoveServicesActionModel.js';
+import OperationType from '../enums/OperationType.js';
 
 /**
  * Data model representing a public key in the DID Document.
