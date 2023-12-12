@@ -1,4 +1,5 @@
 import Encoder from './Encoder.js';
+import IonCreateRequestModel from './models/IonCreateRequestModel.js';
 import IonDocumentModel from './models/IonDocumentModel.js';
 import IonRequest from './IonRequest.js';
 import IonSdkConfig from './IonSdkConfig.js';
@@ -47,7 +48,7 @@ export default class IonDid {
   /**
    * Computes the DID unique suffix given the encoded suffix data string.
    */
-  private static async computeDidUniqueSuffix (suffixData: object): Promise<string> {
+  private static async computeDidUniqueSuffix (suffixData: IonCreateRequestModel['suffixData']): Promise<string> {
     const canonicalizedStringBytes = JsonCanonicalizer.canonicalizeAsBytes(suffixData);
     const multihash = await Multihash.hash(canonicalizedStringBytes, IonSdkConfig.hashAlgorithmInMultihashCode);
     const encodedMultihash = Encoder.encode(multihash);

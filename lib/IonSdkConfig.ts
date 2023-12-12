@@ -7,7 +7,7 @@ export default class IonSdkConfig {
   /**
    * Default hash algorithm used when hashing is performed.
    */
-  public static hashAlgorithmInMultihashCode = 18; // SHA256
+  public static hashAlgorithmInMultihashCode = 18; // 0x12 or SHA256
 
   /**
    * Maximum bytes for canonicalized delta.

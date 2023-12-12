@@ -11,6 +11,7 @@ export default class JsonCanonicalizer {
   public static canonicalizeAsBytes (content: object): Uint8Array {
     // We need to remove all properties with `undefined` as value so that JCS canonicalization will not produce invalid JSON.
     const contentWithoutUndefinedProperties = JsonCanonicalizer.removeAllUndefinedProperties(content);
+    // @ts-expect-error because its a cjs package
     const canonicalizedString: string = canonicalize.default(contentWithoutUndefinedProperties)!;
     const contentBytes = Encoder.stringToBytes(canonicalizedString);
     return contentBytes;

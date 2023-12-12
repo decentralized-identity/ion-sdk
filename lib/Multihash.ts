@@ -1,10 +1,9 @@
-import * as multihashes from 'multihashes';
 import Encoder from './Encoder.js';
 import ErrorCode from './ErrorCode.js';
-import { HashCode } from 'multihashes';
 import IonError from './IonError.js';
 import IonSdkConfig from './IonSdkConfig.js';
 import JsonCanonicalizer from './JsonCanonicalizer.js';
+import { decode } from 'multiformats/hashes/digest';
 import { sha256 } from 'multiformats/hashes/sha2';
 
 /**
@@ -12,13 +11,24 @@ import { sha256 } from 'multiformats/hashes/sha2';
  */
 export default class Multihash {
   /**
-   * Hashes the content using the hashing algorithm specified.
+   * Multihashes the content using the hashing algorithm specified.
    * @param hashAlgorithmInMultihashCode The hashing algorithm to use.
+   * @returns A multihash of the content.
    */
   public static async hash (content: Uint8Array, hashAlgorithmInMultihashCode: number): Promise<Uint8Array> {
-    const conventionalHash = await this.hashAsNonMultihashBytes(content, hashAlgorithmInMultihashCode);
-    const multihash = multihashes.encode(conventionalHash, hashAlgorithmInMultihashCode as HashCode);
-
+    let multihash: Uint8Array;
+    switch (hashAlgorithmInMultihashCode) {
+      case 18: // SHA256
+        let hasher = await sha256.digest(content);
+        multihash = hasher.bytes;
+        break;
+      default:
+        throw new IonError(
+          ErrorCode.MultihashUnsupportedHashAlgorithm,
+          `Hash algorithm defined in multihash code ${hashAlgorithmInMultihashCode} is not supported.`
+        );
+    }
+    
     return multihash;
   }
 
@@ -81,13 +91,13 @@ export default class Multihash {
    * Checks if the given encoded hash is a multihash computed using the configured hashing algorithm.
    */
   public static validateEncodedHashComputedUsingSupportedHashAlgorithm (
-    encodedMultihash: string,
+    encodedMultihash: string, // didSuffix
     inputContextForErrorLogging: string
   ) {
     let multihash;
     const multihashBytes = Encoder.decodeAsBytes(encodedMultihash, inputContextForErrorLogging);
     try {
-      multihash = multihashes.decode(multihashBytes);
+      multihash = decode(multihashBytes);
     } catch {
       throw new IonError(
         ErrorCode.MultihashStringNotAMultihash,
