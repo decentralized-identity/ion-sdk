@@ -21,5 +21,6 @@ export default {
   PublicKeyPurposeDuplicated: 'PublicKeyPurposeDuplicated',
   ServiceEndpointCannotBeAnArray: 'ServiceEndpointCannotBeAnArray',
   ServiceEndpointStringNotValidUri: 'ServiceEndpointStringNotValidUri',
+  ServiceEndpointMustBeStringOrNonArrayObject: 'ServiceEndpointMustBeStringOrNonArrayObject',
   ServiceTypeTooLong: 'ServiceTypeTooLong'
 };
