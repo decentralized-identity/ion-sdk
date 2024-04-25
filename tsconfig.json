@@ -8,6 +8,7 @@
       "DOM"
     ], /* Specify library files to be included in the compilation:  */
     "declaration": true, /* Generates corresponding '.d.ts' file. */
+    "declarationMap": true,
     "sourceMap": true, /* Generates corresponding '.map' file. */
     // "outFile": "./",                       /* Concatenate and emit output to single file. */
     "outDir": "./dist", /* Redirect output structure to the directory. */
